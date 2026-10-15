@@ -203,28 +203,19 @@ doc_events = {
 	"Tax Filing Record": {
 		"validate": "incometax.permissions.validate_client_link",
 	},
+	"Tax Return": {
+		"on_submit": "incometax.api.tax_calculation.calculate_tax",
+	},
 }
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"incometax.tasks.all"
-# 	],
-# 	"daily": [
-# 		"incometax.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"incometax.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"incometax.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"incometax.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"daily": [
+		"incometax.tasks.daily"
+	],
+}
 
 # Testing
 # -------
