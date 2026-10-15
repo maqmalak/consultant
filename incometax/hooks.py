@@ -60,8 +60,31 @@ fixtures = [
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+doctype_js = {
+	"Tax Client": "pakistan_income_tax_consultancy/doctype/tax_client/tax_client.js",
+	"Client Visit": "pakistan_income_tax_consultancy/doctype/client_visit/client_visit.js",
+	"Tax Engagement": "pakistan_income_tax_consultancy/doctype/tax_engagement/tax_engagement.js",
+	"Tax Document": "pakistan_income_tax_consultancy/doctype/tax_document/tax_document.js",
+	"Tax Return": "pakistan_income_tax_consultancy/doctype/tax_return/tax_return.js",
+	"Tax Calculation": "pakistan_income_tax_consultancy/doctype/tax_calculation/tax_calculation.js",
+	"Tax Review": "pakistan_income_tax_consultancy/doctype/tax_review/tax_review.js",
+	"Tax Approval": "pakistan_income_tax_consultancy/doctype/tax_approval/tax_approval.js",
+	"Tax Filing Record": "pakistan_income_tax_consultancy/doctype/tax_filing_record/tax_filing_record.js",
+	"Tax Year": "pakistan_income_tax_consultancy/doctype/tax_year/tax_year.js",
+	"Tax Regime": "pakistan_income_tax_consultancy/doctype/tax_regime/tax_regime.js",
+	"Tax Service Type": "pakistan_income_tax_consultancy/doctype/tax_service_type/tax_service_type.js",
+	"Tax Slab Rule": "pakistan_income_tax_consultancy/doctype/tax_slab_rule/tax_slab_rule.js",
+	"Tax Credit Rule": "pakistan_income_tax_consultancy/doctype/tax_credit_rule/tax_credit_rule.js",
+	"Withholding Tax Section": "pakistan_income_tax_consultancy/doctype/withholding_tax_section/withholding_tax_section.js",
+	"Tax Document Category": "pakistan_income_tax_consultancy/doctype/tax_document_category/tax_document_category.js",
+	"Tax Consultancy Settings": "pakistan_income_tax_consultancy/doctype/tax_consultancy_settings/tax_consultancy_settings.js",
+	"Document Requirement Rule": "pakistan_income_tax_consultancy/doctype/document_requirement_rule/document_requirement_rule.js",
+	"Client Visit Document": "pakistan_income_tax_consultancy/doctype/client_visit_document/client_visit_document.js",
+	"Client Visit Service": "pakistan_income_tax_consultancy/doctype/client_visit_service/client_visit_service.js",
+}
+doctype_list_js = {
+	"Tax Return": "pakistan_income_tax_consultancy/doctype/tax_return/tax_return.js",
+}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -190,6 +213,7 @@ doc_events = {
 	},
 	"Tax Return": {
 		"validate": "incometax.permissions.validate_client_link",
+		"on_submit": "incometax.api.tax_calculation.calculate_tax",
 	},
 	"Tax Calculation": {
 		"validate": "incometax.permissions.validate_client_link",
@@ -202,9 +226,6 @@ doc_events = {
 	},
 	"Tax Filing Record": {
 		"validate": "incometax.permissions.validate_client_link",
-	},
-	"Tax Return": {
-		"on_submit": "incometax.api.tax_calculation.calculate_tax",
 	},
 }
 
