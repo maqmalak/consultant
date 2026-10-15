@@ -17,6 +17,9 @@ fixtures = [
 	{"dt": "Tax Regime"},
 	{"dt": "Tax Service Type"},
 	{"dt": "Tax Document Category"},
+	{"dt": "Workspace", "filters": [[
+		"module", "=", "Pakistan Income Tax Consultancy"
+	]]},
 ]
 
 # Apps

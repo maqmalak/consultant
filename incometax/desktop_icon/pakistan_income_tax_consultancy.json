@@ -1,0 +1,21 @@
+{
+ "app": "incometax",
+ "bg_color": "gray",
+ "creation": "2026-10-16 02:31:21.871009",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon": "tax",
+ "icon_type": "Link",
+ "idx": 0,
+ "label": "Pakistan Income Tax Consultancy",
+ "link_to": "Pakistan Income Tax Consultancy",
+ "link_type": "Workspace Sidebar",
+ "modified": "2026-10-16 02:31:21.871009",
+ "modified_by": "Administrator",
+ "name": "Pakistan Income Tax Consultancy",
+ "owner": "Administrator",
+ "restrict_removal": 0,
+ "roles": [],
+ "standard": 1
+}
