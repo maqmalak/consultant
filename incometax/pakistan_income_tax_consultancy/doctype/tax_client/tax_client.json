@@ -1,0 +1,499 @@
+{
+ "actions": [],
+ "autoname": "TAX-CLIENT-.YYYY.-.#####",
+ "creation": "2026-10-16 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "client_name",
+  "client_type",
+  "status",
+  "cb1",
+  "registration_source",
+  "taxpayer_registration_status",
+  "cnic_masked",
+  "sb_ids",
+  "cnic",
+  "cnic_hash",
+  "cb2",
+  "ntn",
+  "ntn_normalized",
+  "strn",
+  "sb_contact",
+  "email",
+  "email_normalized",
+  "mobile",
+  "mobile_e164",
+  "preferred_contact_method",
+  "cb3",
+  "city",
+  "province",
+  "residential_address",
+  "sb_business",
+  "business_name",
+  "cb4",
+  "business_address",
+  "sb_bank",
+  "bank_name",
+  "cb5",
+  "bank_iban",
+  "sb_assign",
+  "assigned_consultant",
+  "field_officer",
+  "cb6",
+  "portal_user",
+  "customer",
+  "sb_consent",
+  "consent_given",
+  "consent_terms_version",
+  "cb7",
+  "consent_timestamp",
+  "sb_notes",
+  "internal_notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "label": "Client Name",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "client_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Client Type",
+   "options": "Individual\nSole Proprietor\nAOP/Partnership\nCompany\nOther",
+   "reqd": 1
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Active\nInactive"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Office",
+   "fieldname": "registration_source",
+   "fieldtype": "Select",
+   "label": "Registration Source",
+   "options": "Office\nSelf Registration\nField Visit\nImport"
+  },
+  {
+   "fieldname": "taxpayer_registration_status",
+   "fieldtype": "Select",
+   "label": "Taxpayer Registration Status",
+   "options": "\nUnregistered\nRegistered - Not on ATL\nActive Taxpayer (ATL)\nInactive Taxpayer"
+  },
+  {
+   "fieldname": "cnic_masked",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_ids",
+   "fieldtype": "Section Break",
+   "label": "Taxpayer Identifiers"
+  },
+  {
+   "fieldname": "cnic",
+   "fieldtype": "Data",
+   "label": "CNIC (#####-#######-#)",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "cnic_hash",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "CNIC Hash",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ntn",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "label": "NTN"
+  },
+  {
+   "fieldname": "ntn_normalized",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "NTN Normalized",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "strn",
+   "fieldtype": "Data",
+   "label": "STRN"
+  },
+  {
+   "fieldname": "sb_contact",
+   "fieldtype": "Section Break",
+   "label": "Contact"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "email_normalized",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Email Normalized",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "mobile",
+   "fieldtype": "Data",
+   "label": "Mobile (+92 3XX XXXXXXX)"
+  },
+  {
+   "fieldname": "mobile_e164",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Mobile E164",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "default": "Email",
+   "fieldname": "preferred_contact_method",
+   "fieldtype": "Select",
+   "label": "Preferred Contact Method",
+   "options": "Email\nPhone Call\nWhatsApp\nSMS"
+  },
+  {
+   "fieldname": "cb3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "City"
+  },
+  {
+   "fieldname": "province",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Province",
+   "options": "\nPunjab\nSindh\nKhyber Pakhtunkhwa\nBalochistan\nIslamabad Capital Territory\nGilgit-Baltistan\nAzad Jammu and Kashmir"
+  },
+  {
+   "fieldname": "residential_address",
+   "fieldtype": "Small Text",
+   "label": "Residential Address"
+  },
+  {
+   "depends_on": "eval:doc.client_type!='Individual'",
+   "fieldname": "sb_business",
+   "fieldtype": "Section Break",
+   "label": "Business"
+  },
+  {
+   "fieldname": "business_name",
+   "fieldtype": "Data",
+   "label": "Business Name"
+  },
+  {
+   "fieldname": "cb4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "business_address",
+   "fieldtype": "Small Text",
+   "label": "Business Address"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sb_bank",
+   "fieldtype": "Section Break",
+   "label": "Bank Details (Sensitive)"
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank Name",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "cb5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bank_iban",
+   "fieldtype": "Data",
+   "label": "Bank IBAN",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "sb_assign",
+   "fieldtype": "Section Break",
+   "label": "Assignment & Access"
+  },
+  {
+   "fieldname": "assigned_consultant",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Assigned Consultant",
+   "options": "User",
+   "search_index": 1
+  },
+  {
+   "fieldname": "field_officer",
+   "fieldtype": "Link",
+   "label": "Field Officer",
+   "options": "User"
+  },
+  {
+   "fieldname": "cb6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "portal_user",
+   "fieldtype": "Link",
+   "label": "Client Portal User",
+   "options": "User",
+   "search_index": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "ERPNext Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "sb_consent",
+   "fieldtype": "Section Break",
+   "label": "Consent"
+  },
+  {
+   "fieldname": "consent_given",
+   "fieldtype": "Check",
+   "label": "Consent to Privacy & Document-Handling Terms"
+  },
+  {
+   "fieldname": "consent_terms_version",
+   "fieldtype": "Data",
+   "label": "Consent Terms Version",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "consent_timestamp",
+   "fieldtype": "Datetime",
+   "label": "Consent Timestamp",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sb_notes",
+   "fieldtype": "Section Break",
+   "label": "Internal Notes"
+  },
+  {
+   "fieldname": "internal_notes",
+   "fieldtype": "Text",
+   "label": "Internal Notes",
+   "permlevel": 2
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-16 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Tax Client",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Consultant Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Tax Consultant Admin",
+   "write": 1
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Tax Consultant Admin",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Consultant",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Tax Consultant",
+   "write": 1
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Tax Consultant",
+   "write": 1
+  },
+  {
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Reviewer",
+   "share": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Tax Reviewer"
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Tax Reviewer"
+  },
+  {
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Approver",
+   "share": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Tax Approver"
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Tax Approver"
+  },
+  {
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Filing Officer",
+   "share": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Filing Officer"
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Filing Officer"
+  },
+  {
+   "create": 1,
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Field Officer",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Field Officer",
+   "write": 1
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Client User",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Tax Client User"
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "client_name,ntn,email,mobile,cnic_masked",
+ "show_title_field_in_link": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "client_name",
+ "track_changes": 1
+}

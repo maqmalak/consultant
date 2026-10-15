@@ -1,0 +1,38 @@
+[
+  {
+    "doctype": "Tax Document Category",
+    "name": "CNIC Copy",
+    "category_name": "CNIC Copy",
+    "is_active": 1,
+    "is_identity_document": 1,
+    "is_sensitive": 1,
+    "description": "Client CNIC copy (identity document)."
+  },
+  {
+    "doctype": "Tax Document Category",
+    "name": "NTN Certificate",
+    "category_name": "NTN Certificate",
+    "is_active": 1,
+    "is_identity_document": 1,
+    "is_sensitive": 1,
+    "description": "NTN registration certificate."
+  },
+  {
+    "doctype": "Tax Document Category",
+    "name": "Salary Slip",
+    "category_name": "Salary Slip",
+    "is_active": 1,
+    "is_identity_document": 0,
+    "is_sensitive": 1,
+    "description": "Monthly salary slip."
+  },
+  {
+    "doctype": "Tax Document Category",
+    "name": "Bank Statement",
+    "category_name": "Bank Statement",
+    "is_active": 1,
+    "is_identity_document": 0,
+    "is_sensitive": 1,
+    "description": "Bank account statement."
+  }
+]

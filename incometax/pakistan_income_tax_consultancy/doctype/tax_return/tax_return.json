@@ -1,0 +1,660 @@
+{
+ "actions": [],
+ "autoname": "TAX-RET-.YYYY.-.#####",
+ "creation": "2026-10-16 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "tax_client",
+  "client_name",
+  "tax_engagement",
+  "taxpayer_type",
+  "cb1",
+  "tax_year",
+  "return_type",
+  "amended_from",
+  "tax_regime",
+  "cb1b",
+  "workflow_state",
+  "period_from",
+  "period_to",
+  "sb_team",
+  "assigned_consultant",
+  "reviewer",
+  "cb2",
+  "approver",
+  "filing_officer",
+  "sb_income",
+  "income_lines",
+  "total_income",
+  "sb_ded",
+  "deduction_lines",
+  "total_deductions",
+  "sb_credit",
+  "credit_lines",
+  "total_tax_credits",
+  "sb_paid",
+  "payment_lines",
+  "total_tax_withheld",
+  "total_advance_tax",
+  "sb_calc",
+  "taxable_income",
+  "tax_liability",
+  "latest_calculation",
+  "cb3",
+  "net_tax_payable",
+  "refund_due",
+  "sb_wealth",
+  "wealth_statement_required",
+  "asset_lines",
+  "liability_lines",
+  "total_assets",
+  "cb4",
+  "total_liabilities",
+  "net_wealth",
+  "net_wealth_previous_year",
+  "sb_notes",
+  "client_action_requests",
+  "review_comments",
+  "cb5",
+  "preparation_notes",
+  "sb_approval",
+  "approval_status",
+  "approved_by",
+  "approved_on",
+  "cb6",
+  "approved_content_hash",
+  "content_hash",
+  "sb_filing",
+  "fbr_submission_status",
+  "fbr_acknowledgment_number",
+  "submission_timestamp",
+  "cb7",
+  "fbr_receipt",
+  "filing_error_details"
+ ],
+ "fields": [
+  {
+   "fieldname": "tax_client",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Client",
+   "options": "Tax Client",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "tax_client.client_name",
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Client Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_engagement",
+   "fieldtype": "Link",
+   "label": "Tax Engagement",
+   "options": "Tax Engagement"
+  },
+  {
+   "fieldname": "taxpayer_type",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Taxpayer Type",
+   "options": "\nSalaried Individual\nNon-Salaried Individual\nSole Proprietor\nAOP/Partnership\nCompany\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tax_year",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Tax Year",
+   "options": "Tax Year",
+   "reqd": 1
+  },
+  {
+   "default": "Original",
+   "fieldname": "return_type",
+   "fieldtype": "Select",
+   "label": "Return Type",
+   "options": "Original\nRevised\nAmended"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Tax Return",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_regime",
+   "fieldtype": "Link",
+   "label": "Applicable Tax Regime",
+   "options": "Tax Regime"
+  },
+  {
+   "fieldname": "cb1b",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "workflow_state",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Workflow State",
+   "options": "Workflow State",
+   "read_only": 1
+  },
+  {
+   "fieldname": "period_from",
+   "fieldtype": "Date",
+   "label": "Tax Period From"
+  },
+  {
+   "fieldname": "period_to",
+   "fieldtype": "Date",
+   "label": "Tax Period To"
+  },
+  {
+   "fieldname": "sb_team",
+   "fieldtype": "Section Break",
+   "label": "Team"
+  },
+  {
+   "fieldname": "assigned_consultant",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Assigned Consultant",
+   "options": "User",
+   "search_index": 1
+  },
+  {
+   "fieldname": "reviewer",
+   "fieldtype": "Link",
+   "label": "Reviewer",
+   "options": "User"
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approver",
+   "fieldtype": "Link",
+   "label": "Approver",
+   "options": "User"
+  },
+  {
+   "fieldname": "filing_officer",
+   "fieldtype": "Link",
+   "label": "Filing Officer",
+   "options": "User"
+  },
+  {
+   "fieldname": "sb_income",
+   "fieldtype": "Section Break",
+   "label": "Income"
+  },
+  {
+   "fieldname": "income_lines",
+   "fieldtype": "Table",
+   "label": "Income Sources",
+   "options": "Tax Return Income"
+  },
+  {
+   "fieldname": "total_income",
+   "fieldtype": "Currency",
+   "label": "Total Income",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_ded",
+   "fieldtype": "Section Break",
+   "label": "Expenses & Deductions"
+  },
+  {
+   "fieldname": "deduction_lines",
+   "fieldtype": "Table",
+   "label": "Deductions",
+   "options": "Tax Return Deduction"
+  },
+  {
+   "fieldname": "total_deductions",
+   "fieldtype": "Currency",
+   "label": "Total Deductions",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_credit",
+   "fieldtype": "Section Break",
+   "label": "Tax Credits & Adjustments"
+  },
+  {
+   "fieldname": "credit_lines",
+   "fieldtype": "Table",
+   "label": "Tax Credits",
+   "options": "Tax Return Credit"
+  },
+  {
+   "fieldname": "total_tax_credits",
+   "fieldtype": "Currency",
+   "label": "Total Tax Credits",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_paid",
+   "fieldtype": "Section Break",
+   "label": "Tax Deducted / Collected & Advance Tax"
+  },
+  {
+   "fieldname": "payment_lines",
+   "fieldtype": "Table",
+   "label": "Tax Payments",
+   "options": "Tax Return Payment"
+  },
+  {
+   "fieldname": "total_tax_withheld",
+   "fieldtype": "Currency",
+   "label": "Total Tax Deducted / Collected",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_advance_tax",
+   "fieldtype": "Currency",
+   "label": "Total Advance Tax",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_calc",
+   "fieldtype": "Section Break",
+   "label": "Tax Calculation Summary"
+  },
+  {
+   "fieldname": "taxable_income",
+   "fieldtype": "Currency",
+   "label": "Taxable Income",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_liability",
+   "fieldtype": "Currency",
+   "label": "Tax Liability",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "latest_calculation",
+   "fieldtype": "Link",
+   "label": "Latest Calculation",
+   "options": "Tax Calculation",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "net_tax_payable",
+   "fieldtype": "Currency",
+   "label": "Tax Payable",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "refund_due",
+   "fieldtype": "Currency",
+   "label": "Refund Due",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sb_wealth",
+   "fieldtype": "Section Break",
+   "label": "Wealth Statement"
+  },
+  {
+   "fieldname": "wealth_statement_required",
+   "fieldtype": "Check",
+   "label": "Wealth Statement Required"
+  },
+  {
+   "fieldname": "asset_lines",
+   "fieldtype": "Table",
+   "label": "Assets",
+   "options": "Tax Return Asset",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "liability_lines",
+   "fieldtype": "Table",
+   "label": "Liabilities",
+   "options": "Tax Return Liability",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "total_assets",
+   "fieldtype": "Currency",
+   "label": "Total Assets",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_liabilities",
+   "fieldtype": "Currency",
+   "label": "Total Liabilities",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "net_wealth",
+   "fieldtype": "Currency",
+   "label": "Net Wealth",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "net_wealth_previous_year",
+   "fieldtype": "Currency",
+   "label": "Net Wealth Previous Year",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "sb_notes",
+   "fieldtype": "Section Break",
+   "label": "Notes & Review"
+  },
+  {
+   "fieldname": "client_action_requests",
+   "fieldtype": "Small Text",
+   "label": "Information Requested from Client"
+  },
+  {
+   "fieldname": "review_comments",
+   "fieldtype": "Text",
+   "label": "Review Comments (client-visible)",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "cb5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "preparation_notes",
+   "fieldtype": "Text",
+   "label": "Preparation Notes (internal)",
+   "permlevel": 2
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sb_approval",
+   "fieldtype": "Section Break",
+   "label": "Approval"
+  },
+  {
+   "default": "Not Approved",
+   "fieldname": "approval_status",
+   "fieldtype": "Select",
+   "label": "Approval Status",
+   "options": "Not Approved\nApproved\nInvalidated",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "User",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "approved_on",
+   "fieldtype": "Datetime",
+   "label": "Approved On",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approved_content_hash",
+   "fieldtype": "Data",
+   "label": "Approved Content Hash",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "content_hash",
+   "fieldtype": "Data",
+   "label": "Current Content Hash",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sb_filing",
+   "fieldtype": "Section Break",
+   "label": "FBR Filing"
+  },
+  {
+   "default": "Not Submitted",
+   "fieldname": "fbr_submission_status",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "FBR Submission Status",
+   "options": "Not Submitted\nSubmitted - Pending Verification\nAcknowledged\nRejected / Error",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "fbr_acknowledgment_number",
+   "fieldtype": "Data",
+   "label": "FBR Acknowledgment / Reference No.",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "submission_timestamp",
+   "fieldtype": "Datetime",
+   "label": "Submission Timestamp",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "fbr_receipt",
+   "fieldtype": "Attach",
+   "label": "FBR Receipt / Evidence",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "filing_error_details",
+   "fieldtype": "Text",
+   "label": "Rejection / Error Details",
+   "permlevel": 1,
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-16 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Tax Return",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Consultant Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Tax Consultant Admin",
+   "write": 1
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Tax Consultant Admin",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Consultant",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Tax Consultant",
+   "write": 1
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Tax Consultant",
+   "write": 1
+  },
+  {
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Reviewer",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Tax Reviewer",
+   "write": 1
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Tax Reviewer",
+   "write": 1
+  },
+  {
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Approver",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Tax Approver",
+   "write": 1
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Tax Approver"
+  },
+  {
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Filing Officer",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Filing Officer",
+   "write": 1
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Filing Officer"
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Client User"
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Tax Client User"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "client_name",
+ "track_changes": 1
+}

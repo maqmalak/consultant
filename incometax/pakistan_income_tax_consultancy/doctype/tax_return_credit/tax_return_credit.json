@@ -1,0 +1,61 @@
+{
+ "actions": [],
+ "creation": "2026-10-16 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "credit_type",
+  "credit_rule",
+  "eligible_amount",
+  "credit_amount",
+  "supporting_document"
+ ],
+ "fields": [
+  {
+   "fieldname": "credit_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Credit Type",
+   "options": "Charitable Donation\nInvestment in Shares\nPension Fund Contribution\nHealth Insurance\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "credit_rule",
+   "fieldtype": "Link",
+   "label": "Credit Rule",
+   "options": "Tax Credit Rule"
+  },
+  {
+   "fieldname": "eligible_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Eligible Amount"
+  },
+  {
+   "fieldname": "credit_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Credit Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "supporting_document",
+   "fieldtype": "Link",
+   "label": "Supporting Document",
+   "options": "Tax Document"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-16 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Tax Return Credit",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

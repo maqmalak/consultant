@@ -1,0 +1,12 @@
+[
+  {
+    "doctype": "Tax Year",
+    "name": "2026",
+    "tax_year_name": "2026",
+    "is_active": 1,
+    "start_date": "2025-07-01",
+    "end_date": "2026-06-30",
+    "filing_due_date": "2026-09-30",
+    "notes": "Tax Year 2026 (1 Jul 2025 - 30 Jun 2026) as set up by the wizard."
+  }
+]

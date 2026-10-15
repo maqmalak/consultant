@@ -5,6 +5,20 @@ app_description = "Pakistan FBR income tax filing and tax consultancy management
 app_email = "maqmalak@gmail.com"
 app_license = "mit"
 
+# Fixtures loaded on install / migrate
+fixtures = [
+	{"dt": "Role", "filters": [[
+		"role_name", "in", [
+			"Tax Consultant Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver",
+			"Filing Officer", "Field Officer", "Tax Client User"
+		]
+	]]},
+	{"dt": "Tax Year"},
+	{"dt": "Tax Regime"},
+	{"dt": "Tax Service Type"},
+	{"dt": "Tax Document Category"},
+]
+
 # Apps
 # ------------------
 
@@ -130,27 +144,63 @@ app_license = "mit"
 
 # Permissions
 # -----------
-# Permissions evaluated in scripted ways
+# Record-level isolation: hooks can only deny, never grant (DocPerm decides the kind of
+# access; these functions decide which records).
 
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+permission_query_conditions = {
+	"Tax Client": "incometax.permissions.tax_client_query",
+	"Client Visit": "incometax.permissions.client_visit_query",
+	"Tax Engagement": "incometax.permissions.client_linked_query",
+	"Tax Document": "incometax.permissions.client_linked_query",
+	"Tax Return": "incometax.permissions.client_linked_query",
+	"Tax Calculation": "incometax.permissions.client_linked_query",
+	"Tax Review": "incometax.permissions.client_linked_query",
+	"Tax Approval": "incometax.permissions.client_linked_query",
+	"Tax Filing Record": "incometax.permissions.client_linked_query",
+}
+
+has_permission = {
+	"Tax Client": "incometax.permissions.tax_client_has_permission",
+	"Client Visit": "incometax.permissions.client_visit_has_permission",
+	"Tax Engagement": "incometax.permissions.client_linked_has_permission",
+	"Tax Document": "incometax.permissions.client_linked_has_permission",
+	"Tax Return": "incometax.permissions.client_linked_has_permission",
+	"Tax Calculation": "incometax.permissions.client_linked_has_permission",
+	"Tax Review": "incometax.permissions.client_linked_has_permission",
+	"Tax Approval": "incometax.permissions.client_linked_has_permission",
+	"Tax Filing Record": "incometax.permissions.client_linked_has_permission",
+}
 
 # Document Events
 # ---------------
-# Hook on document methods and events
+# Enforce that records are only linked to accessible clients, and write an audit trail.
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Tax Client": {
+		"validate": "incometax.permissions.validate_client_link",
+	},
+	"Tax Engagement": {
+		"validate": "incometax.permissions.validate_client_link",
+	},
+	"Tax Document": {
+		"validate": "incometax.permissions.validate_client_link",
+	},
+	"Tax Return": {
+		"validate": "incometax.permissions.validate_client_link",
+	},
+	"Tax Calculation": {
+		"validate": "incometax.permissions.validate_client_link",
+	},
+	"Tax Review": {
+		"validate": "incometax.permissions.validate_client_link",
+	},
+	"Tax Approval": {
+		"validate": "incometax.permissions.validate_client_link",
+	},
+	"Tax Filing Record": {
+		"validate": "incometax.permissions.validate_client_link",
+	},
+}
 
 # Scheduled Tasks
 # ---------------

@@ -1,0 +1,194 @@
+{
+ "actions": [],
+ "autoname": "TAX-REV-.YYYY.-.#####",
+ "creation": "2026-10-16 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "tax_return",
+  "tax_client",
+  "client_name",
+  "reviewer",
+  "review_date",
+  "cb1",
+  "decision",
+  "return_version_hash",
+  "sb_check",
+  "checklist",
+  "calculation_verified",
+  "missing_documents",
+  "sb_comments",
+  "compliance_observations",
+  "comments",
+  "client_visible_comments"
+ ],
+ "fields": [
+  {
+   "fieldname": "tax_return",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Tax Return",
+   "options": "Tax Return",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "tax_return.tax_client",
+   "fieldname": "tax_client",
+   "fieldtype": "Link",
+   "label": "Client",
+   "options": "Tax Client",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "tax_return.client_name",
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Client Name",
+   "read_only": 1
+  },
+  {
+   "default": "__user",
+   "fieldname": "reviewer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Reviewer",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "default": "now",
+   "fieldname": "review_date",
+   "fieldtype": "Datetime",
+   "label": "Review Date"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "decision",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Decision",
+   "options": "\nChanges Required\nReviewed"
+  },
+  {
+   "fieldname": "return_version_hash",
+   "fieldtype": "Data",
+   "label": "Return Version Reviewed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_check",
+   "fieldtype": "Section Break",
+   "label": "Checklist"
+  },
+  {
+   "fieldname": "checklist",
+   "fieldtype": "Table",
+   "label": "Checklist",
+   "options": "Tax Review Checklist Item"
+  },
+  {
+   "fieldname": "calculation_verified",
+   "fieldtype": "Check",
+   "label": "Calculation Verified"
+  },
+  {
+   "fieldname": "missing_documents",
+   "fieldtype": "Small Text",
+   "label": "Missing Document Indicators"
+  },
+  {
+   "fieldname": "sb_comments",
+   "fieldtype": "Section Break",
+   "label": "Comments"
+  },
+  {
+   "fieldname": "compliance_observations",
+   "fieldtype": "Text",
+   "label": "Compliance Observations"
+  },
+  {
+   "fieldname": "comments",
+   "fieldtype": "Text",
+   "label": "Internal Comments"
+  },
+  {
+   "fieldname": "client_visible_comments",
+   "fieldtype": "Text",
+   "label": "Client Visible Comments"
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-16 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Tax Review",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Consultant Admin",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Consultant",
+   "share": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Reviewer",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Approver",
+   "share": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "client_name",
+ "track_changes": 1
+}

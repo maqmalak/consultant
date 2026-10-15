@@ -1,0 +1,164 @@
+{
+ "actions": [],
+ "autoname": "DRR-.#####",
+ "creation": "2026-10-16 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "document_category",
+  "is_mandatory",
+  "is_active",
+  "cb1",
+  "client_type",
+  "taxpayer_type",
+  "service_type",
+  "tax_regime",
+  "tax_year",
+  "sb_desc",
+  "description"
+ ],
+ "fields": [
+  {
+   "fieldname": "document_category",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Document Category",
+   "options": "Tax Document Category",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_mandatory",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Mandatory"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Blank = any client type",
+   "fieldname": "client_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Client Type",
+   "options": "\nIndividual\nSole Proprietor\nAOP/Partnership\nCompany\nOther"
+  },
+  {
+   "description": "Blank = any taxpayer type",
+   "fieldname": "taxpayer_type",
+   "fieldtype": "Select",
+   "label": "Taxpayer Type",
+   "options": "\nSalaried Individual\nNon-Salaried Individual\nSole Proprietor\nAOP/Partnership\nCompany\nOther"
+  },
+  {
+   "description": "Blank = any service",
+   "fieldname": "service_type",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Service Type",
+   "options": "Tax Service Type"
+  },
+  {
+   "description": "Blank = any regime",
+   "fieldname": "tax_regime",
+   "fieldtype": "Link",
+   "label": "Tax Regime",
+   "options": "Tax Regime"
+  },
+  {
+   "description": "Blank = any tax year",
+   "fieldname": "tax_year",
+   "fieldtype": "Link",
+   "label": "Tax Year",
+   "options": "Tax Year"
+  },
+  {
+   "fieldname": "sb_desc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Instructions for Client"
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-16 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Document Requirement Rule",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Consultant Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Consultant"
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Reviewer"
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Approver"
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Filing Officer"
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Field Officer"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "document_category"
+}

@@ -1,0 +1,182 @@
+{
+ "actions": [],
+ "creation": "2026-10-16 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "sb_id",
+  "ntn_regex",
+  "enforce_unique_cnic",
+  "enforce_unique_ntn",
+  "cb1",
+  "block_duplicate_email",
+  "block_duplicate_mobile",
+  "sb_ops",
+  "default_tax_year",
+  "review_sla_days",
+  "approval_sla_days",
+  "cb2",
+  "privacy_terms_version",
+  "privacy_terms",
+  "sb_fbr",
+  "filing_adapter",
+  "fbr_api_enabled",
+  "fbr_environment",
+  "cb3",
+  "fbr_api_base_url",
+  "fbr_api_username",
+  "fbr_api_password"
+ ],
+ "fields": [
+  {
+   "fieldname": "sb_id",
+   "fieldtype": "Section Break",
+   "label": "Identifier Validation"
+  },
+  {
+   "default": "^\\d{7}-?\\d$",
+   "fieldname": "ntn_regex",
+   "fieldtype": "Data",
+   "label": "NTN Format (Regex)"
+  },
+  {
+   "default": "1",
+   "fieldname": "enforce_unique_cnic",
+   "fieldtype": "Check",
+   "label": "Block Duplicate CNIC"
+  },
+  {
+   "default": "1",
+   "fieldname": "enforce_unique_ntn",
+   "fieldtype": "Check",
+   "label": "Block Duplicate NTN"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "block_duplicate_email",
+   "fieldtype": "Check",
+   "label": "Block Duplicate Email"
+  },
+  {
+   "default": "0",
+   "description": "Off: family members / businesses may share a mobile; a warning is shown instead",
+   "fieldname": "block_duplicate_mobile",
+   "fieldtype": "Check",
+   "label": "Block Duplicate Mobile"
+  },
+  {
+   "fieldname": "sb_ops",
+   "fieldtype": "Section Break",
+   "label": "Operations"
+  },
+  {
+   "fieldname": "default_tax_year",
+   "fieldtype": "Link",
+   "label": "Default Tax Year",
+   "options": "Tax Year"
+  },
+  {
+   "default": "3",
+   "fieldname": "review_sla_days",
+   "fieldtype": "Int",
+   "label": "Review SLA (days)"
+  },
+  {
+   "default": "2",
+   "fieldname": "approval_sla_days",
+   "fieldtype": "Int",
+   "label": "Approval SLA (days)"
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "v1",
+   "fieldname": "privacy_terms_version",
+   "fieldtype": "Data",
+   "label": "Privacy Terms Version"
+  },
+  {
+   "fieldname": "privacy_terms",
+   "fieldtype": "Text Editor",
+   "label": "Privacy Terms"
+  },
+  {
+   "fieldname": "sb_fbr",
+   "fieldtype": "Section Break",
+   "label": "FBR Filing Integration"
+  },
+  {
+   "default": "Manual",
+   "fieldname": "filing_adapter",
+   "fieldtype": "Select",
+   "label": "Filing Adapter",
+   "options": "Manual\nFBR API"
+  },
+  {
+   "default": "0",
+   "description": "Locked until an official, authorised FBR API is verified",
+   "fieldname": "fbr_api_enabled",
+   "fieldtype": "Check",
+   "label": "FBR API Enabled",
+   "read_only": 1
+  },
+  {
+   "default": "Sandbox",
+   "fieldname": "fbr_environment",
+   "fieldtype": "Select",
+   "label": "FBR Environment",
+   "options": "Sandbox\nProduction"
+  },
+  {
+   "fieldname": "cb3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "fbr_api_base_url",
+   "fieldtype": "Data",
+   "label": "FBR API Base URL"
+  },
+  {
+   "fieldname": "fbr_api_username",
+   "fieldtype": "Data",
+   "label": "FBR API Username"
+  },
+  {
+   "fieldname": "fbr_api_password",
+   "fieldtype": "Password",
+   "label": "FBR API Password"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-16 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Tax Consultancy Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Consultant Admin"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

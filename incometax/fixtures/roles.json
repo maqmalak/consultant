@@ -1,0 +1,44 @@
+[
+  {
+    "doctype": "Role",
+    "name": "Tax Consultant Admin",
+    "role_name": "Tax Consultant Admin",
+    "desk_access": 1
+  },
+  {
+    "doctype": "Role",
+    "name": "Tax Consultant",
+    "role_name": "Tax Consultant",
+    "desk_access": 1
+  },
+  {
+    "doctype": "Role",
+    "name": "Tax Reviewer",
+    "role_name": "Tax Reviewer",
+    "desk_access": 1
+  },
+  {
+    "doctype": "Role",
+    "name": "Tax Approver",
+    "role_name": "Tax Approver",
+    "desk_access": 1
+  },
+  {
+    "doctype": "Role",
+    "name": "Filing Officer",
+    "role_name": "Filing Officer",
+    "desk_access": 1
+  },
+  {
+    "doctype": "Role",
+    "name": "Field Officer",
+    "role_name": "Field Officer",
+    "desk_access": 1
+  },
+  {
+    "doctype": "Role",
+    "name": "Tax Client User",
+    "role_name": "Tax Client User",
+    "desk_access": 0
+  }
+]

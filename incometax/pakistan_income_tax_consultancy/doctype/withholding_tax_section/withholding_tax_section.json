@@ -1,0 +1,190 @@
+{
+ "actions": [],
+ "autoname": "WHT-.#####",
+ "creation": "2026-10-16 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_code",
+  "description",
+  "tax_nature",
+  "cb1",
+  "tax_year",
+  "default_rate_percent",
+  "sb_validity",
+  "effective_from",
+  "effective_to",
+  "is_active",
+  "cb_valid",
+  "validation_status",
+  "validated_by",
+  "validated_on",
+  "legal_reference"
+ ],
+ "fields": [
+  {
+   "description": "e.g. 149 (Salary), 151 (Profit on Debt)",
+   "fieldname": "section_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Section Code",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "tax_nature",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tax Nature",
+   "options": "Adjustable\nFinal\nMinimum",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Blank = all years",
+   "fieldname": "tax_year",
+   "fieldtype": "Link",
+   "label": "Tax Year",
+   "options": "Tax Year"
+  },
+  {
+   "fieldname": "default_rate_percent",
+   "fieldtype": "Percent",
+   "label": "Default Rate Percent"
+  },
+  {
+   "fieldname": "sb_validity",
+   "fieldtype": "Section Break",
+   "label": "Validity & Legal Status"
+  },
+  {
+   "fieldname": "effective_from",
+   "fieldtype": "Date",
+   "label": "Effective From",
+   "reqd": 1
+  },
+  {
+   "fieldname": "effective_to",
+   "fieldtype": "Date",
+   "label": "Effective To"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active"
+  },
+  {
+   "fieldname": "cb_valid",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "DEMO — NOT VALIDATED",
+   "fieldname": "validation_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Validation Status",
+   "options": "DEMO — NOT VALIDATED\nValidated"
+  },
+  {
+   "fieldname": "validated_by",
+   "fieldtype": "Link",
+   "label": "Validated By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "validated_on",
+   "fieldtype": "Datetime",
+   "label": "Validated On",
+   "read_only": 1
+  },
+  {
+   "description": "Finance Act / Income Tax Ordinance 2001 section & FBR notification",
+   "fieldname": "legal_reference",
+   "fieldtype": "Small Text",
+   "label": "Legal Reference"
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-16 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Withholding Tax Section",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Consultant Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Consultant"
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Reviewer"
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Approver"
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Filing Officer"
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Field Officer"
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "section_code,description",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "description"
+}

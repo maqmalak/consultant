@@ -1,0 +1,357 @@
+{
+ "actions": [],
+ "autoname": "TAX-CALC-.YYYY.-.#####",
+ "creation": "2026-10-16 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "tax_return",
+  "tax_client",
+  "client_name",
+  "tax_year",
+  "tax_regime",
+  "taxpayer_type",
+  "cb1",
+  "calculation_version",
+  "calculated_on",
+  "calculated_by",
+  "rules_are_demo",
+  "sb_income",
+  "total_income",
+  "total_deductions",
+  "taxable_income",
+  "cb2",
+  "slab_rule",
+  "applied_slab_from",
+  "applied_slab_to",
+  "fixed_tax",
+  "rate_percent",
+  "sb_tax",
+  "tax_on_taxable_income",
+  "separate_block_tax",
+  "total_tax_credits",
+  "tax_liability",
+  "cb3",
+  "tax_already_paid",
+  "net_payable",
+  "refund_due",
+  "sb_log",
+  "input_hash",
+  "calculation_log",
+  "sb_verify",
+  "reviewer_verified",
+  "verified_by",
+  "verified_on"
+ ],
+ "fields": [
+  {
+   "fieldname": "tax_return",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Tax Return",
+   "options": "Tax Return",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "tax_return.tax_client",
+   "fieldname": "tax_client",
+   "fieldtype": "Link",
+   "label": "Client",
+   "options": "Tax Client",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "tax_return.client_name",
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Client Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_year",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Tax Year",
+   "options": "Tax Year",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_regime",
+   "fieldtype": "Link",
+   "label": "Tax Regime",
+   "options": "Tax Regime",
+   "read_only": 1
+  },
+  {
+   "fieldname": "taxpayer_type",
+   "fieldtype": "Data",
+   "label": "Taxpayer Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "calculation_version",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Calculation Version",
+   "read_only": 1
+  },
+  {
+   "fieldname": "calculated_on",
+   "fieldtype": "Datetime",
+   "label": "Calculated On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "calculated_by",
+   "fieldtype": "Link",
+   "label": "Calculated By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rules_are_demo",
+   "fieldtype": "Check",
+   "label": "Uses DEMO (unvalidated) rules",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_income",
+   "fieldtype": "Section Break",
+   "label": "Income"
+  },
+  {
+   "fieldname": "total_income",
+   "fieldtype": "Currency",
+   "label": "Total Income",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_deductions",
+   "fieldtype": "Currency",
+   "label": "Total Deductions",
+   "read_only": 1
+  },
+  {
+   "fieldname": "taxable_income",
+   "fieldtype": "Currency",
+   "label": "Taxable Income",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "slab_rule",
+   "fieldtype": "Link",
+   "label": "Slab Rule",
+   "options": "Tax Slab Rule",
+   "read_only": 1
+  },
+  {
+   "fieldname": "applied_slab_from",
+   "fieldtype": "Currency",
+   "label": "Applied Slab From",
+   "read_only": 1
+  },
+  {
+   "fieldname": "applied_slab_to",
+   "fieldtype": "Currency",
+   "label": "Applied Slab To",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fixed_tax",
+   "fieldtype": "Currency",
+   "label": "Fixed Tax",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rate_percent",
+   "fieldtype": "Percent",
+   "label": "Rate Percent",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_tax",
+   "fieldtype": "Section Break",
+   "label": "Tax"
+  },
+  {
+   "fieldname": "tax_on_taxable_income",
+   "fieldtype": "Currency",
+   "label": "Tax On Taxable Income",
+   "read_only": 1
+  },
+  {
+   "fieldname": "separate_block_tax",
+   "fieldtype": "Currency",
+   "label": "Final / Separate Block Tax",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_tax_credits",
+   "fieldtype": "Currency",
+   "label": "Total Tax Credits",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_liability",
+   "fieldtype": "Currency",
+   "label": "Tax Liability",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tax_already_paid",
+   "fieldtype": "Currency",
+   "label": "Tax Already Paid",
+   "read_only": 1
+  },
+  {
+   "fieldname": "net_payable",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Net Payable",
+   "read_only": 1
+  },
+  {
+   "fieldname": "refund_due",
+   "fieldtype": "Currency",
+   "label": "Refund Due",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sb_log",
+   "fieldtype": "Section Break",
+   "label": "Calculation Log"
+  },
+  {
+   "fieldname": "input_hash",
+   "fieldtype": "Data",
+   "label": "Input Hash",
+   "read_only": 1
+  },
+  {
+   "fieldname": "calculation_log",
+   "fieldtype": "Code",
+   "label": "Calculation Log",
+   "options": "JSON",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_verify",
+   "fieldtype": "Section Break",
+   "label": "Reviewer Verification"
+  },
+  {
+   "fieldname": "reviewer_verified",
+   "fieldtype": "Check",
+   "label": "Reviewer Verified"
+  },
+  {
+   "fieldname": "verified_by",
+   "fieldtype": "Link",
+   "label": "Verified By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "verified_on",
+   "fieldtype": "Datetime",
+   "label": "Verified On",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-16 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Tax Calculation",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Consultant Admin",
+   "share": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Consultant",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Reviewer",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Approver",
+   "share": 1
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Filing Officer"
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Client User"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "client_name",
+ "track_changes": 1
+}
