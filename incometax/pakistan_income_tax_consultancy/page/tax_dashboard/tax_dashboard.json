@@ -1,16 +1,14 @@
 {
-    "app": "incometax",
     "creation": "2026-10-16 10:00:00.000000",
-    "doctype": "Page",
     "docstatus": 0,
+    "doctype": "Page",
     "idx": 1,
-    "modified": "2026-10-16 10:00:00.000000",
+    "modified": "2026-10-16 18:00:00.000000",
     "modified_by": "Administrator",
     "module": "Pakistan Income Tax Consultancy",
-    "name": "Tax Dashboard",
+    "name": "tax-dashboard",
     "owner": "Administrator",
-    "page_name": "tax_dashboard",
-    "public": 1,
+    "page_name": "tax-dashboard",
     "roles": [
         {
             "role": "System Manager"
@@ -33,5 +31,8 @@
         {
             "role": "Tax Client User"
         }
-    ]
+    ],
+    "standard": "Yes",
+    "system_page": 0,
+    "title": "Tax Dashboard"
 }

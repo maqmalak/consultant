@@ -72,8 +72,16 @@ class TestPermissionIsolation(IntegrationTestCase):
 
 	@classmethod
 	def tearDownClass(cls):
-		frappe.db.delete("Tax Client")
-		frappe.db.delete("User")
+		# Delete only the users created by this test — an unfiltered
+		# db.delete("User") would also wipe Guest/Administrator.
+		test_users = [
+			cls.consultant_a.name, cls.consultant_b.name, cls.field_officer.name,
+			cls.client_user.name, cls.reviewer.name, cls.approver.name,
+			cls.filing_officer.name, cls.other.name,
+		]
+		# Only remove clients created by make_client (they are named "Test Client ...").
+		frappe.db.delete("Tax Client", {"client_name": ["like", "Test Client%"]})
+		frappe.db.delete("User", {"name": ("in", test_users)})
 		frappe.db.commit()
 
 	def set_user(self, user):

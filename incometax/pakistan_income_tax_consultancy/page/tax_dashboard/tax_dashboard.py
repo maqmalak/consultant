@@ -2,32 +2,12 @@
 # For license information, please see license.txt
 
 import frappe
-from frappe import _
-from frappe.utils import flt, getdate, nowdate
+from frappe.utils import flt
 
-
-class TaxDashboard(frappe.Page):
-    """Tax dashboard page showing summary and recent filings."""
-
-    def get(self):
-        super().get()
-        self.make_setup()
-
-    def make_setup(self):
-        self.title = "Tax Dashboard"
-        self.page_name = "tax_dashboard"
-        self.module = "Pakistan Income Tax Consultancy"
-
-        # Load JS
-        self.script = "pakistan_income_tax_consultancy.page.tax_dashboard.tax_dashboard"
-
-        # Set breadcrumbs
-        self.set_breadcrumbs()
-
-    def set_breadcrumbs(self):
-        self.set_breadcrumb(
-            "Pakistan Income Tax Consultancy", "Tax Dashboard"
-        )
+# Note: Frappe `Page` documents do not use a Python controller class.
+# Page assets (tax_dashboard.js / tax_dashboard.css) are loaded automatically
+# by Page.load_assets from this folder based on the page name "tax-dashboard".
+# Only the whitelisted API methods below are called from the client script.
 
 
 @frappe.whitelist()
@@ -50,15 +30,15 @@ def get_dashboard_summary():
         state_counts[state] = frappe.db.count("Tax Return", {"workflow_state": state})
 
     total_liability = frappe.db.sql(
-        "SELECT COALESCE(SUM(tax_liability), 0) FROM tabTax Return"
+        "SELECT COALESCE(SUM(tax_liability), 0) FROM `tabTax Return`"
     )[0][0]
 
     total_net_payable = frappe.db.sql(
-        "SELECT COALESCE(SUM(net_tax_payable), 0) FROM tabTax Return"
+        "SELECT COALESCE(SUM(net_tax_payable), 0) FROM `tabTax Return`"
     )[0][0]
 
     total_refund_due = frappe.db.sql(
-        "SELECT COALESCE(SUM(refund_due), 0) FROM tabTax Return"
+        "SELECT COALESCE(SUM(refund_due), 0) FROM `tabTax Return`"
     )[0][0]
 
     # Recent filings
@@ -100,7 +80,7 @@ def get_tax_over_time():
     rows = frappe.db.sql("""
         SELECT DATE_FORMAT(creation, '%%Y-%%m') as month,
                COALESCE(SUM(tax_liability), 0) as total_liability
-        FROM tabTax Return
+        FROM `tabTax Return`
         GROUP BY DATE_FORMAT(creation, '%%Y-%%m')
         ORDER BY month ASC
         LIMIT 12

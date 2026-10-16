@@ -179,7 +179,9 @@ function transition_workflow(frm, target_state) {
 
 function format_currency(value) {
 	if (value === null || value === undefined) return "";
-	return accounting.format_value(value || 0, { precision: 2 });
+	// Delegate to Frappe's global formatter (the local name shadows the
+	// global inside this script, so access it via window explicitly).
+	return window.format_currency(value || 0, undefined, 2);
 }
 
 function setup_fbr_status(frm) {

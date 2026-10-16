@@ -15,8 +15,14 @@ frappe.pages['tax-dashboard'].on_page_load = function(wrapper) {
         <div class="dashboard-totals"></div>
         <div class="dashboard-charts">
             <div class="chart-row">
-                <canvas id="statusChart" style="max-height: 300px;"></canvas>
-                <canvas id="taxChart" style="max-height: 300px;"></canvas>
+                <div class="chart-box">
+                    <h6 class="chart-title">Workflow Status Distribution</h6>
+                    <div id="statusChart" class="chart-container"></div>
+                </div>
+                <div class="chart-box">
+                    <h6 class="chart-title">Tax Liability Over Time (PKR)</h6>
+                    <div id="taxChart" class="chart-container"></div>
+                </div>
             </div>
         </div>
         <div class="dashboard-recent">
@@ -104,26 +110,26 @@ function load_charts(page) {
         callback: function(r) {
             var d = r.message;
             if (d.labels.length > 0) {
-                new Chart(document.getElementById("statusChart"), {
-                    type: "doughnut",
+                frappe.utils.make_chart($("#statusChart")[0], {
                     data: {
                         labels: d.labels,
                         datasets: [{
-                            data: d.values,
-                            backgroundColor: [
-                                "#6c757d", "#fd7e14", "#0d6efd",
-                                "#198754", "#20c997", "#dc3545"
-                            ],
+                            values: d.values,
                         }],
                     },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            title: {display: true, text: __('Workflow Status Distribution')},
-                            legend: {position: "bottom"},
-                        },
-                    },
+                    type: "donut",
+                    height: 300,
+                    colors: [
+                        "#6c757d", "#fd7e14", "#0d6efd",
+                        "#198754", "#20c997", "#dc3545"
+                    ],
+                    truncateLegends: 0,
+                    maxSlices: 6,
                 });
+            } else {
+                $("#statusChart").html(
+                    '<p class="text-muted text-centered">' + __("No data yet") + "</p>"
+                );
             }
         },
     });
@@ -133,26 +139,33 @@ function load_charts(page) {
         callback: function(r) {
             var d = r.message;
             if (d.labels.length > 0) {
-                new Chart(document.getElementById("taxChart"), {
-                    type: "bar",
+                frappe.utils.make_chart($("#taxChart")[0], {
                     data: {
                         labels: d.labels,
                         datasets: [{
-                            label: __('Tax Liability (PKR)'),
-                            data: d.values,
-                            backgroundColor: "#0d6efd",
+                            name: __("Tax Liability (PKR)"),
+                            values: d.values,
                         }],
                     },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            title: {display: true, text: __('Tax Liability Over Time')},
-                        },
-                        scales: {
-                            y: {beginAtZero: true},
+                    type: "bar",
+                    height: 300,
+                    colors: ["#0d6efd"],
+                    truncateLegends: 1,
+                    axisOptions: {
+                        xIsSeries: 1,
+                        shortenYAxisNumbers: 1,
+                        numberFormatter: frappe.utils.format_chart_axis_number,
+                    },
+                    tooltipOptions: {
+                        formatTooltipY: function(value) {
+                            return format_currency(value);
                         },
                     },
                 });
+            } else {
+                $("#taxChart").html(
+                    '<p class="text-muted text-centered">' + __("No data yet") + "</p>"
+                );
             }
         },
     });
@@ -197,5 +210,7 @@ function get_badge_class(state) {
 
 function format_currency(value) {
     if (value === null || value === undefined) return "0.00";
-    return accounting.format_value(flt(value), { precision: 2 });
+    // Delegate to Frappe's global formatter (the local name shadows the
+    // global inside this script, so access it via window explicitly).
+    return window.format_currency(flt(value), undefined, 2);
 }
