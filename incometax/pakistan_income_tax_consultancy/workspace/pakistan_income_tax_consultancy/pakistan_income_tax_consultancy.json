@@ -192,9 +192,9 @@
             "dependencies": "",
             "hidden": 0,
             "is_query_report": 0,
-            "label": "Tax Slab",
+            "label": "Tax Slab Rule",
             "link_count": 0,
-            "link_to": "Tax Slab",
+            "link_to": "Tax Slab Rule",
             "link_type": "DocType",
             "onboard": 0,
             "type": "Link"
@@ -241,7 +241,7 @@
             "type": "Link"
         }
     ],
-    "modified": "2026-10-16 18:00:00.000000",
+    "modified": "2026-10-16 19:00:00.000000",
     "modified_by": "Administrator",
     "module": "Pakistan Income Tax Consultancy",
     "name": "Pakistan Income Tax Consultancy",
