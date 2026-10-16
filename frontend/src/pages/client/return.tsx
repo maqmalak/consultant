@@ -121,7 +121,7 @@ function Summary({ detail, onDone }: { detail: ReturnDetail; onDone: () => void 
   const [err, setErr] = useState<unknown>(null);
   const awaiting = detail.state === "Awaiting Client Confirmation";
   const rows: [string, number][] = [
-    [t("Total income"), s.total_income], ["Deductions", s.total_deductions], [t("Taxable income"), s.taxable_income],
+    [t("Total income"), s.total_income], [t("Deductions"), s.total_deductions], [t("Taxable income"), s.taxable_income],
     [t("Tax liability"), s.tax_liability], [t("Tax already deducted"), s.total_tax_withheld], [t("Advance tax paid"), s.total_advance_tax],
   ];
   async function act(fn: () => Promise<unknown>) {
@@ -158,7 +158,7 @@ function Summary({ detail, onDone }: { detail: ReturnDetail; onDone: () => void 
       </Card>
       {awaiting && !detail.client_confirmed && (
         <div className="space-y-3 rounded-lg border border-primary/40 bg-primary/5 p-4">
-          <p className="text-sm">Please check the figures. When you confirm, a senior consultant approves the return and we file it on FBR IRIS on your behalf.</p>
+          <p className="text-sm">{t("Please check the figures. When you confirm, a senior consultant approves the return and we file it on FBR IRIS on your behalf.")}</p>
           <InlineError error={err} />
           <div className="flex flex-wrap gap-2">
             <Button size="lg" loading={busy} onClick={() => void act(() => portal.confirm(detail.name))}>
@@ -237,7 +237,7 @@ export function ReturnPage() {
       {active === "summary" && data.summary && <Summary detail={data} onDone={() => void mutate()} />}
       {data.comments.length > 0 && (
         <section className="space-y-2">
-          <h2 className="text-sm font-semibold">Notes on this return</h2>
+          <h2 className="text-sm font-semibold">{t("Notes on this return")}</h2>
           {data.comments.map((c, i) => (
             <div key={i} className={cn("rounded-lg px-3 py-2 text-sm", c.from_client ? "ms-8 bg-primary/10" : "me-8 bg-muted")}>
               <p className="whitespace-pre-wrap">{c.comment}</p>

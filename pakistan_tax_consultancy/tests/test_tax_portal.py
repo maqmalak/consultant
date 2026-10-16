@@ -281,6 +281,18 @@ class TestTaxPortalFlow(IntegrationTestCase):
 		self.assertFalse(doc.client_confirmed)
 		self.assertFalse(frappe.db.get_value("Tax Approval", {"tax_return": tr.name}, "is_valid"))
 
+	def test_manual_reopen_needs_a_reason(self):
+		res = self.signup("03001110011", "t.client11@example.com", "00000-0090001-1")
+		tr = self.new_return(res["client"])
+		self.answer_and_upload(res["user"], tr.name)
+		self.verify_all(tr.name)
+		self.prepare(tr.name)
+		self.move(self.consultant, tr.name, "Submit for Review")
+		self.review_pass(tr.name)
+		with self.assertRaises(frappe.ValidationError):
+			self.move(self.consultant, tr.name, "Reopen for Review")
+		self.assertEqual(self.move(self.consultant, tr.name, "Reopen for Review", "Client sent a new certificate"), wf.PENDING_REVIEW)
+
 	def test_four_eyes_preparer_cannot_approve(self):
 		from frappe.model.workflow import has_approval_access
 

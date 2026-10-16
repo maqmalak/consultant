@@ -385,7 +385,7 @@ function CalculationStep({ doc, ov, dirty, save, onDone }: { doc: Doc; ov: any; 
   );
 }
 
-const NEEDS_COMMENT = ["Request Changes", "Report Filing Error"];
+const NEEDS_COMMENT = ["Request Changes", "Report Filing Error", "Reopen for Review"];
 
 function WorkflowStep({ doc, ov, onDone }: { doc: Doc; ov: any; onDone: () => Promise<void> }) {
   const { hasRole } = useAuth();
@@ -467,7 +467,7 @@ function WorkflowStep({ doc, ov, onDone }: { doc: Doc; ov: any; onDone: () => Pr
         footer={<><Button variant="ghost" onClick={() => setAction(null)}>Cancel</Button>
           <Button loading={busy} disabled={!comment.trim()} onClick={() => action && void run(action, comment.trim())}>{action}</Button></>}>
         <TextArea aria-label="Comment" value={comment} onChange={(e) => setComment(e.target.value)}
-          placeholder={action === "Report Filing Error" ? "What went wrong on IRIS?" : "What needs to change?"} />
+          placeholder={action === "Report Filing Error" ? "What went wrong on IRIS?" : action === "Reopen for Review" ? "Why is the reviewed return being reopened?" : "What needs to change?"} />
         <InlineError error={err} />
       </Dialog>
     </div>

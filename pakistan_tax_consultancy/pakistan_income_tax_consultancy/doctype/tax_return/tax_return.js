@@ -5,7 +5,7 @@
 // (services/workflow.py). This script adds the working tools around them.
 
 const API = "pakistan_tax_consultancy.api.staff";
-const NEEDS_COMMENT = ["Request Changes", "Report Filing Error"];
+const NEEDS_COMMENT = ["Request Changes", "Report Filing Error", "Reopen for Review"];
 
 frappe.ui.form.on("Tax Return", {
 	refresh(frm) {

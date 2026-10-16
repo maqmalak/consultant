@@ -98,6 +98,20 @@ const ur: Record<string, string> = {
   "Tax already deducted": "پہلے سے کٹا ہوا ٹیکس",
   "Advance tax paid": "پیشگی ادا شدہ ٹیکس",
   "Net wealth": "خالص دولت",
+  // client status lines
+  "Waiting for your documents": "آپ کی دستاویزات کا انتظار ہے",
+  "We are preparing your return": "ہم آپ کا ریٹرن تیار کر رہے ہیں",
+  "We are updating your return": "ہم آپ کا ریٹرن اپ ڈیٹ کر رہے ہیں",
+  "Please confirm your return": "براہ کرم اپنے ریٹرن کی تصدیق کریں",
+  "Approved — being filed": "منظور — فائل کیا جا رہا ہے",
+  "Submitted on FBR IRIS": "ایف بی آر IRIS پر جمع",
+  "Filing in progress": "فائلنگ جاری ہے",
+  "Filed — acknowledgment received": "فائل ہو گیا — رسید موصول",
+  "Deductions": "کٹوتیاں",
+  "Choose a package": "پیکیج منتخب کریں",
+  "Notes on this return": "اس ریٹرن پر نوٹس",
+  "Please check the figures. When you confirm, a senior consultant approves the return and we file it on FBR IRIS on your behalf.":
+    "براہ کرم اعداد و شمار چیک کریں۔ تصدیق کے بعد سینئر کنسلٹنٹ منظوری دیتا ہے اور ہم آپ کی جانب سے ایف بی آر IRIS پر فائل کرتے ہیں۔",
   // payments
   "How to pay": "ادائیگی کا طریقہ",
   "I have paid": "میں نے ادائیگی کر دی",

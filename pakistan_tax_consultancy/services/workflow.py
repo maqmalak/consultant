@@ -142,6 +142,10 @@ def guard_transition(doc, old_state, new_state, comment=None):
 	if new_state == CHANGES_REQUIRED and not (comment or doc.flags.workflow_comment):
 		_fail(_("Add a comment explaining what needs to change."))
 
+	if new_state == PENDING_REVIEW and old_state in REVIEWED_STATES and not doc.flags.auto_reopened \
+			and not (comment or doc.flags.workflow_comment):
+		_fail(_("Say why the reviewed return is being reopened."))
+
 	if new_state == REVIEWED:
 		review = frappe.db.get_value("Tax Review", {"tax_return": doc.name}, ["name", "calculation_verified"],
 			as_dict=True, order_by="creation desc")
