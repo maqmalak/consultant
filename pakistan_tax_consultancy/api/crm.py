@@ -94,8 +94,9 @@ def leads(q: str | None = None, status: str | None = None, source: str | None = 
 	rows = frappe.get_list("CRM Lead", fields=LEAD_FIELDS, filters=filters, or_filters=or_filters, order_by="creation desc",
 		limit_page_length=min(cint(limit) or 100, 500))
 	owners = _names([r.lead_owner for r in rows])
+	deals = dict(frappe.get_all("CRM Deal", {"lead": ("in", [r.name for r in rows if r.converted] or [""])}, ["lead", "name"], as_list=True))
 	for r in rows:
-		r.person, r.owner_name = _person(r), owners.get(r.lead_owner)
+		r.person, r.owner_name, r.deal = _person(r), owners.get(r.lead_owner), deals.get(r.name)
 	return rows
 
 

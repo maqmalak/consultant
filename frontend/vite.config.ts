@@ -47,6 +47,8 @@ export default defineConfig(({ mode, command }) => {
         "/app": proxyOpts,
         "/desk": proxyOpts,
         "/printview": proxyOpts,
+        // Frappe CRM (leads / deals open there from the staff CRM page)
+        "/crm": proxyOpts,
       },
     },
     test: {

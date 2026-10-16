@@ -27,7 +27,7 @@ import { apiCall } from "@/services/frappe";
 const C = "pakistan_tax_consultancy.api.crm";
 type Tab = "dashboard" | "leads" | "pipeline";
 interface Lead { name: string; person: string; mobile_no: string | null; email: string | null; status: string; source: string | null;
-  owner_name: string | null; organization: string | null; creation: string; converted: number; tax_client: string | null; ptc_client_type: string | null }
+  owner_name: string | null; organization: string | null; creation: string; converted: number; tax_client: string | null; ptc_client_type: string | null; deal?: string | null }
 interface Deal { name: string; lead: string | null; person: string; mobile_no: string | null; status: string; owner_name: string | null; deal_owner: string | null;
   expected_deal_value: number; deal_value: number; modified: string; tax_client: string | null; service_package: string | null; next_step: string | null; source: string | null }
 interface Stage { name: string; type: string; color: string; probability: number }
@@ -149,16 +149,20 @@ function Dashboard() {
 }
 
 // ------------------------------------------------------------------------------------------------ leads
-function Leads({ meta }: { meta?: Meta }) {
+function Leads({ meta, onPipeline }: { meta?: Meta; onPipeline: () => void }) {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("");
   const [source, setSource] = useState("");
-  const { data, error, isLoading, mutate } = useApi<Lead[]>(`${C}.leads`, { q: q || undefined, status: status || undefined, source: source || undefined });
+  const [showConverted, setShowConverted] = useState(false);
+  const { data, error, isLoading, mutate } = useApi<Lead[]>(`${C}.leads`,
+    { q: q || undefined, status: status || undefined, source: source || undefined, include_converted: showConverted ? 1 : 0 });
   const [err, setErr] = useState<unknown>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [moved, setMoved] = useState<{ person: string; deal: string } | null>(null);
   const convert = async (l: Lead) => {
-    setBusy(l.name); setErr(null);
-    try { await apiCall(`${C}.convert`, { lead: l.name }); void mutate(); } catch (e) { setErr(e); } finally { setBusy(null); }
+    setBusy(l.name); setErr(null); setMoved(null);
+    try { const deal = await apiCall<string>(`${C}.convert`, { lead: l.name }); setMoved({ person: l.person, deal }); void mutate(); }
+    catch (e) { setErr(e); } finally { setBusy(null); }
   };
   const chip = (on: boolean) => cn("rounded-full px-3 py-1 text-xs font-medium", on ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground");
   return (
@@ -172,7 +176,16 @@ function Leads({ meta }: { meta?: Meta }) {
           <button className={chip(!status)} onClick={() => setStatus("")}>All</button>
           {meta?.statuses.filter((s) => s.name !== "Converted").map((s) => <button key={s.name} className={chip(status === s.name)} onClick={() => setStatus(s.name)}>{s.name}</button>)}
         </div>
+        <label className="ms-auto flex items-center gap-2 text-sm text-muted-foreground"><input type="checkbox" checked={showConverted} onChange={(e) => setShowConverted(e.target.checked)} /> Show leads already in the pipeline</label>
       </div>
+      {moved && (
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm">
+          <ArrowRightLeft className="h-5 w-5 text-primary" /> <span><b>{moved.person}</b> is now a deal in <b>Enquiry</b>.</span>
+          <button className="font-semibold text-primary hover:underline" onClick={onPipeline}>View pipeline →</button>
+          <a className="text-primary hover:underline" href={crmUrl("deals", moved.deal)}>Open deal ↗</a>
+          <button className="ms-auto text-xs text-muted-foreground hover:text-foreground" onClick={() => setMoved(null)}>Dismiss</button>
+        </div>
+      )}
       <InlineError error={err} />
       {isLoading ? <Loading /> : error ? <ErrorState error={error} onRetry={() => void mutate()} /> : !data?.length ? <Empty title="No leads" hint="Leads arrive from the website, WhatsApp, bookings and site visits — or add one." /> : (
         <Table>
@@ -188,7 +201,10 @@ function Leads({ meta }: { meta?: Meta }) {
               <TD className="text-end">
                 <div className="flex justify-end gap-1.5">
                   {waLink(l.mobile_no) && <a className="rounded-md border p-1.5 text-[#128C7E] hover:bg-accent dark:text-[#25D366]" href={waLink(l.mobile_no)!} target="_blank" rel="noopener" aria-label="WhatsApp"><MessageCircle className="h-4 w-4" /></a>}
-                  <Button size="sm" variant="outline" loading={busy === l.name} onClick={() => void convert(l)}><ArrowRightLeft className="h-3.5 w-3.5" /> To deal</Button>
+                  {l.converted
+                    ? l.deal ? <a className="inline-flex h-8 items-center gap-1 rounded-md bg-emerald-500/15 px-2.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300" href={crmUrl("deals", l.deal)}>Deal ✓</a>
+                      : <span className="text-xs text-muted-foreground">Converted</span>
+                    : <Button size="sm" variant="outline" loading={busy === l.name} onClick={() => void convert(l)}><ArrowRightLeft className="h-3.5 w-3.5" /> To deal</Button>}
                   <a className="rounded-md border p-1.5 hover:bg-accent" href={crmUrl("leads", l.name)} aria-label="Open in CRM"><ExternalLink className="h-4 w-4" /></a>
                 </div>
               </TD>
@@ -222,7 +238,9 @@ function Pipeline({ meta }: { meta?: Meta }) {
   };
   const columns = useMemo(() => (data?.statuses ?? []).map((s) => {
     const rows = (data?.deals ?? []).filter((d) => d.status === s.name);
-    return { value: s.name, color: s.color, footer: `${money(rows.reduce((n, d) => n + (d.deal_value || d.expected_deal_value || 0), 0), { compact: true })}${s.probability ? ` · ${s.probability}%` : ""}` };
+    const compact = s.type === "Won" || s.type === "Lost";
+    return { value: s.name, color: s.color, compact,
+      footer: `${money(rows.reduce((n, d) => n + (d.deal_value || d.expected_deal_value || 0), 0), { compact: true })}${s.probability && !compact ? ` · ${s.probability}%` : ""}` };
   }), [data]);
   if (error) return <ErrorState error={error} onRetry={() => void mutate()} />;
   return (
@@ -244,6 +262,15 @@ function Pipeline({ meta }: { meta?: Meta }) {
       <KanbanBoard columns={columns} rows={data?.deals ?? []} groupField="status" rowKey={(d) => d.name} loading={isLoading}
         emptyHint="Turn a lead into a deal from the Leads tab."
         onCardMove={(d, status) => (data?.statuses.find((s) => s.name === status)?.type === "Lost" ? setLost({ deal: d, reason: meta?.lost_reasons[0] ?? "" }) : move(d, status))}
+        renderCompact={(d) => (
+          <div className="rounded-lg border bg-card px-2.5 py-2 shadow-sm">
+            <a className="block truncate text-sm font-medium hover:text-primary" href={crmUrl("deals", d.name)} draggable={false}>{d.person}</a>
+            <div className="mt-0.5 flex items-center justify-between gap-1 text-[11px] text-muted-foreground">
+              <span className="tabular-nums">{money(d.deal_value || d.expected_deal_value || 0, { compact: true })}</span>
+              {d.tax_client && <Link to={`/staff/clients/${d.tax_client}`} className="font-semibold text-emerald-600 hover:underline dark:text-emerald-400" draggable={false}>Client ✓</Link>}
+            </div>
+          </div>
+        )}
         renderCard={(d) => (
           <div className="rounded-xl border bg-card p-3 shadow-sm transition hover:border-primary/40 hover:shadow">
             <div className="flex items-start justify-between gap-2">
@@ -286,7 +313,7 @@ export function CrmPage() {
   const [stamp, setStamp] = useState(0);
   const tabs: [Tab, string][] = [["dashboard", "Dashboard"], ["leads", "Leads"], ["pipeline", "Pipeline"]];
   return (
-    <div className="page-container space-y-5">
+    <div className={cn("page-container space-y-5", tab === "pipeline" && "max-w-none")}>
       <PageHeader title="CRM" subtitle="Leads and deals — from first enquiry to engaged client" icon={<Handshake className="h-5 w-5" />}
         actions={<>
           <a href={meta.data?.pipeline_view ? `/crm/deals/view/kanban?view=${meta.data.pipeline_view}` : "/crm"} className="inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-sm font-medium hover:bg-accent"><ExternalLink className="h-4 w-4" /> Full CRM</a>
@@ -300,7 +327,7 @@ export function CrmPage() {
       </div>
       <div key={stamp}>
         {tab === "dashboard" && <Dashboard />}
-        {tab === "leads" && <Leads meta={meta.data} />}
+        {tab === "leads" && <Leads meta={meta.data} onPipeline={() => setParams({ tab: "pipeline" })} />}
         {tab === "pipeline" && <Pipeline meta={meta.data} />}
       </div>
       <NewLeadDialog open={adding} onClose={() => setAdding(false)} meta={meta.data} onDone={() => setStamp((s) => s + 1)} />
