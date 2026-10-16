@@ -1,5 +1,5 @@
 import {
-  BadgeCheck, BarChart3, ClipboardCheck, FileCheck2, FileText, FileUp, Home, LayoutDashboard, MapPin, MessageSquare,
+  BadgeCheck, BarChart3, BookOpen, MessageCircle, UserCog, ClipboardCheck, FileCheck2, FileText, FileUp, Home, LayoutDashboard, MapPin, MessageSquare,
   PhoneCall, Send, Settings2, ShieldAlert, Upload, User, Users, Wallet, type LucideIcon,
 } from "lucide-react";
 
@@ -59,9 +59,12 @@ export const STAFF_NAV: NavGroup[] = [
   {
     title: "Front Office",
     items: [
+      { path: "/staff/inbox", label: "WhatsApp Inbox", hint: "Team chats with clients", icon: MessageCircle, roles: [SM, ADMIN, CONSULTANT, REVIEWER, FIELD], hue: "green" },
       { path: "/staff/payments", label: "Payments to Verify", hint: "Proofs → invoice", icon: Wallet, roles: [SM, ADMIN], hue: "lime" },
       { path: "/staff/consultations", label: "Consultations", hint: "Website bookings", icon: PhoneCall, roles: [SM, ADMIN, CONSULTANT], hue: "purple" },
       { path: "/staff/reports", label: "Reports", hint: "Excel · CSV", icon: BarChart3, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER], hue: "rose" },
+      { path: "/staff/content", label: "Website & Rules", hint: "Prices · FAQ · Articles · Tax years", icon: BookOpen, roles: [SM, ADMIN], hue: "teal" },
+      { path: "/staff/team", label: "Team", hint: "Staff logins & roles", icon: UserCog, roles: [SM, ADMIN], hue: "indigo" },
       { path: "/staff/settings", label: "Settings", hint: "Firm · WhatsApp · Email · Payments", icon: Settings2, roles: [SM, ADMIN], hue: "slate" },
     ],
   },

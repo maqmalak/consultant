@@ -1,7 +1,10 @@
-import { AlertTriangle, ArrowRight, CalendarClock, FileText, MessageSquare, UserCheck } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarClock, ClipboardEdit, Download, FileText, FileUp, MessageCircle, MessageSquare, UserCheck, Wallet } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { ProgressTracker } from "@/components/common/progress-tracker";
+import { QuickActions, type QuickAction } from "@/components/common/quick-actions";
+import { useSite } from "@/components/layout/brand";
+import { whatsappLink } from "@/lib/api";
 import { StateBadge } from "@/components/common/state-badge";
 import { Empty, ErrorState, Loading } from "@/components/common/states";
 import { LinkButton } from "@/components/ui/button";
@@ -23,6 +26,7 @@ function daysLeft(date: string | null) {
 export function ClientHome() {
   const { t } = useTranslation();
   const { data, error, isLoading, mutate } = useDashboard();
+  const site = useSite().data;
   if (isLoading) return <Loading />;
   if (error || !data) return <ErrorState error={error} onRetry={() => void mutate()} />;
   const left = daysLeft(data.filing_deadline);
@@ -45,6 +49,8 @@ export function ClientHome() {
           </div>
         )}
       </div>
+
+      <QuickActions title={t("Quick actions")} actions={clientActions(data, t, whatsappLink(site?.whatsapp, site?.whatsapp_message))} />
 
       {(data.documents_to_upload > 0 || data.documents_rejected > 0 || data.unread_messages > 0) && (
         <div className="grid gap-3 sm:grid-cols-3">
@@ -105,4 +111,27 @@ export function ClientHome() {
       )}
     </div>
   );
+}
+
+/** The one thing to do next, first; then the everyday jobs. */
+function clientActions(data: ClientDashboard, t: (k: string) => string, wa: string | null): QuickAction[] {
+  const r = data.returns.find((x) => x.tax_year === data.current_tax_year) ?? data.returns[0];
+  const unpaid = data.engagements.find((e) => !["Paid", "Waived"].includes(e.payment_status) && !e.proofs.some((p) => p.status === "Pending"));
+  const next: QuickAction | null = !r
+    ? { label: t("Start filing"), hint: t("Choose a package"), icon: FileText, to: "/order", highlight: true }
+    : r.state === "Awaiting Client Confirmation"
+      ? { label: t("Confirm my return"), hint: t("Check the summary"), icon: UserCheck, to: `/returns/${r.name}`, highlight: true, tone: "amber" }
+      : data.documents_rejected || data.documents_to_upload
+        ? { label: t("Upload documents"), hint: `${data.documents_to_upload + data.documents_rejected} ${t("documents to upload")}`, icon: FileUp, to: "/documents", highlight: true, tone: "amber" }
+        : null;
+  const list: (QuickAction | null)[] = [
+    next,
+    r && r.step <= 2 ? { label: t("My details"), hint: t("Salary, bank, property…"), icon: ClipboardEdit, to: `/returns/${r.name}` } : null,
+    !next || next.to !== "/documents" ? { label: t("Upload documents"), hint: t("PDF or photo"), icon: FileUp, to: "/documents", tone: "sky" } : null,
+    unpaid ? { label: t("Pay fee"), hint: `Rs ${Math.round(unpaid.outstanding).toLocaleString()}`, icon: Wallet, to: "/payments", tone: "emerald" } : null,
+    { label: t("Message consultant"), hint: data.client.consultant ?? "", icon: MessageSquare, to: "/messages", tone: "violet", badge: data.unread_messages || null },
+    wa ? { label: t("WhatsApp us"), hint: t("Chat now"), icon: MessageCircle, href: wa, tone: "whatsapp" } : null,
+    r?.has_receipt ? { label: t("Acknowledgment"), hint: `TY${r.tax_year}`, icon: Download, to: `/returns/${r.name}`, tone: "slate" } : null,
+  ];
+  return list.filter((a): a is QuickAction => !!a);
 }

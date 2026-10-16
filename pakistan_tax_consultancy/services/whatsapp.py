@@ -31,10 +31,14 @@ def settings():
 
 def is_active(s=None) -> bool:
 	s = s or settings()
-	return s.whatsapp_provider == CLOUD_API and cint(s.whatsapp_enabled) and bool(s.wa_phone_number_id)
+	return s.whatsapp_provider == CLOUD_API and cint(s.whatsapp_enabled) and (bool(s.wa_phone_number_id) or cint(s.wa_mock_mode))
 
 
 def _post(s, payload):
+	if cint(s.wa_mock_mode):
+		from pakistan_tax_consultancy.services.wa_inbox import fake_response
+
+		return fake_response("POST", "/messages", payload)
 	token = s.get_password("wa_access_token", raise_exception=False)
 	if not token:
 		frappe.throw(_("Add the WhatsApp access token first."))
@@ -63,7 +67,13 @@ def send_template_now(to: str, template: str, params: list | None = None) -> dic
 
 def _job(to, template, params, reference):
 	try:
-		send_template_now(to, template, params)
+		data = send_template_now(to, template, params)
+		from pakistan_tax_consultancy.services.wa_inbox import log_template_message
+
+		client = reference.split(" ", 1)[-1] if reference else None
+		text = f"📄 {template}: " + " · ".join(str(p) for p in params or [])
+		log_template_message(to, text, (data.get("messages") or [{}])[0].get("id"), client)
+		frappe.db.commit()
 	except Exception:
 		frappe.log_error(title=f"WhatsApp update failed ({reference})")
 

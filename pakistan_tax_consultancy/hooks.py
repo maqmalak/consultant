@@ -74,6 +74,15 @@ for _dt in ("Service", "Service Package", "FAQ", "Testimonial", "Tax Update", "T
 	doc_events[_dt] = {"on_update": "pakistan_tax_consultancy.www_helpers.on_content_change",
 		"on_trash": "pakistan_tax_consultancy.www_helpers.on_content_change"}
 
+# WhatsApp (team inbox on the `whatsapp` app — services/wa_inbox.py)
+before_request = ["pakistan_tax_consultancy.services.wa_inbox.install_mock"]
+before_job = ["pakistan_tax_consultancy.services.wa_inbox.install_mock"]
+whatsapp_access_guard = ["pakistan_tax_consultancy.services.wa_inbox.access_guard"]
+doc_events["WhatsApp Message"] = {
+	"validate": "pakistan_tax_consultancy.services.wa_inbox.link_party",
+	"after_insert": "pakistan_tax_consultancy.services.wa_inbox.on_message",
+}
+
 # Scheduled Tasks
 # ---------------
 

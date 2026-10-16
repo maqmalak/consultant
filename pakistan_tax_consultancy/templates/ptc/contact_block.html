@@ -1,7 +1,8 @@
 {%- set wa = ("https://wa.me/" ~ (firm.whatsapp | replace("+", "") | replace(" ", "")) ~ "?text=" ~ ((firm.whatsapp_message or "") | urlencode)) if firm.whatsapp else None -%}
 <div class="grid gap-8 lg:grid-cols-2">
   <div class="space-y-4">
-    <h2 id="contact" class="text-2xl font-bold sm:text-3xl">{{ _("Talk to us") }}</h2>
+    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-primary">{{ _("Contact") }}</p>
+    <h2 id="contact" class="font-display text-3xl font-semibold sm:text-4xl">{{ _("Talk to us") }}</h2>
     <p class="text-muted-foreground">{{ _("Questions before you start? Call, message us on WhatsApp, or book a consultation.") }}</p>
     <dl class="space-y-2 text-sm">
       {% if firm.phone %}<div><dt class="inline font-semibold">{{ _("Phone") }}:</dt> <dd class="inline"><a class="text-primary" href="tel:{{ firm.phone | replace(' ', '') }}" dir="ltr">{{ firm.phone }}</a>{% if firm.phone_2 %} · <a class="text-primary" href="tel:{{ firm.phone_2 | replace(' ', '') }}" dir="ltr">{{ firm.phone_2 }}</a>{% endif %}</dd></div>{% endif %}
@@ -16,7 +17,7 @@
     </div>
   </div>
   {% if firm.map_embed_url %}
-  <iframe title="{{ _('Office location') }}" src="{{ firm.map_embed_url }}" class="h-72 w-full rounded-xl border" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  <iframe title="{{ _('Office location') }}" src="{{ firm.map_embed_url }}" class="h-80 w-full rounded-2xl border shadow-lg" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
   {% else %}
   <div class="flex h-72 items-center justify-center rounded-xl border border-dashed text-sm text-muted-foreground">{{ _("Map appears here once the office location is set.") }}</div>
   {% endif %}

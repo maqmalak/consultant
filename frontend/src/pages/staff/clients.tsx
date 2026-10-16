@@ -1,7 +1,10 @@
-import { Copy, ExternalLink, FilePlus2, Mail, Plus, Search, Send, Users } from "lucide-react";
+import { Copy, FilePlus2, Mail, MessageCircle, Pencil, Phone, Plus, Search, Send, Upload, Users } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { StateBadge } from "@/components/common/state-badge";
+import { StepChain } from "@/components/common/step-chain";
+import { FilingProgress } from "@/components/common/filing-progress";
+import { QuickActions } from "@/components/common/quick-actions";
 import { Empty, ErrorState, InlineError, Loading } from "@/components/common/states";
 import { Button, LinkButton } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,6 +13,7 @@ import { SelectInput, TextArea } from "@/components/ui/field";
 import { PageHeader } from "@/components/ui/page-header";
 import { Table, TD, TH, TR } from "@/components/ui/table";
 import { M, staff } from "@/lib/api";
+import { apiCall } from "@/services/frappe";
 import { formatDate, money } from "@/lib/format";
 import { useApi } from "@/lib/use-api";
 import { cn } from "@/lib/cn";
@@ -26,8 +30,7 @@ export function ClientsPage() {
       <PageHeader title="Clients" subtitle="Search by name, CNIC, NTN, mobile or email" icon={<Users className="h-5 w-5" />}
         actions={<>
           <LinkButton to="/staff/import" variant="outline" size="default">Import CSV</LinkButton>
-          <a href="/app/tax-client/new" className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-            <Plus className="h-4 w-4" /> New client</a>
+          <LinkButton to="/staff/clients/new" size="default"><Plus className="h-4 w-4" /> New client</LinkButton>
         </>} />
       <div className="relative mb-4 max-w-md">
         <Search className="absolute start-2.5 top-3 h-4 w-4 text-muted-foreground" />
@@ -38,15 +41,24 @@ export function ClientsPage() {
       {data && !data.length && <Empty title="No clients found" />}
       {data && data.length > 0 && (
         <Table>
-          <thead><tr><TH>Client</TH><TH>Type</TH><TH>CNIC</TH><TH>NTN</TH><TH>Mobile</TH><TH>City</TH><TH>Portal</TH></tr></thead>
+          <thead><tr><TH>Client</TH><TH>Progress</TH><TH>Type</TH><TH>CNIC</TH><TH>Mobile</TH><TH>City</TH><TH>Portal</TH></tr></thead>
           <tbody>
             {data.map((c) => (
               <TR key={c.name}>
                 <TD><Link className="font-medium text-primary hover:underline" to={`/staff/clients/${c.name}`}>{c.client_name}</Link>
                   <p className="text-xs text-muted-foreground">{c.name}</p></TD>
+                <TD>
+                  {c.latest_return ? (
+                    <Link to={`/staff/returns/${c.latest_return}`} className="block space-y-1 hover:opacity-80">
+                      <StepChain step={c.latest_step} problem={c.has_error} label={`TY${c.latest_year}`} />
+                      <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">TY{c.latest_year} · <StateBadge state={c.latest_state} /></span>
+                    </Link>
+                  ) : (
+                    <div className="space-y-1"><StepChain step={0} label="No return yet" /><span className="text-[11px] text-muted-foreground">No return yet</span></div>
+                  )}
+                </TD>
                 <TD>{c.client_type}</TD>
                 <TD dir="ltr" className="font-mono text-xs">{c.cnic_masked || "—"}</TD>
-                <TD dir="ltr">{c.ntn || "—"}</TD>
                 <TD dir="ltr">{c.mobile || "—"}</TD>
                 <TD>{c.city || "—"}</TD>
                 <TD>{c.portal_user ? <StateBadge state="Verified" label="Active" /> : <StateBadge state="Requested" label="No login" />}</TD>
@@ -138,12 +150,26 @@ export function ClientDetail() {
         badge={data.portal_user ? <StateBadge state="Verified" label="Portal active" /> : undefined}
         actions={<>
           <InviteButton client={data} onDone={() => void mutate()} />
-          <a href={`/app/tax-client/${data.name}`} className="inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-sm text-muted-foreground hover:bg-accent">
-            Edit in desk <ExternalLink className="h-3.5 w-3.5" /></a>
+          <LinkButton to={`/staff/clients/${data.name}/edit`} variant="outline" size="default"><Pencil className="h-4 w-4" /> Edit</LinkButton>
         </>} />
-      <Card className="grid gap-x-6 gap-y-2 p-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
-        {fields.map(([k, v]) => <p key={k}><span className="text-muted-foreground">{k}:</span> {v || "—"}</p>)}
-      </Card>
+      <QuickActions actions={[
+        data.latest ? { label: "Open return", hint: `TY${data.latest.tax_year} · ${data.latest.state}`, icon: Upload, to: `/staff/returns/${data.latest.name}` } : null,
+        data.mobile ? { label: "Call", hint: data.mobile, icon: Phone, href: `tel:${String(data.mobile).replace(/\s/g, "")}`, tone: "sky" as const } : null,
+        data.mobile ? { label: "WhatsApp", hint: "Open in team inbox", icon: MessageCircle, tone: "whatsapp" as const,
+          onClick: () => void apiCall<string>("pakistan_tax_consultancy.api.whatsapp.open_conversation", { tax_client: data.name })
+            .then((c) => navigate(`/staff/inbox?view=all&c=${encodeURIComponent(c)}`)).catch(setErr) } : null,
+        { label: "Edit details", hint: "Contact · CNIC · consultant", icon: Pencil, to: `/staff/clients/${data.name}/edit`, tone: "slate" as const },
+      ].filter((a): a is NonNullable<typeof a> => !!a)} />
+      <div className="grid items-start gap-5 lg:grid-cols-[1fr_290px]">
+        <Card className="grid gap-x-6 gap-y-2 p-4 text-sm sm:grid-cols-2">
+          {fields.map(([k, v]) => <p key={k}><span className="text-muted-foreground">{k}:</span> {v || "—"}</p>)}
+        </Card>
+        {data.latest ? (
+          <FilingProgress step={data.latest.step} dates={data.latest.step_dates} title={`Tax year ${data.latest.tax_year}`}
+            problem={["Changes Required", "Filing Error"].includes(data.latest.state)}
+            footer={<Link className="font-medium text-primary hover:underline" to={`/staff/returns/${data.latest.name}`}>Open {data.latest.name} →</Link>} />
+        ) : <FilingProgress step={0} title="No return yet" />}
+      </div>
       <section className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <h2 className="text-lg font-semibold">Returns</h2>

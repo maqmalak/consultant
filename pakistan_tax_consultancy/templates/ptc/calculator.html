@@ -1,42 +1,84 @@
-<form id="salary-calc" class="form-card" novalidate>
-  <div class="form-card-head">{{ _("Salary tax calculator") }}</div>
-  <div class="form-card-body space-y-4">
-    <div class="grid gap-4 sm:grid-cols-2">
-      <label class="block text-sm font-semibold">{{ _("Monthly salary (PKR)") }}
-        <input name="monthly_salary" type="number" min="0" step="1000" inputmode="numeric" required class="field mt-1.5" placeholder="150000" />
-      </label>
-      <label class="block text-sm font-semibold">{{ _("Tax year") }}
-        <select name="tax_year" class="field mt-1.5">
-          {% for y in (tax_years or firm.tax_years or []) %}<option value="{{ y }}" {{ 'selected' if y == (tax_year or firm.tax_year) else '' }}>{{ y }}</option>{% endfor %}
-        </select>
-      </label>
+{# Live salary calculator: slabs are loaded once (api.public.salary_slabs) and the result updates as you type or slide. #}
+<div id="salary-calc" data-default-year="{{ tax_year or firm.tax_year or '' }}" class="overflow-hidden rounded-2xl border bg-card shadow-xl shadow-primary/5">
+  <div class="grid md:grid-cols-[1fr_15rem]">
+    <div class="space-y-5 p-5 sm:p-6">
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="block text-sm font-semibold">{{ _("Monthly salary (PKR)") }}
+          <span class="mt-1.5 flex items-center rounded-md border-[1.5px] border-input bg-input-bg focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/30">
+            <span class="ps-3 text-sm text-muted-foreground">Rs.</span>
+            <input id="calc-salary" type="text" inputmode="numeric" autocomplete="off" value="150,000"
+              class="h-11 w-full bg-transparent px-2 text-base font-semibold tabular-nums outline-none" aria-describedby="calc-note" />
+          </span>
+        </label>
+        <label class="block text-sm font-semibold">{{ _("Tax year") }}
+          <select id="calc-year" class="field mt-1.5 h-11"><option>…</option></select>
+        </label>
+      </div>
+      <div>
+        <input id="calc-range" type="range" min="0" max="1000000" step="5000" value="150000" aria-label="{{ _('Monthly salary (PKR)') }}"
+          class="w-full accent-[hsl(var(--primary))]" />
+        <div class="mt-1 flex justify-between text-[11px] text-muted-foreground"><span>Rs. 0</span><span>Rs. 1,000,000+</span></div>
+      </div>
+      <div class="flex items-center justify-between border-t pt-4 text-sm">
+        <span class="text-muted-foreground">{{ _("Annual salary") }}</span><b id="calc-annual" class="tabular-nums">—</b>
+      </div>
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-muted-foreground">{{ _("Annual tax") }}</span><b id="calc-annual-tax" class="tabular-nums">—</b>
+      </div>
     </div>
-    <button type="submit" class="w-full rounded-lg bg-primary px-4 py-2.5 font-semibold text-primary-foreground hover:bg-primary/90">{{ _("Calculate") }}</button>
-    <div id="calc-result" hidden aria-live="polite" class="space-y-1.5 rounded-lg bg-muted/60 p-4 text-sm">
-      <p class="flex justify-between"><span>{{ _("Annual salary") }}</span><b data-k="annual_salary"></b></p>
-      <p class="flex justify-between"><span>{{ _("Annual tax") }}</span><b data-k="annual_tax"></b></p>
-      <p class="flex justify-between"><span>{{ _("Monthly tax") }}</span><b data-k="monthly_tax"></b></p>
-      <p class="flex justify-between text-base"><span>{{ _("Monthly take-home") }}</span><b data-k="monthly_take_home"></b></p>
-      <p class="pt-2 text-xs text-muted-foreground">{{ _("Estimate only — final tax depends on your complete return.") }} <span data-k="demo"></span></p>
+    <div class="flex flex-col justify-center gap-4 border-t bg-gradient-to-br from-primary/10 to-primary/5 p-5 sm:p-6 md:border-s md:border-t-0" aria-live="polite">
+      <div><p class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{{ _("Monthly tax") }}</p>
+        <p id="calc-monthly-tax" class="text-2xl font-bold tabular-nums">—</p></div>
+      <div><p class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{{ _("Monthly take-home") }}</p>
+        <p id="calc-take-home" class="text-2xl font-bold tabular-nums text-success">—</p></div>
+      <div><p class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{{ _("Effective rate") }}</p>
+        <p id="calc-rate" class="font-semibold tabular-nums">—</p></div>
+      <p id="calc-note" class="text-xs text-muted-foreground">{{ _("Estimate only — final tax depends on your complete return.") }} <span id="calc-demo"></span></p>
     </div>
-    <p id="calc-error" role="alert" class="text-sm text-destructive"></p>
   </div>
-</form>
+</div>
 <script>
   (function () {
-    var form = document.getElementById("salary-calc"), out = document.getElementById("calc-result"), err = document.getElementById("calc-error");
-    var demo = {{ _("(Slab figures on this site are demo values until verified against the Finance Act.)") | json }};
-    function rs(v) { return "Rs " + Math.round(v).toLocaleString("en-PK"); }
-    form.addEventListener("submit", function (e) {
-      e.preventDefault(); err.textContent = "";
-      var salary = Number(form.monthly_salary.value);
-      if (!(salary >= 0) || form.monthly_salary.value === "") { err.textContent = {{ _("Enter your monthly salary.") | json }}; return; }
-      ptcPost("pakistan_tax_consultancy.api.public.salary_calculator", { monthly_salary: salary, tax_year: form.tax_year.value })
-        .then(function (r) {
-          ["annual_salary", "annual_tax", "monthly_tax", "monthly_take_home"].forEach(function (k) { out.querySelector('[data-k="' + k + '"]').textContent = rs(r[k]); });
-          out.querySelector('[data-k="demo"]').textContent = r.rules_are_demo ? demo : "";
-          out.hidden = false;
-        }).catch(function (x) { err.textContent = x.message; });
+    var root = document.getElementById("salary-calc");
+    var input = document.getElementById("calc-salary"), range = document.getElementById("calc-range"), year = document.getElementById("calc-year");
+    var demoNote = {{ _("(Slab figures on this site are demo values until verified against the Finance Act.)") | json }};
+    var years = [];
+    function rs(v) { return "Rs. " + Math.round(v).toLocaleString("en-PK"); }
+    function num(v) { return Number(String(v).replace(/[^\d.]/g, "")) || 0; }
+    function slabTax(income, slabs) {  // one slab applies: fixed + rate % of the amount above its lower limit
+      if (income <= 0) return 0;
+      var sorted = slabs.slice().sort(function (a, b) { return a.from_amount - b.from_amount; });
+      for (var i = 0; i < sorted.length; i++) {
+        var s = sorted[i], hi = s.to_amount;
+        if (income > s.from_amount && (!hi || income <= hi)) return s.fixed_tax + (income - s.from_amount) * s.rate_percent / 100;
+      }
+      return 0;
+    }
+    function render() {
+      var y = years.find(function (x) { return x.tax_year === year.value; });
+      var monthly = num(input.value), annual = monthly * 12;
+      document.getElementById("calc-annual").textContent = rs(annual);
+      if (!y) return;
+      var tax = slabTax(annual, y.slabs);
+      document.getElementById("calc-annual-tax").textContent = rs(tax);
+      document.getElementById("calc-monthly-tax").textContent = rs(tax / 12);
+      document.getElementById("calc-take-home").textContent = rs(monthly - tax / 12);
+      document.getElementById("calc-rate").textContent = annual ? (tax * 100 / annual).toFixed(2) + "%" : "0%";
+      document.getElementById("calc-demo").textContent = y.demo ? demoNote : "";
+    }
+    input.addEventListener("input", function () {
+      var v = num(input.value);
+      input.value = v ? v.toLocaleString("en-PK") : "";
+      range.value = Math.min(v, 1000000);
+      render();
     });
+    range.addEventListener("input", function () { input.value = Number(range.value).toLocaleString("en-PK"); render(); });
+    year.addEventListener("change", render);
+    fetch("/api/method/pakistan_tax_consultancy.api.public.salary_slabs").then(function (r) { return r.json(); }).then(function (j) {
+      years = j.message || [];
+      year.innerHTML = years.map(function (y) { return '<option value="' + y.tax_year + '">' + y.label + "</option>"; }).join("");
+      if (years.some(function (y) { return y.tax_year === root.dataset.defaultYear; })) year.value = root.dataset.defaultYear;
+      render();
+    }).catch(function () { root.querySelector("#calc-note").textContent = {{ _("The calculator could not load. Please refresh the page.") | json }}; });
   })();
 </script>

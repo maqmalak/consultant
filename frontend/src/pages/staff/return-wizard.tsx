@@ -9,6 +9,7 @@ import { Link, useParams } from "react-router-dom";
 import useSWR from "swr";
 import { ChildTable, type Col } from "@/components/common/child-table";
 import { FileUpload } from "@/components/common/file-upload";
+import { FilingProgress } from "@/components/common/filing-progress";
 import { StateBadge } from "@/components/common/state-badge";
 import { ErrorState, InlineError, Loading } from "@/components/common/states";
 import { Button } from "@/components/ui/button";
@@ -203,7 +204,8 @@ export function ReturnWizard() {
           <AlertTriangle className="h-4 w-4 text-amber-600" /> Figures changed after approval — the approval was cancelled and the return went back to review.</p>
       )}
 
-      <div className="grid gap-5 lg:grid-cols-[230px_1fr]">
+      <div className="grid items-start gap-5 lg:grid-cols-[250px_1fr]">
+        <div className="space-y-4">
         <nav aria-label="Steps" className="flex gap-1 overflow-x-auto lg:flex-col">
           {STEPS.map(([key, label], i) => (
             <button key={key} onClick={() => setStep(key)} aria-current={step === key ? "step" : undefined}
@@ -214,6 +216,9 @@ export function ReturnWizard() {
             </button>
           ))}
         </nav>
+        {ov && <FilingProgress className="hidden lg:block" step={ov.step} dates={ov.step_dates}
+          problem={["Changes Required", "Filing Error"].includes(doc.workflow_state)} title="Client journey" />}
+        </div>
 
         <div className="min-w-0 space-y-5">
           {step === "client" && (
@@ -226,6 +231,7 @@ export function ReturnWizard() {
                   <div><dt className="text-muted-foreground">Engagement</dt><dd>{ov?.engagement ? <>{ov.engagement.service_package ?? ov.engagement.name} · <StateBadge state={ov.engagement.payment_status} /></> : "—"}</dd></div>
                 </dl>
               </Section>
+              <ClientDetailsPanel doc={doc} editable={editable} onDone={async () => { await mutate(); void overview.mutate(); }} />
               <Section title="Questionnaire" hint="Answers decide the document checklist. Rebuild the checklist after changing them.">
                 <div className="grid gap-2 sm:grid-cols-2">
                   {QUESTIONS.map(([key, q]) => (
@@ -537,6 +543,52 @@ function FilingPanel({ doc, onDone }: { doc: Doc; onDone: () => Promise<void> })
         } catch (e) { setErr(humanizeError(e)); } finally { setBusy(false); }
       }}>Save evidence</Button>
       <p className="text-xs text-muted-foreground">Then use “Record Acknowledgment” above.</p>
+    </Section>
+  );
+}
+
+/** What the client typed in "My details", with one click to copy it into the schedules. */
+function ClientDetailsPanel({ doc, editable, onDone }: { doc: Doc; editable: boolean; onDone: () => Promise<void> }) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<unknown>(null);
+  const [done, setDone] = useState<number | null>(null);
+  const d = (typeof doc.client_details === "string" ? JSON.parse(doc.client_details || "{}") : doc.client_details) || {};
+  const sections = Object.entries(d).filter(([, v]) => Array.isArray(v) && (v as unknown[]).length) as [string, Record<string, unknown>[]][];
+  const extras = (["cash_in_hand", "household_expenses_monthly", "notes"] as const).filter((k) => d[k]);
+  return (
+    <Section title="What the client told us" hint={doc.client_details_updated_on ? `Entered in the portal · last change ${new Date(doc.client_details_updated_on).toLocaleString("en-GB")}${doc.client_details_imported_on ? ` · copied ${new Date(doc.client_details_imported_on).toLocaleString("en-GB")}` : ""}` : "The client has not entered anything yet — they can use “My details” in the portal."}>
+      {sections.length || extras.length ? (
+        <>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {sections.map(([key, rows]) => (
+              <div key={key} className="rounded-md border p-3 text-sm">
+                <p className="mb-1 font-semibold capitalize">{key.replace(/_/g, " ")}</p>
+                {rows.map((r, i) => (
+                  <p key={i} className="text-muted-foreground">{Object.entries(r).filter(([, v]) => v).map(([k, v]) =>
+                    typeof v === "number" ? `${k.replace(/_/g, " ")} ${money(v)}` : String(v)).join(" · ")}</p>
+                ))}
+              </div>
+            ))}
+            {extras.map((k) => (
+              <div key={k} className="rounded-md border p-3 text-sm"><p className="font-semibold capitalize">{k.replace(/_/g, " ")}</p>
+                <p className="whitespace-pre-wrap text-muted-foreground">{typeof d[k] === "number" ? money(d[k]) : String(d[k])}</p></div>
+            ))}
+          </div>
+          <InlineError error={err} />
+          {editable && (
+            <div className="flex flex-wrap items-center gap-3">
+              <Button loading={busy} onClick={async () => {
+                setBusy(true);
+                setErr(null);
+                try { setDone((await apiCall<{ rows: number }>(`${M.STAFF}.import_client_details`, { tax_return: doc.name })).rows); await onDone(); }
+                catch (e) { setErr(e); } finally { setBusy(false); }
+              }}>Copy into return</Button>
+              <span className="text-xs text-muted-foreground">Adds rows marked “(from client)” to income, tax deducted and wealth; copying again replaces them. Check bank-profit rates afterwards.</span>
+              {done !== null && <span className="text-sm text-success">{done} rows added</span>}
+            </div>
+          )}
+        </>
+      ) : null}
     </Section>
   );
 }

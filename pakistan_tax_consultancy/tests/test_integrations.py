@@ -35,9 +35,9 @@ class TestIntegrations(IntegrationTestCase):
 	def tearDown(self):
 		frappe.set_user("Administrator")
 
-	def configure(self, enabled=1):
+	def configure(self, enabled=1, mock=0):
 		s = frappe.get_single("Portal Integration Settings")
-		s.update({"whatsapp_provider": whatsapp.CLOUD_API, "whatsapp_enabled": enabled, "wa_phone_number_id": "123456",
+		s.update({"whatsapp_provider": whatsapp.CLOUD_API, "whatsapp_enabled": enabled, "wa_mock_mode": mock, "wa_phone_number_id": "123456",
 			"wa_access_token": "test-token", "wa_tpl_filed": "return_filed", "wa_language": "en"})
 		s.save(ignore_permissions=True)
 		frappe.clear_document_cache("Portal Integration Settings", "Portal Integration Settings")
@@ -78,6 +78,13 @@ class TestIntegrations(IntegrationTestCase):
 		url = post.call_args.args[0]
 		self.assertTrue(url.endswith("/123456/messages"))
 		self.assertEqual(post.call_args.kwargs["headers"]["Authorization"], "Bearer test-token")
+
+	def test_test_mode_never_calls_meta(self):
+		self.configure(mock=1)
+		with patch("requests.post") as post:
+			data = whatsapp.send_template_now("03001234567", "return_filed", ["a"])
+		post.assert_not_called()
+		self.assertTrue(data["messages"][0]["id"].startswith("wamid.MOCK"))
 
 	def test_settings_are_admin_only_and_secrets_write_only(self):
 		from pakistan_tax_consultancy.api import settings

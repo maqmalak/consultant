@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { STAFF_NAV } from "@/app/nav";
 import { StateBadge } from "@/components/common/state-badge";
+import { PROBLEM_STATES, STATE_STEP, StepChain } from "@/components/common/step-chain";
 import { Empty, ErrorState, InlineError, Loading } from "@/components/common/states";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -82,7 +83,7 @@ export function DocumentQueue() {
 export function ReturnTable({ rows }: { rows: Row[] }) {
   return (
     <Table>
-      <thead><tr><TH>Return</TH><TH>Client</TH><TH>Year</TH><TH>Status</TH><TH className="text-end">Payable / refund</TH><TH>Updated</TH></tr></thead>
+      <thead><tr><TH>Return</TH><TH>Client</TH><TH>Year</TH><TH>Progress</TH><TH>Status</TH><TH className="text-end">Payable / refund</TH><TH>Updated</TH></tr></thead>
       <tbody>
         {rows.map((r) => (
           <TR key={r.name}>
@@ -90,6 +91,7 @@ export function ReturnTable({ rows }: { rows: Row[] }) {
               {r.return_type === "Revised" && <span className="ms-1 text-xs text-muted-foreground">revised</span>}</TD>
             <TD>{r.client_name}</TD>
             <TD>{r.tax_year}</TD>
+            <TD><StepChain step={STATE_STEP[r.workflow_state] ?? 1} problem={PROBLEM_STATES.includes(r.workflow_state)} /></TD>
             <TD><StateBadge state={r.workflow_state} />{r.client_confirmed ? <span className="ms-1 text-xs text-success">client ✔</span> : null}</TD>
             <TD className="text-end tabular-nums">{r.refund_due > 0 ? <span className="text-success">{money(r.refund_due)} refund</span> : money(r.net_tax_payable)}</TD>
             <TD>{formatDate(r.modified)}</TD>

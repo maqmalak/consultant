@@ -225,6 +225,34 @@ def create_demo_data():
 			"mode": "Phone", "call_preference": "Scheduled", "service": "Tax Consultation", "preferred_date": frappe.utils.add_days(
 				frappe.utils.getdate(), 1), "preferred_slot": "Morning (9–12)", "message": f"{TAG}: rental income question",
 			"status": "New"}).insert(ignore_permissions=True)
+	# business client: plain-language "My details" entered in the portal, waiting for the consultant to copy in
+	biz_return = frappe.db.get_value("Tax Return", {"tax_client": business}, "name")
+	if biz_return and not frappe.db.get_value("Tax Return", biz_return, "client_details"):
+		from pakistan_tax_consultancy.api import portal as portal_api
+
+		as_user(email("business"), portal_api.save_details, biz_return, {
+			"business": [{"name": "Malik Traders (demo)", "annual_sales": 6_400_000, "annual_expenses": 4_900_000}],
+			"rent": [{"property": "Shop 4, D-Ground (demo)", "annual_rent": 480_000, "tax_deducted": 24_000}],
+			"bank": [{"bank": "Demo Bank", "balance_30_june": 850_000, "profit": 62_000, "tax_deducted": 9_300}],
+			"property": [{"description": "10 marla house (demo)", "city": "Faisalabad", "purchase_year": "2018", "value": 14_500_000}],
+			"vehicles": [{"make_model": "Honda City 2020 (demo)", "registration_no": "FDA-000", "value": 3_100_000, "tax_paid_on_registration": 50_000}],
+			"cash_in_hand": 120_000, "household_expenses_monthly": 150_000,
+			"notes": "Shop rent is paid by cheque each quarter."})
+
+	# WhatsApp (test mode): a short conversation with the salaried client
+	from pakistan_tax_consultancy.services import wa_inbox
+
+	if wa_inbox.is_mock() and not frappe.db.exists("Client Conversation", {"tax_client": clients["salaried"]}):
+		from pakistan_tax_consultancy.api import whatsapp as wa_api
+
+		wa_inbox.install_mock()
+		as_user(users["consultant"], wa_api.simulate_incoming, "03000000001",
+			"Assalam o Alaikum, I uploaded my salary certificate. Anything else needed?", "Ahmed Raza")
+		conv = frappe.db.get_value("Client Conversation", {"tax_client": clients["salaried"]}, "name")
+		if conv:
+			as_user(users["consultant"], wa_api.send, conv,
+				"Walaikum Assalam! Everything is received — your return summary is ready in the portal. Please confirm it there.")
+
 	frappe.db.commit()
 	print(f"Demo data ready. Users: <role>@{DOMAIN} — password in {SECRETS}")
 	for key, *_ in STAFF:

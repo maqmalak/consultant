@@ -30,6 +30,12 @@
   "owns_property",
   "owns_vehicle",
   "first_time_filer",
+  "sb_client_details",
+  "client_details",
+  "client_details_updated_on",
+  "cb_client_details",
+  "client_details_imported_on",
+  "client_details_imported_by",
   "sb_team",
   "assigned_consultant",
   "reviewer",
@@ -247,6 +253,42 @@
    "fieldname": "first_time_filer",
    "fieldtype": "Check",
    "label": "First-time Filer"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sb_client_details",
+   "fieldtype": "Section Break",
+   "label": "What the Client Told Us"
+  },
+  {
+   "description": "Entered by the client in plain language; staff copy it into the return (portal → wizard)",
+   "fieldname": "client_details",
+   "fieldtype": "JSON",
+   "label": "Client Details",
+   "read_only": 1
+  },
+  {
+   "fieldname": "client_details_updated_on",
+   "fieldtype": "Datetime",
+   "label": "Client Details Updated On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_client_details",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "client_details_imported_on",
+   "fieldtype": "Datetime",
+   "label": "Client Details Imported On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "client_details_imported_by",
+   "fieldtype": "Link",
+   "label": "Client Details Imported By",
+   "options": "User",
+   "read_only": 1
   },
   {
    "fieldname": "sb_team",

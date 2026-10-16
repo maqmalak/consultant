@@ -14,7 +14,8 @@ FIRM_FIELDS = ("firm_name", "tagline", "phone", "phone_2", "whatsapp", "whatsapp
 	"announcement_link", "announcement_expiry", "bank_name", "bank_account_title", "bank_account_no", "bank_iban",
 	"raast_id", "jazzcash_number", "jazzcash_title", "easypaisa_number", "easypaisa_title", "work_before_payment",
 	"filing_deadline")
-WA_FIELDS = ("whatsapp_provider", "whatsapp_enabled", "wa_phone_number_id", "wa_business_account_id", "wa_api_version",
+WA_FIELDS = ("whatsapp_provider", "whatsapp_enabled", "wa_mock_mode", "wa_app_id", "wa_opt_out_keywords", "wa_opt_in_keywords",
+	"wa_phone_number_id", "wa_business_account_id", "wa_api_version",
 	"wa_language", "wa_tpl_ready_for_confirmation", "wa_tpl_document_rejected", "wa_tpl_documents_reminder", "wa_tpl_filed",
 	"wa_tpl_payment_received", "wa_tpl_deadline")
 PAY_FIELDS = ("payment_gateway", "gateway_environment", "gateway_merchant_id", "gateway_store_id", "gateway_api_key")
@@ -46,6 +47,9 @@ def get_settings():
 		"whatsapp": {**{f: integ.get(f) for f in WA_FIELDS},
 			"has_token": _has_password("Portal Integration Settings", "Portal Integration Settings", "wa_access_token"),
 			"last_test": integ.wa_last_test,
+			"has_app_secret": _has_password("Portal Integration Settings", "Portal Integration Settings", "wa_app_secret"),
+			"has_verify_token": _has_password("Portal Integration Settings", "Portal Integration Settings", "wa_webhook_verify_token"),
+			"webhook_url": frappe.utils.get_url("/api/method/pakistan_tax_consultancy.api.whatsapp.webhook"),
 			"events": [{"field": field, "event": event, "params": params} for event, (field, params) in EVENTS.items()]},
 		"email": {**(email or {}), "configured": bool(email),
 			"has_password": bool(email) and _has_password("Email Account", EMAIL_ACCOUNT, "password")},
@@ -79,12 +83,16 @@ def save_whatsapp(data: str | dict):
 	data = frappe.parse_json(data)
 	doc = frappe.get_single("Portal Integration Settings")
 	_apply(doc, data, WA_FIELDS)
-	if data.get("wa_access_token"):  # write-only; blank keeps the stored token
-		doc.wa_access_token = data["wa_access_token"].strip()
-	if cint(doc.whatsapp_enabled) and doc.whatsapp_provider == "WhatsApp Cloud API (Meta)" and not (
+	for secret in ("wa_access_token", "wa_app_secret", "wa_webhook_verify_token"):
+		if data.get(secret):  # write-only; blank keeps the stored value
+			doc.set(secret, data[secret].strip())
+	if cint(doc.whatsapp_enabled) and doc.whatsapp_provider == "WhatsApp Cloud API (Meta)" and not cint(doc.wa_mock_mode) and not (
 			doc.wa_phone_number_id and (data.get("wa_access_token") or doc.get_password("wa_access_token", raise_exception=False))):
 		frappe.throw(_("Add the Phone Number ID and access token before turning on automatic WhatsApp updates."))
 	doc.save(ignore_permissions=True)
+	from pakistan_tax_consultancy.services.wa_inbox import sync_account
+
+	sync_account(doc)
 	return get_settings()["whatsapp"]
 
 
@@ -156,3 +164,66 @@ def save_payment(data: str | dict):
 			doc.gateway_environment))
 	doc.save(ignore_permissions=True)
 	return get_settings()["payment"]
+
+
+# ----------------------------------------------------------------------------------------------- team
+STAFF_ROLES = ("Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer", "Field Officer")
+
+
+@frappe.whitelist(methods=["GET"])
+def team():
+	require_admin()
+	rows = frappe.get_all("Has Role", filters={"role": ("in", STAFF_ROLES), "parenttype": "User"}, fields=["parent", "role"])
+	by_user = {}
+	for r in rows:
+		by_user.setdefault(r.parent, []).append(r.role)
+	users = frappe.get_all("User", filters={"name": ("in", list(by_user) or [""])},
+		fields=["name", "full_name", "enabled", "mobile_no", "last_active"], order_by="full_name asc")
+	open_returns = {}
+	for r in frappe.get_all("Tax Return", filters={"workflow_state": ("not in", ("Acknowledged", "Closed"))},
+			fields=["assigned_consultant"]):
+		open_returns[r.assigned_consultant] = open_returns.get(r.assigned_consultant, 0) + 1
+	return [{**u, "roles": by_user[u.name], "open_returns": open_returns.get(u.name, 0)} for u in users]
+
+
+@frappe.whitelist(methods=["POST"])
+def save_member(email: str, full_name: str, roles: str | list, mobile_no: str | None = None, enabled: int = 1):
+	"""Add or update a staff login with one or more working roles; new members get a set-password link."""
+	from pakistan_tax_consultancy.services.notify import sendmail
+
+	require_admin()
+	roles = [r for r in (frappe.parse_json(roles) if isinstance(roles, str) else roles) if r in STAFF_ROLES]
+	if not roles:
+		frappe.throw(_("Choose at least one role."))
+	email = (email or "").strip().lower()
+	if not email or "@" not in email:
+		frappe.throw(_("Enter a valid email."))
+	if email == frappe.session.user and not cint(enabled):
+		frappe.throw(_("You cannot disable your own login."))
+	first, _sp, last = (full_name or email).strip().partition(" ")
+	exists = frappe.db.exists("User", email)
+	user = frappe.get_doc("User", email) if exists else frappe.get_doc({"doctype": "User", "email": email,
+		"send_welcome_email": 0, "user_type": "System User"})
+	if exists and "Client" in [r.role for r in user.roles]:
+		frappe.throw(_("{0} is a client login and cannot be staff.").format(email))
+	user.update({"first_name": first, "last_name": last, "mobile_no": mobile_no or user.get("mobile_no"), "enabled": cint(enabled),
+		"user_type": "System User"})
+	keep = [r for r in user.roles if r.role not in STAFF_ROLES]
+	user.set("roles", keep + [{"role": r} for r in roles])
+	user.flags.ignore_permissions = True
+	user.save() if exists else user.insert()
+	link = None
+	if not exists:
+		link = user._reset_password(send_email=False)
+		sendmail(recipients=[email], subject=_("Your staff login"),
+			message=_("<p>Assalam-o-Alaikum {0},</p><p>Set your password here: <a href='{1}'>{1}</a></p>").format(first, link))
+	return {"user": user.name, "link": link}
+
+
+@frappe.whitelist(methods=["POST"])
+def reset_link(email: str):
+	require_admin()
+	user = frappe.get_doc("User", email)
+	if not set(frappe.get_roles(email)) & set(STAFF_ROLES):
+		frappe.throw(_("Not a staff login."))
+	return {"link": user._reset_password(send_email=False)}

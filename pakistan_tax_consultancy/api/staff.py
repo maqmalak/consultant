@@ -138,7 +138,11 @@ def return_overview(tax_return: str):
 	except Exception:
 		transitions = []
 	review = frappe.db.get_value("Tax Review", {"tax_return": doc.name}, "name", order_by="creation desc")
+	from pakistan_tax_consultancy.api.portal import STEP_OF, step_dates
+
 	return {
+		"step": STEP_OF.get(doc.workflow_state, 1),
+		"step_dates": step_dates(doc.name, doc.tax_client),
 		"transitions": transitions,
 		"checklist": checklist(doc.name),
 		"documents": wf.required_documents_status(doc.name) | {"pending": None},
@@ -184,6 +188,21 @@ def transition(tax_return: str, action: str, comment: str | None = None):
 	doc.workflow_state = t.next_state
 	doc.save(ignore_permissions=True)  # role already checked above and again by validate_workflow
 	return {"workflow_state": doc.workflow_state}
+
+
+@frappe.whitelist(methods=["POST"])
+def import_client_details(tax_return: str):
+	"""Copy what the client entered into the return's schedules (replacing earlier client-sourced rows)."""
+	from pakistan_tax_consultancy.services.client_details import copy_into_return
+
+	doc = _return_for_write(tax_return)
+	if doc.workflow_state not in (wf.DOCUMENTS_PENDING, wf.DRAFT, wf.CHANGES_REQUIRED):
+		frappe.throw(_("Copy client details while the return is in preparation."))
+	if not doc.client_details:
+		frappe.throw(_("The client has not entered any details yet."))
+	added = copy_into_return(doc)
+	doc.save()
+	return {"rows": added}
 
 
 @frappe.whitelist(methods=["POST"])
@@ -322,9 +341,32 @@ def search_clients(q: str = "", start: int = 0, page_length: int = 30):
 				pass
 		if "@" in q:
 			or_filters["email_normalized"] = q.lower()
-	return frappe.get_list("Tax Client", or_filters=or_filters, fields=["name", "client_name", "client_type", "cnic_masked",
+	rows = frappe.get_list("Tax Client", or_filters=or_filters, fields=["name", "client_name", "client_type", "cnic_masked",
 		"ntn", "mobile", "email", "city", "status", "assigned_consultant", "portal_user", "fbr_registration_status",
 		"registration_source"], order_by="modified desc", start=cint(start), page_length=min(cint(page_length) or 30, 200))
+	attach_latest_return(rows)
+	return rows
+
+
+def attach_latest_return(rows):
+	"""Each client's most recent return and its step on the 7-step client journey (for the circle chain)."""
+	from pakistan_tax_consultancy.api.portal import STEP_OF
+
+	if not rows:
+		return
+	latest = {}
+	for r in frappe.get_list("Tax Return", filters={"tax_client": ("in", [c.name for c in rows])},
+			fields=["name", "tax_client", "tax_year", "workflow_state", "creation"], order_by="tax_year desc, creation desc",
+			limit_page_length=0):
+		latest.setdefault(r.tax_client, r)
+	for c in rows:
+		r = latest.get(c.name)
+		c["latest_return"] = r.name if r else None
+		c["latest_year"] = r.tax_year if r else None
+		c["latest_state"] = r.workflow_state if r else None
+		# no return yet: the account step is done (0); otherwise the step the return has reached
+		c["latest_step"] = STEP_OF.get(r.workflow_state, 1) if r else 0
+		c["has_error"] = bool(r and r.workflow_state in (wf.FILING_ERROR, wf.CHANGES_REQUIRED))
 
 
 @frappe.whitelist(methods=["GET"])
@@ -337,6 +379,12 @@ def client_overview(tax_client: str):
 		"mobile_verified", "email_verified", "invited_on")}
 	data["returns"] = frappe.get_list("Tax Return", filters={"tax_client": tax_client}, fields=RETURN_FIELDS,
 		order_by="tax_year desc")
+	if data["returns"]:
+		from pakistan_tax_consultancy.api.portal import STEP_OF, step_dates
+
+		latest = data["returns"][0]
+		data["latest"] = {"name": latest.name, "tax_year": latest.tax_year, "state": latest.workflow_state,
+			"step": STEP_OF.get(latest.workflow_state, 1), "step_dates": step_dates(latest.name, tax_client)}
 	data["engagements"] = frappe.get_list("Tax Engagement", filters={"tax_client": tax_client}, fields=["name", "service",
 		"service_package", "tax_year", "net_fee", "agreed_fee", "payment_status", "status"], order_by="creation desc")
 	data["documents"] = frappe.get_list("Tax Document", filters={"tax_client": tax_client}, fields=["name",

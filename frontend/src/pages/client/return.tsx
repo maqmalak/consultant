@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { FileUpload } from "@/components/common/file-upload";
-import { ProgressTracker } from "@/components/common/progress-tracker";
+import { FilingProgress } from "@/components/common/filing-progress";
 import { StateBadge } from "@/components/common/state-badge";
 import { ErrorState, InlineError, Loading } from "@/components/common/states";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { downloadUrl, M, portal, type ChecklistItem, type ReturnDetail } from "@
 import { cn } from "@/lib/cn";
 import { money } from "@/lib/format";
 import { useApi } from "@/lib/use-api";
+import { MyDetails } from "./details";
 
 export const QUESTIONS: [string, string][] = [
   ["has_salary", "Do you have salary income?"],
@@ -194,18 +195,21 @@ export function ReturnPage() {
   if (error || !data) return <ErrorState error={error} onRetry={() => void mutate()} />;
   const defaultTab = data.summary ? "summary" : data.state === "Documents Pending" ? "documents" : "questions";
   const active = tab ?? defaultTab;
-  const tabs: [string, string][] = [["questions", t("Questions")], ["documents", t("Documents")],
+  const tabs: [string, string][] = [["questions", t("Questions")], ["details", t("My details")], ["documents", t("Documents")],
     ...(data.summary ? [["summary", t("Summary")] as [string, string]] : [])];
   const required = data.checklist.filter((c) => c.is_required);
   const verified = required.filter((c) => c.status === "Verified").length;
 
   return (
-    <div className="space-y-5">
+    <div className="grid items-start gap-5 lg:grid-cols-[1fr_290px]">
+    <aside className="lg:sticky lg:top-20 lg:order-2">
+      <FilingProgress step={data.step} dates={data.step_dates} problem={data.problem} title={`${t("Filing progress")} · ${data.tax_year}`} />
+    </aside>
+    <div className="min-w-0 space-y-5 lg:order-1">
       <div>
         <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Tax year {data.tax_year}</p>
         <h1 className="text-2xl font-semibold">{t(data.status)}</h1>
       </div>
-      <Card className="p-4"><ProgressTracker step={data.step} /></Card>
       {data.iris_acknowledgment_no && (
         <Card className="flex flex-wrap items-center justify-between gap-3 border-success/40 bg-success/5 p-4">
           <p className="text-sm">{t("Acknowledgment")}: <b dir="ltr">{data.iris_acknowledgment_no}</b></p>
@@ -226,6 +230,7 @@ export function ReturnPage() {
         ))}
       </div>
       {active === "questions" && <Questionnaire detail={data} onSaved={() => void mutate()} />}
+      {active === "details" && <MyDetails detail={data} onSaved={() => void mutate()} />}
       {active === "documents" && (
         <div className="space-y-3">
           <p className="flex items-center gap-1.5 text-sm text-muted-foreground"><HelpCircle className="h-4 w-4" /> PDF, JPG or PNG up to 10 MB. Files are private — only you and your consultant can open them.</p>
@@ -246,6 +251,7 @@ export function ReturnPage() {
           ))}
         </section>
       )}
+    </div>
     </div>
   );
 }

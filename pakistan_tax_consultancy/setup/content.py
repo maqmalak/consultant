@@ -134,6 +134,18 @@ FAQS = [
 		"privacy policy for details.</p>"),
 ]
 
+QUICK_REPLIES = [
+	("Greeting", "hi", "Assalam-o-Alaikum! This is VVS Consultants. How can we help you with your tax return today?"),
+	("Documents needed", "docs", "To prepare your return we need your CNIC, salary certificate and bank statements for July–June. "
+		"You can upload them in your portal under Documents."),
+	("Upload help", "upload", "Open the portal → Documents → tap Upload or Take photo next to each item. PDF, JPG or PNG up to 10 MB."),
+	("Please confirm", "confirm", "Your return summary is ready. Please open the portal and tap “Confirm my return” so we can file it on FBR IRIS."),
+	("Payment details", "pay", "You can pay by bank transfer, Raast, JazzCash or Easypaisa — details are under Payments in your portal. "
+		"Please upload a screenshot after paying."),
+	("Filed", "filed", "Your return has been filed on FBR IRIS. The acknowledgment is in your portal. Thank you!"),
+	("Urdu greeting", "salam", "السلام علیکم! وی وی ایس کنسلٹنٹس۔ ہم آپ کے ٹیکس ریٹرن میں کیسے مدد کر سکتے ہیں؟"),
+]
+
 HIGHLIGHTS = [
 	("Qualified consultants", "user-check", "Every return is prepared by a consultant and checked by a second reviewer."),
 	("Private by design", "shield-check", "Documents are private files; every download is logged."),
@@ -221,6 +233,10 @@ def _seed():
 		for order, (category, q, a) in enumerate(FAQS, 1):
 			_insert({"doctype": "FAQ", "category": category, "question": q, "answer": a, "published": 1,
 				"display_order": order, "language": "en"})
+
+	for title, shortcut, message in QUICK_REPLIES:
+		if not frappe.db.exists("Quick Reply", title):
+			_insert({"doctype": "Quick Reply", "title": title, "shortcut": shortcut, "message": message})
 
 	site = frappe.get_single("Firm Website Settings")
 	if not site.why_choose_us:

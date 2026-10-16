@@ -43,6 +43,24 @@ def my_return(tax_return):
 	return client, doc
 
 
+def step_dates(tax_return: str, tax_client: str | None = None) -> list:
+	"""When each step of the client journey was first reached (from the audit trail); None = not reached yet."""
+	dates = [None] * len(STEPS)
+	if tax_client:
+		dates[0] = str(frappe.db.get_value("Tax Client", tax_client, "creation") or "") or None
+	created = frappe.db.get_value("Tax Return", tax_return, "creation")
+	if created:
+		dates[1] = str(created)
+	for e in frappe.get_all("Tax Audit Event", filters={"reference_doctype": "Tax Return", "reference_name": tax_return,
+			"event_type": ("in", ("Create", "Status Change"))}, fields=["to_state", "timestamp"], order_by="timestamp asc"):
+		step = STEP_OF.get(e.to_state)
+		if step is None:
+			continue
+		for i in range(1, step + 1):  # reaching a step implies the earlier ones are behind it
+			dates[i] = dates[i] or str(e.timestamp)
+	return dates
+
+
 def _return_card(r):
 	return {"name": r.name, "tax_year": r.tax_year, "return_type": r.return_type, "state": r.workflow_state,
 		"status": CLIENT_STATUS.get(r.workflow_state, r.workflow_state), "step": STEP_OF.get(r.workflow_state, 1),
@@ -156,6 +174,9 @@ def return_detail(tax_return: str):
 		"can_edit_answers": doc.workflow_state in EDITABLE_BY_CLIENT,
 		"checklist": checklist(doc.name),
 		"client_confirmed": cint(doc.client_confirmed), "client_confirmed_on": doc.client_confirmed_on,
+		"step_dates": step_dates(doc.name, doc.tax_client),
+		"client_details": frappe.parse_json(doc.client_details) if doc.client_details else None,
+		"problem": doc.workflow_state in (wf.CHANGES_REQUIRED, wf.FILING_ERROR),
 		"comments": [c for c in frappe.get_all("Review Comment", filters={"tax_return": doc.name},
 			fields=["comment", "from_client", "visible_to_client", "creation", "stage"], order_by="creation asc")
 			if c.from_client or c.visible_to_client],
@@ -195,6 +216,21 @@ def save_answers(tax_return: str, answers: str | dict):
 	doc.save(ignore_permissions=True)
 	required = generate_checklist(doc)
 	return {"required_documents": required}
+
+
+@frappe.whitelist(methods=["POST"])
+@rate_limit(limit=120, seconds=60 * 60)
+def save_details(tax_return: str, details: str | dict):
+	"""The client's plain-language answers about their year (salary, bank, property, car …)."""
+	from pakistan_tax_consultancy.services.client_details import clean
+
+	_client, doc = my_return(tax_return)
+	if doc.workflow_state not in EDITABLE_BY_CLIENT:
+		frappe.throw(_("Your return is already in review; message your consultant to change your details."))
+	data = clean(frappe.parse_json(details) if isinstance(details, str) else details)
+	frappe.db.set_value("Tax Return", doc.name, {"client_details": frappe.as_json(data),
+		"client_details_updated_on": now_datetime()}, update_modified=False)
+	return data
 
 
 @frappe.whitelist(methods=["POST"])

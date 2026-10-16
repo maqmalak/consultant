@@ -5,130 +5,229 @@
   "@context": "https://schema.org",
   "@type": ["AccountingService", "LocalBusiness"],
   "name": firm.firm_name or "",
+  "alternateName": firm.tagline or None,
   "description": firm.hero_subtext or "",
   "telephone": firm.phone or None,
   "email": firm.email or None,
-  "address": {"@type": "PostalAddress", "streetAddress": firm.address or "", "addressCountry": "PK"},
+  "logo": frappe.utils.get_url(firm.logo) if firm.logo else None,
+  "address": {"@type": "PostalAddress", "streetAddress": firm.address or "", "addressLocality": "Faisalabad", "addressCountry": "PK"},
   "openingHours": firm.office_hours or None,
   "url": frappe.utils.get_url("/"),
   "areaServed": "PK",
-  "priceRange": "PKR"
+  "founder": {"@type": "Person", "name": firm.partner_name, "jobTitle": firm.partner_title} if firm.partner_name else None
 } | json }}
 </script>
 {% endblock %}
 {% block content %}
 {%- set wa = ("https://wa.me/" ~ (firm.whatsapp | replace("+", "") | replace(" ", "")) ~ "?text=" ~ ((firm.whatsapp_message or "") | urlencode)) if firm.whatsapp else None -%}
+{%- set creds = (firm.partner_credentials or "").split(",") | map("trim") | select | list -%}
+{%- set icons = {
+  "file-text": '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>',
+  "id-card": '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="12" r="2"/><path d="M14 10h4M14 14h3"/>',
+  "receipt": '<path d="M5 2v20l3-2 3 2 3-2 3 2 2-1.5V2l-2 1.5L14 2l-3 2-3-2-3 1.5z"/><path d="M9 8h6M9 12h6"/>',
+  "building-2": '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v8h4M18 9h2a2 2 0 0 1 2 2v11h-4M10 6h4M10 10h4M10 14h4M10 18h4"/>',
+  "mail-warning": '<path d="M22 10.5V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12.5"/><path d="m22 7-10 6L2 7M20 14v4M20 22v.01"/>',
+  "messages-square": '<path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z"/><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"/>'
+} -%}
 
-{# 2. Hero #}
-<section class="relative overflow-hidden border-b">
-  <div aria-hidden="true" class="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_420px_at_15%_0%,hsl(var(--primary)/0.14),transparent_60%),radial-gradient(700px_380px_at_90%_20%,rgb(99_102_241/0.10),transparent_60%)]"></div>
-  <div class="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:py-20 lg:grid-cols-[1.2fr_1fr]">
+{# ---------------------------------------------------------------- hero (dark, gold) #}
+<section class="relative isolate overflow-hidden bg-[#0b0b0c] text-white">
+  <div aria-hidden="true" class="absolute inset-0 -z-10 bg-[radial-gradient(800px_420px_at_85%_10%,rgba(212,175,55,0.22),transparent_60%),radial-gradient(700px_380px_at_0%_100%,rgba(212,175,55,0.10),transparent_60%)]"></div>
+  <div aria-hidden="true" class="absolute inset-0 -z-10 opacity-[0.07] bg-[linear-gradient(rgba(255,255,255,.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.6)_1px,transparent_1px)] bg-[size:48px_48px]"></div>
+  <div class="mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 sm:py-28 lg:grid-cols-[1.25fr_1fr]">
     <div>
-      {% if tax_year %}<p class="mb-4 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-medium">
-        <span class="h-2 w-2 rounded-full bg-success"></span>{{ _("Now filing Tax Year {0} returns").format(tax_year) }}</p>{% endif %}
-      <h1 class="text-3xl font-bold leading-tight tracking-tight sm:text-5xl">{{ firm.hero_headline or _("File your income tax return with a qualified consultant") }}</h1>
-      <p class="mt-5 max-w-xl text-lg text-muted-foreground">{{ firm.hero_subtext }}</p>
-      <div class="mt-8 flex flex-wrap gap-3">
-        <a href="/portal/signup" class="rounded-lg bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90">{{ _("Start Filing") }}</a>
-        {% if wa %}<a href="{{ wa }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg border border-[#25D366]/50 bg-card px-6 py-3 text-base font-semibold text-[#128C7E] hover:bg-[#25D366]/10 dark:text-[#25D366]">{{ _("Chat on WhatsApp") }}</a>{% endif %}
+      <p class="mb-6 inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-[#d4af37]">
+        <span class="h-px w-10 bg-[#d4af37]"></span>{{ firm.tagline or firm.firm_name }}</p>
+      <h1 class="font-display text-4xl font-semibold leading-[1.1] sm:text-6xl">{{ firm.hero_headline }}</h1>
+      <p class="mt-6 max-w-xl text-lg leading-relaxed text-white/70">{{ firm.hero_subtext }}</p>
+      <div class="mt-10 flex flex-wrap gap-3">
+        <a href="/portal/signup" class="rounded-full bg-gradient-to-r from-[#d4af37] to-[#b8912a] px-7 py-3.5 font-semibold text-[#141416] shadow-lg shadow-[#d4af37]/25 transition hover:brightness-110">{{ _("Start Filing") }}</a>
+        <a href="/book-consultation" class="rounded-full border border-white/25 px-7 py-3.5 font-semibold text-white transition hover:border-[#d4af37] hover:text-[#d4af37]">{{ _("Book a Consultation") }}</a>
+      </div>
+      {% if tax_year %}<p class="mt-8 flex items-center gap-2 text-sm text-white/60"><span class="h-2 w-2 animate-pulse rounded-full bg-emerald-400"></span>{{ _("Now filing Tax Year {0} returns").format(tax_year) }}</p>{% endif %}
+    </div>
+    {# partner / firm card #}
+    <div class="relative">
+      <div aria-hidden="true" class="absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-[#d4af37]/25 to-transparent blur-2xl"></div>
+      <div class="rounded-3xl border border-[#d4af37]/30 bg-white/[0.04] p-8 backdrop-blur">
+        <div class="flex items-center gap-4">
+          {% if firm.partner_photo %}<img src="{{ firm.partner_photo }}" alt="" class="h-16 w-16 rounded-2xl object-cover ring-2 ring-[#d4af37]/60" />
+          {% else %}<img src="{{ firm.logo or '/assets/pakistan_tax_consultancy/images/vvs-mark.svg' }}" alt="" class="h-16 w-16 rounded-2xl ring-1 ring-[#d4af37]/40" />{% endif %}
+          <div>
+            <p class="font-display text-xl font-semibold">{{ firm.partner_name or firm.firm_name }}</p>
+            <p class="text-sm text-[#d4af37]">{{ firm.partner_title or "" }}</p>
+          </div>
+        </div>
+        {% if creds %}
+        <div class="mt-6 flex flex-wrap gap-2">
+          {% for c in creds %}<span class="rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-3 py-1 text-xs font-semibold tracking-wide text-[#f3d77a]">{{ c }}</span>{% endfor %}
+        </div>
+        {% endif %}
+        <dl class="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-6 text-sm">
+          <div><dt class="text-white/50">{{ _("Office") }}</dt><dd class="mt-1 font-medium">Faisalabad</dd></div>
+          <div><dt class="text-white/50">{{ _("Filing") }}</dt><dd class="mt-1 font-medium">FBR IRIS</dd></div>
+          {% if firm.years_experience %}<div><dt class="text-white/50">{{ _("Experience") }}</dt><dd class="mt-1 font-medium">{{ firm.years_experience }}+ {{ _("years") }}</dd></div>{% endif %}
+          <div><dt class="text-white/50">{{ _("Review") }}</dt><dd class="mt-1 font-medium">{{ _("Two consultants") }}</dd></div>
+        </dl>
       </div>
     </div>
-    {# 3. Trust strip — only facts the firm provides #}
-    <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-      {% if firm.years_experience %}<li class="rounded-xl border bg-card p-4"><p class="text-2xl font-bold">{{ firm.years_experience }}+</p><p class="text-sm text-muted-foreground">{{ _("years in tax practice") }}</p></li>{% endif %}
-      {% if firm.membership_info %}<li class="rounded-xl border bg-card p-4"><p class="font-semibold">{{ firm.membership_info }}</p><p class="text-sm text-muted-foreground">{{ _("Professional membership / registration") }}</p></li>{% endif %}
-      <li class="rounded-xl border bg-card p-4"><p class="font-semibold">{{ _("Private document storage") }}</p><p class="text-sm text-muted-foreground">{{ _("Only you and your assigned consultant can open your files; every download is logged.") }}</p></li>
-      <li class="rounded-xl border bg-card p-4"><p class="font-semibold">{{ _("Filed on FBR IRIS, with your authorisation") }}</p><p class="text-sm text-muted-foreground">{{ _("You confirm the summary first; we send you the IRIS acknowledgment.") }}</p></li>
-    </ul>
   </div>
 </section>
 
-{# 4. How it works #}
-<section class="mx-auto max-w-6xl px-4 py-16" aria-labelledby="how">
-  <h2 id="how" class="text-center text-2xl font-bold sm:text-3xl">{{ _("How it works") }}</h2>
-  <ol class="mt-10 grid gap-5 md:grid-cols-4">
+{# ---------------------------------------------------------------- trust strip #}
+<section class="border-b bg-card">
+  <div class="mx-auto grid max-w-6xl gap-px bg-border sm:grid-cols-3">
     {% for title, text in [
-      (_("Create account & verify mobile"), _("Sign up in two minutes; we confirm your number with a one-time code.")),
-      (_("Answer questions & upload documents"), _("A short questionnaire builds your checklist — upload from your phone.")),
-      (_("We prepare and review, you confirm"), _("A consultant prepares, a second person reviews, and you approve the summary.")),
-      (_("We file on FBR IRIS"), _("We submit on your behalf and send you the acknowledgment and receipt."))] %}
-    <li class="relative rounded-xl border bg-card p-5">
-      <span class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{{ loop.index }}</span>
-      <h3 class="mt-4 font-semibold">{{ title }}</h3>
-      <p class="mt-1.5 text-sm text-muted-foreground">{{ text }}</p>
-    </li>
+      (_("Private document storage"), _("Only you and your assigned consultant can open your files; every download is logged.")),
+      (_("You approve first"), _("Nothing is filed until you confirm the summary in your portal.")),
+      (_("Filed on FBR IRIS, with your authorisation"), _("You confirm the summary first; we send you the IRIS acknowledgment."))] %}
+    <div class="bg-card px-6 py-7"><p class="font-semibold">{{ title }}</p><p class="mt-1 text-sm text-muted-foreground">{{ text }}</p></div>
     {% endfor %}
-  </ol>
+  </div>
 </section>
 
-{# 5. Packages #}
-{% if packages %}
-<section class="border-y bg-card/50 py-16" aria-labelledby="packages">
-  <div class="mx-auto max-w-6xl px-4">
-    <h2 id="packages" class="text-center text-2xl font-bold sm:text-3xl">{{ _("Filing packages") }}</h2>
-    <p class="mx-auto mt-2 max-w-xl text-center text-muted-foreground">{{ _("One clear price. No hidden charges.") }}</p>
-    {% include "templates/ptc/packages.html" %}
+{# ---------------------------------------------------------------- about #}
+{% if firm.about_text %}
+<section class="mx-auto max-w-6xl px-4 py-20" aria-labelledby="about">
+  <div class="grid gap-12 lg:grid-cols-[1fr_1.3fr]">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.3em] text-primary">{{ _("About us") }}</p>
+      <h2 id="about" class="mt-3 font-display text-3xl font-semibold sm:text-4xl">{{ firm.about_heading }}</h2>
+      <div class="mt-6 h-1 w-16 rounded-full bg-gradient-to-r from-[#d4af37] to-transparent"></div>
+    </div>
+    <div class="space-y-4 text-lg leading-relaxed text-muted-foreground">
+      {% for para in firm.about_text.split("\n\n") if para.strip() %}<p>{{ para.strip() }}</p>{% endfor %}
+      <a href="/about" class="inline-flex items-center gap-2 text-base font-semibold text-primary hover:underline">{{ _("More about us") }} →</a>
+    </div>
   </div>
 </section>
 {% endif %}
 
-{# 6. Salary tax calculator #}
-<section class="mx-auto max-w-6xl px-4 py-16" aria-labelledby="calc">
-  <div class="grid items-start gap-8 lg:grid-cols-2">
-    <div>
-      <h2 id="calc" class="text-2xl font-bold sm:text-3xl">{{ _("Salary tax calculator") }}</h2>
-      <p class="mt-3 text-muted-foreground">{{ _("See your monthly tax and take-home pay for the selected tax year.") }}</p>
-    </div>
-    {% include "templates/ptc/calculator.html" %}
-  </div>
-</section>
-
-{# 7. Why choose us #}
-{% if firm.why_choose_us %}
-<section class="border-y bg-card/50 py-16" aria-labelledby="why">
+{# ---------------------------------------------------------------- services #}
+{% if services %}
+<section class="border-y bg-muted/40 py-20" aria-labelledby="services">
   <div class="mx-auto max-w-6xl px-4">
-    <h2 id="why" class="text-center text-2xl font-bold sm:text-3xl">{{ _("Why clients choose us") }}</h2>
-    <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      {% for h in firm.why_choose_us %}
-      <div class="rounded-xl border bg-card p-5"><h3 class="font-semibold">{{ h.title }}</h3><p class="mt-1.5 text-sm text-muted-foreground">{{ h.description }}</p></div>
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-primary">{{ _("What we do") }}</p>
+        <h2 id="services" class="mt-3 font-display text-3xl font-semibold sm:text-4xl">{{ _("Services") }}</h2>
+      </div>
+      <a href="/services" class="text-sm font-semibold text-primary hover:underline">{{ _("All services") }} →</a>
+    </div>
+    <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {% for s in services %}
+      <a href="/services/{{ s.slug }}" class="group relative overflow-hidden rounded-2xl border bg-card p-6 transition hover:-translate-y-1 hover:border-[#d4af37]/60 hover:shadow-xl hover:shadow-[#d4af37]/10">
+        <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-[#141416] text-[#d4af37] ring-1 ring-[#d4af37]/30">
+          <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{{ icons.get(s.icon) or icons["file-text"] }}</svg>
+        </span>
+        <h3 class="mt-5 text-lg font-semibold group-hover:text-primary">{{ s.title }}</h3>
+        <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{{ s.summary or "" }}</p>
+        {% if s.price_from %}<p class="mt-4 text-sm text-muted-foreground">{{ _("From") }} <b class="text-foreground">Rs {{ "{:,.0f}".format(s.price_from) }}</b></p>{% endif %}
+      </a>
       {% endfor %}
     </div>
   </div>
 </section>
 {% endif %}
 
-{# 8. Testimonials — only real, consented reviews; hidden when there are none #}
+{# ---------------------------------------------------------------- how it works #}
+<section class="mx-auto max-w-6xl px-4 py-20" aria-labelledby="how">
+  <p class="text-center text-xs font-semibold uppercase tracking-[0.3em] text-primary">{{ _("The process") }}</p>
+  <h2 id="how" class="mt-3 text-center font-display text-3xl font-semibold sm:text-4xl">{{ _("How it works") }}</h2>
+  <ol class="relative mt-14 grid gap-10 md:grid-cols-4 md:gap-6">
+    <span aria-hidden="true" class="absolute start-0 end-0 top-6 hidden h-px bg-gradient-to-r from-transparent via-[#d4af37]/60 to-transparent md:block"></span>
+    {% for title, text in [
+      (_("Create account & verify mobile"), _("Sign up in two minutes; we confirm your number with a one-time code.")),
+      (_("Answer questions & upload documents"), _("A short questionnaire builds your checklist — upload from your phone.")),
+      (_("We prepare and review, you confirm"), _("A consultant prepares, a second person reviews, and you approve the summary.")),
+      (_("We file on FBR IRIS"), _("We submit on your behalf and send you the acknowledgment and receipt."))] %}
+    <li class="relative text-center">
+      <span class="relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-[#d4af37]/50 bg-[#141416] font-display text-lg font-semibold text-[#d4af37] shadow-lg">{{ loop.index }}</span>
+      <h3 class="mt-5 font-semibold">{{ title }}</h3>
+      <p class="mt-2 text-sm text-muted-foreground">{{ text }}</p>
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+
+{# ---------------------------------------------------------------- packages #}
+{% if packages %}
+<section class="border-y bg-muted/40 py-20" aria-labelledby="packages">
+  <div class="mx-auto max-w-6xl px-4">
+    <p class="text-center text-xs font-semibold uppercase tracking-[0.3em] text-primary">{{ _("Pricing") }}</p>
+    <h2 id="packages" class="mt-3 text-center font-display text-3xl font-semibold sm:text-4xl">{{ _("Filing packages") }}</h2>
+    <p class="mx-auto mt-3 max-w-xl text-center text-muted-foreground">{{ _("One clear price. No hidden charges.") }}</p>
+    {% include "templates/ptc/packages.html" %}
+  </div>
+</section>
+{% endif %}
+
+{# ---------------------------------------------------------------- calculator #}
+<section class="mx-auto max-w-6xl px-4 py-20" aria-labelledby="calc">
+  <div class="grid items-center gap-10 lg:grid-cols-[1fr_2.2fr]">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.3em] text-primary">{{ _("Free tool") }}</p>
+      <h2 id="calc" class="mt-3 font-display text-3xl font-semibold leading-tight sm:text-4xl">{{ _("Calculate your tax") }}</h2>
+      <p class="mt-4 text-muted-foreground">{{ _("Move the slider or type your monthly salary — see your tax and take-home pay instantly.") }}</p>
+    </div>
+    {% include "templates/ptc/calculator.html" %}
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- why us #}
+{% if firm.why_choose_us %}
+<section class="bg-[#0b0b0c] py-20 text-white" aria-labelledby="why">
+  <div class="mx-auto max-w-6xl px-4">
+    <p class="text-center text-xs font-semibold uppercase tracking-[0.3em] text-[#d4af37]">{{ _("Our promise") }}</p>
+    <h2 id="why" class="mt-3 text-center font-display text-3xl font-semibold sm:text-4xl">{{ _("Why clients choose us") }}</h2>
+    <div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {% for h in firm.why_choose_us %}
+      <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition hover:border-[#d4af37]/50">
+        <span class="font-display text-3xl font-semibold text-[#d4af37]">0{{ loop.index }}</span>
+        <h3 class="mt-3 font-semibold">{{ h.title }}</h3>
+        <p class="mt-2 text-sm leading-relaxed text-white/60">{{ h.description }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# ---------------------------------------------------------------- testimonials (consented only) #}
 {% if testimonials %}
-<section class="mx-auto max-w-6xl px-4 py-16" aria-labelledby="reviews">
-  <h2 id="reviews" class="text-center text-2xl font-bold sm:text-3xl">{{ _("What clients say") }}</h2>
+<section class="mx-auto max-w-6xl px-4 py-20" aria-labelledby="reviews">
+  <h2 id="reviews" class="text-center font-display text-3xl font-semibold sm:text-4xl">{{ _("What clients say") }}</h2>
   <div class="mt-10 grid gap-5 md:grid-cols-3">
     {% for t in testimonials %}
-    <figure class="rounded-xl border bg-card p-5">
-      {% if t.rating %}<p class="text-amber-500" aria-label="{{ (t.rating * 5) | round(1) }} / 5">{{ "★" * ((t.rating * 5) | round | int) }}</p>{% endif %}
-      <blockquote class="mt-2 text-sm">“{{ t.text }}”</blockquote>
-      <figcaption class="mt-3 text-xs text-muted-foreground">— {{ t.display_name }}{% if t.city %}, {{ t.city }}{% endif %}</figcaption>
+    <figure class="rounded-2xl border bg-card p-6">
+      {% if t.rating %}<p class="text-[#d4af37]" aria-label="{{ (t.rating * 5) | round(1) }} / 5">{{ "★" * ((t.rating * 5) | round | int) }}</p>{% endif %}
+      <blockquote class="mt-3 font-display text-lg leading-relaxed">“{{ t.text }}”</blockquote>
+      <figcaption class="mt-4 text-sm text-muted-foreground">— {{ t.display_name }}{% if t.city %}, {{ t.city }}{% endif %}</figcaption>
     </figure>
     {% endfor %}
   </div>
 </section>
 {% endif %}
 
-{# 9. Deadline countdown #}
+{# ---------------------------------------------------------------- deadline #}
 {% if deadline %}
-<section class="mx-auto max-w-6xl px-4 py-6">
-  <div class="flex flex-col items-center justify-between gap-4 rounded-2xl bg-gradient-to-br from-primary to-primary/75 p-6 text-primary-foreground sm:flex-row sm:p-8">
-    <div>
-      <p class="text-sm opacity-90">{{ _("Filing deadline for Tax Year {0}").format(tax_year) }}</p>
-      <p class="text-2xl font-bold">{{ frappe.format(deadline, {"fieldtype": "Date"}) }}</p>
+<section class="mx-auto max-w-6xl px-4 py-10">
+  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#d4af37] via-[#c9a542] to-[#9c7a22] p-8 text-[#141416] sm:p-10">
+    <div aria-hidden="true" class="absolute -end-10 -top-10 h-48 w-48 rounded-full bg-white/20 blur-2xl"></div>
+    <div class="relative flex flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-start">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-wider opacity-80">{{ _("Filing deadline for Tax Year {0}").format(tax_year) }}</p>
+        <p class="mt-1 font-display text-3xl font-semibold">{{ frappe.format(deadline, {"fieldtype": "Date"}) }}</p>
+      </div>
+      <p id="countdown" data-deadline="{{ deadline }}" class="font-display text-3xl font-semibold tabular-nums" aria-live="polite"></p>
+      <a href="/portal/signup" class="rounded-full bg-[#141416] px-7 py-3.5 font-semibold text-[#f3d77a] shadow-lg hover:bg-black">{{ _("Start Filing") }}</a>
     </div>
-    <p id="countdown" data-deadline="{{ deadline }}" class="text-center text-3xl font-bold tabular-nums" aria-live="polite"></p>
-    <a href="/portal/signup" class="rounded-lg bg-white px-5 py-2.5 font-semibold text-primary shadow hover:bg-white/90">{{ _("Start Filing") }}</a>
   </div>
 </section>
 {% endif %}
 
-{# 10. Contact #}
-<section class="mx-auto max-w-6xl px-4 py-16" aria-labelledby="contact">
+{# ---------------------------------------------------------------- contact #}
+<section class="mx-auto max-w-6xl px-4 py-20" aria-labelledby="contact">
   {% include "templates/ptc/contact_block.html" %}
 </section>
 {% endblock %}
@@ -142,7 +241,7 @@
     var dayWord = {{ _("days") | json }}, closed = {{ _("Deadline passed — late filing is still possible") | json }};
     function tick() {
       var left = end - Date.now();
-      if (left <= 0) { el.textContent = closed; el.classList.remove("text-3xl"); el.classList.add("text-base"); return; }
+      if (left <= 0) { el.textContent = closed; el.classList.remove("text-3xl"); el.classList.add("text-lg"); return; }
       var d = Math.floor(left / 864e5), h = Math.floor(left % 864e5 / 36e5), m = Math.floor(left % 36e5 / 6e4);
       el.textContent = d + " " + dayWord + " · " + String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
     }

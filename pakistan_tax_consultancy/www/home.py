@@ -14,6 +14,7 @@ def get_context(context):
 	f = firm()
 	page(context, f.hero_headline or _("Income tax return filing"), f.hero_subtext or "")
 	context.packages = public.packages()
+	context.services = public.services()[:6]
 	context.testimonials = public.testimonials()
 	context.tax_year = f.tax_year
 	context.tax_years = f.tax_years

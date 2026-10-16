@@ -17,7 +17,8 @@ type Rec = Record<string, any>;
 
 interface AllSettings {
   firm: Rec;
-  whatsapp: Rec & { has_token: boolean; last_test: string | null; events: { field: string; event: string; params: string[] }[] };
+  whatsapp: Rec & { has_token: boolean; has_app_secret: boolean; has_verify_token: boolean; webhook_url: string; last_test: string | null;
+    events: { field: string; event: string; params: string[] }[] };
   email: Rec & { configured: boolean; has_password: boolean };
   payment: Rec & { has_secret: boolean; has_salt: boolean; return_url: string; gateway_status: string | null };
 }
@@ -145,7 +146,7 @@ function FirmTab({ data, onSaved }: { data: Rec; onSaved: () => void }) {
 
 // ------------------------------------------------------------------------------------------------ whatsapp
 function WhatsAppTab({ data, onSaved }: { data: AllSettings["whatsapp"]; onSaved: () => void }) {
-  const { form, set } = useForm({ ...data, wa_access_token: "" });
+  const { form, set } = useForm({ ...data, wa_access_token: "", wa_app_secret: "", wa_webhook_verify_token: "" });
   const save = useSaver((d) => apiCall(`${S}.save_whatsapp`, { data: d }));
   const test = useSaver((d) => apiCall<{ result: string }>(`${S}.test_whatsapp`, d));
   const [to, setTo] = useState("");
@@ -159,6 +160,11 @@ function WhatsAppTab({ data, onSaved }: { data: AllSettings["whatsapp"]; onSaved
         <p className="mt-1"><b>WhatsApp Cloud API</b>: the app also sends automatic updates (return ready to confirm, document rejected, filed…) to
           clients who opted in. You need a Meta Business account, a WhatsApp Business phone number and approved message templates.</p>
       </>}>
+        <label className="flex items-start gap-2.5 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+          <input type="checkbox" className="mt-0.5 h-5 w-5" checked={!!form.wa_mock_mode} onChange={(e) => set("wa_mock_mode", e.target.checked ? 1 : 0)} />
+          <span><b>Test mode</b> — no real messages leave the server. Use the WhatsApp inbox's “Simulate client reply” to try everything.
+            Turn off only when your Meta number and token are set.</span>
+        </label>
         <Field label="Mode">{(id) => (
           <SelectInput id={id} value={form.whatsapp_provider ?? ""} onChange={(e) => set("whatsapp_provider", e.target.value)}>
             <option>Click-to-chat only</option><option>WhatsApp Cloud API (Meta)</option>
@@ -171,6 +177,12 @@ function WhatsAppTab({ data, onSaved }: { data: AllSettings["whatsapp"]; onSaved
               <Text label={`Permanent access token ${data.has_token ? "(stored — leave blank to keep)" : ""}`} field="wa_access_token" type="password" {...p}
                 hint="System-user token with whatsapp_business_messaging permission. Stored encrypted; never shown again." />
             </div>
+            <Text label="Meta App ID" field="wa_app_id" {...p} />
+            <Text label={`App secret ${data.has_app_secret ? "(stored — leave blank to keep)" : ""}`} field="wa_app_secret" type="password" {...p}
+              hint="Used to check that webhook calls really come from Meta" />
+            <Text label={`Webhook verify token ${data.has_verify_token ? "(stored — leave blank to keep)" : ""}`} field="wa_webhook_verify_token" type="password" {...p}
+              hint="Any secret phrase; enter the same in Meta → Webhooks" />
+            <Field label="Webhook (callback) URL for Meta">{(id) => <TextInput id={id} readOnly value={data.webhook_url} />}</Field>
             <Text label="Graph API version" field="wa_api_version" {...p} />
             <Text label="Template language code" field="wa_language" {...p} hint="e.g. en, en_US or ur" />
             <label className="flex items-center gap-2 text-sm sm:col-span-2">
@@ -183,6 +195,10 @@ function WhatsAppTab({ data, onSaved }: { data: AllSettings["whatsapp"]; onSaved
       {cloud && (
         <Section title="Message templates" hint="Create each template in WhatsApp Manager with these body placeholders in this order, wait for approval, then enter its name. Blank = that update is not sent on WhatsApp (email / in-app still are).">
           <div className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Opt-out words (one per line)">{(id) => <TextArea id={id} value={form.wa_opt_out_keywords ?? ""} onChange={(e) => set("wa_opt_out_keywords", e.target.value)} />}</Field>
+              <Field label="Opt-in words (one per line)">{(id) => <TextArea id={id} value={form.wa_opt_in_keywords ?? ""} onChange={(e) => set("wa_opt_in_keywords", e.target.value)} />}</Field>
+            </div>
             {data.events.map((e) => (
               <div key={e.field} className="grid gap-2 sm:grid-cols-[1fr_1.2fr] sm:items-end">
                 <Text label={e.event.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())} field={e.field} {...p} placeholder="template_name" />

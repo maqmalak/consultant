@@ -11,6 +11,7 @@ export const M = { PUB, AUTH, PORTAL, STAFF } as const;
 // ------------------------------------------------------------------------------------------------ types
 export interface SiteInfo {
   firm_name: string | null;
+  brand_color: string | null;
   tagline: string | null;
   logo: string | null;
   phone: string | null;
@@ -137,6 +138,9 @@ export interface ReturnDetail extends ReturnCard {
   client_confirmed_on: string | null;
   comments: { comment: string; from_client: number; creation: string; stage: string }[];
   summary?: ReturnSummary;
+  step_dates: (string | null)[];
+  problem: boolean;
+  client_details?: Record<string, any> | null;
 }
 
 export interface Pkg {

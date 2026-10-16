@@ -34,6 +34,12 @@
   "sb_home",
   "hero_headline",
   "hero_subtext",
+  "about_heading",
+  "about_text",
+  "partner_name",
+  "partner_title",
+  "partner_credentials",
+  "partner_photo",
   "why_choose_us",
   "sb_announce",
   "announcement_enabled",
@@ -220,6 +226,39 @@
    "fieldname": "hero_subtext",
    "fieldtype": "Small Text",
    "label": "Hero Subtext"
+  },
+  {
+   "default": "A practice built on trust",
+   "fieldname": "about_heading",
+   "fieldtype": "Data",
+   "label": "About Heading"
+  },
+  {
+   "description": "Two or three short paragraphs about the firm (blank lines separate paragraphs). Only true facts.",
+   "fieldname": "about_text",
+   "fieldtype": "Small Text",
+   "label": "About the firm"
+  },
+  {
+   "fieldname": "partner_name",
+   "fieldtype": "Data",
+   "label": "Partner Name"
+  },
+  {
+   "fieldname": "partner_title",
+   "fieldtype": "Data",
+   "label": "Partner title"
+  },
+  {
+   "description": "Comma separated, e.g. FCCA, ACA (UK), APFA, ITP",
+   "fieldname": "partner_credentials",
+   "fieldtype": "Data",
+   "label": "Partner Credentials"
+  },
+  {
+   "fieldname": "partner_photo",
+   "fieldtype": "Attach Image",
+   "label": "Partner Photo"
   },
   {
    "fieldname": "why_choose_us",

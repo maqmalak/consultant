@@ -12,7 +12,7 @@ from pakistan_tax_consultancy.utils.validators import normalize_cnic, normalize_
 
 SITE_FIELDS = ("firm_name", "tagline", "logo", "brand_color", "years_experience", "membership_info", "default_language",
 	"phone", "phone_2", "whatsapp", "whatsapp_message", "email", "address", "office_hours", "map_link", "map_embed_url", "facebook",
-	"instagram", "linkedin", "youtube", "x_url", "hero_headline", "hero_subtext", "announcement_enabled",
+	"instagram", "linkedin", "youtube", "x_url", "hero_headline", "hero_subtext", "about_heading", "about_text", "partner_name", "partner_title", "partner_credentials", "partner_photo", "announcement_enabled",
 	"announcement_text", "announcement_link", "announcement_expiry", "work_before_payment")
 PAYMENT_FIELDS = ("bank_name", "bank_account_title", "bank_account_no", "bank_iban", "raast_id", "jazzcash_number",
 	"jazzcash_title", "easypaisa_number", "easypaisa_title")
@@ -111,6 +111,24 @@ def tax_updates(limit: int = 10, category: str | None = None):
 		filters["category"] = category
 	return frappe.get_all("Tax Update", filters=filters, fields=["title", "route", "category", "summary", "cover_image",
 		"published_on"], order_by="published_on desc, creation desc", limit=cint(limit) or 10)
+
+
+@frappe.whitelist(allow_guest=True, methods=["GET"])
+def salary_slabs():
+	"""Salaried slabs of every open tax year, so the website calculator updates live in the browser
+	(same one-slab formula as services/tax_calc.slab_tax)."""
+	from pakistan_tax_consultancy.services.tax_calc import get_slab_setting, is_demo
+
+	out = []
+	for y in frappe.get_all("Tax Year", filters={"is_active": 1}, fields=["name", "start_date", "end_date"], order_by="end_date desc"):
+		try:
+			setting, slabs = get_slab_setting(y.name, "Salaried Individual")
+		except frappe.ValidationError:
+			frappe.clear_last_message()
+			continue
+		out.append({"tax_year": y.name, "label": f"{y.name} · Jul {str(getdate(y.start_date).year)[2:]}–Jun {str(getdate(y.end_date).year)[2:]}",
+			"slabs": slabs, "demo": is_demo(setting)})
+	return out
 
 
 @frappe.whitelist(allow_guest=True, methods=["GET", "POST"])

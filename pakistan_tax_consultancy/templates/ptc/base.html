@@ -19,7 +19,7 @@
   <link rel="manifest" href="/assets/pakistan_tax_consultancy/manifest.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap{% if urdu %}&family=Noto+Nastaliq+Urdu:wght@400;600{% endif %}" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap{% if urdu %}&family=Noto+Nastaliq+Urdu:wght@400;600{% endif %}" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/pakistan_tax_consultancy/css/site.css?v={{ site_css_version or '1' }}" />
   {% if brand_hsl %}<style>:root, .dark { --primary: {{ brand_hsl }}; --ring: {{ brand_hsl }}; }</style>{% endif %}
   {% if frappe.session.user != "Guest" %}<meta name="csrf-token" content="{{ frappe.session.csrf_token }}" />{% endif %}
@@ -44,16 +44,17 @@
   {% endif %}
 
   <header class="sticky top-0 z-30 border-b bg-background/90 backdrop-blur">
-    <div class="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4">
+    <div class="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4">
       <a href="/" class="flex min-w-0 items-center gap-2.5" aria-label="{{ firm_name }} — {{ _('Home') }}">
         {% if firm.logo %}<img src="{{ firm.logo }}" alt="" class="h-9 w-9 rounded-xl object-contain" width="36" height="36" />
         {% else %}<span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-white shadow-md">
           <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>{% endif %}
-        <span class="truncate font-semibold">{{ firm_name }}</span>
+        <span class="min-w-0 leading-tight"><span class="block truncate font-display text-lg font-semibold">{{ firm_name }}</span>
+          {% if firm.tagline %}<span class="hidden truncate text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground xl:block">{{ firm.tagline }}</span>{% endif %}</span>
       </a>
-      <nav class="ms-6 hidden items-center gap-1 text-sm lg:flex" aria-label="{{ _('Main') }}">
+      <nav class="ms-4 hidden items-center gap-0.5 whitespace-nowrap text-sm lg:flex" aria-label="{{ _('Main') }}">
         {% for href, label in [("/services", _("Services")), ("/pricing", _("Pricing")), ("/tax-calculator", _("Tax Calculator")), ("/faq", _("FAQ")), ("/tax-updates", _("Tax Updates")), ("/contact", _("Contact"))] %}
-        <a href="{{ href }}" class="rounded-md px-3 py-2 text-muted-foreground hover:bg-accent hover:text-foreground {{ 'text-foreground font-medium' if ('/' ~ (path or '')).startswith(href) else '' }}">{{ label }}</a>
+        <a href="{{ href }}" class="whitespace-nowrap rounded-md px-2.5 py-2 text-muted-foreground hover:bg-accent hover:text-foreground {{ 'text-foreground font-medium' if ('/' ~ (path or '')).startswith(href) else '' }}">{{ label }}</a>
         {% endfor %}
       </nav>
       <div class="ms-auto flex items-center gap-1">
@@ -61,8 +62,8 @@
         <button type="button" class="theme-toggle rounded-md p-2 hover:bg-accent" aria-label="{{ _('Toggle theme') }}">
           <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
         </button>
-        <a href="/portal/login" class="hidden rounded-md px-3 py-2 text-sm font-medium hover:bg-accent sm:inline-block">{{ _("Sign in") }}</a>
-        <a href="/portal/signup" class="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow hover:bg-primary/90">{{ _("Start Filing") }}</a>
+        <a href="/portal/login" class="hidden whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium hover:bg-accent sm:inline-block">{{ _("Sign in") }}</a>
+        <a href="/portal/signup" class="whitespace-nowrap rounded-full bg-[#141416] px-5 py-2 text-sm font-semibold text-[#f3d77a] shadow ring-1 ring-[#d4af37]/40 hover:bg-black dark:bg-[#d4af37] dark:text-[#141416]">{{ _("Start Filing") }}</a>
         <details class="relative lg:hidden">
           <summary class="list-none rounded-md p-2 hover:bg-accent" aria-label="{{ _('Menu') }}">
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -79,10 +80,10 @@
 
   <main id="main">{% block content %}{% endblock %}</main>
 
-  <footer class="mt-16 border-t bg-card">
+  <footer class="border-t border-white/10 bg-[#0b0b0c] text-white/80 [&_.text-muted-foreground]:text-white/55 [&_a:hover]:text-[#d4af37]">
     <div class="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-4">
       <div class="space-y-2 text-sm">
-        <p class="font-semibold">{{ firm_name }}</p>
+        <img src="/assets/pakistan_tax_consultancy/images/vvs-logo-dark.svg?v=3" alt="{{ firm_name }}" class="h-11 w-auto" />
         {% if firm.tagline %}<p class="text-muted-foreground">{{ firm.tagline }}</p>{% endif %}
         <p class="text-muted-foreground">{{ _("We file income tax returns on FBR IRIS on our clients' behalf, with their authorisation.") }}</p>
       </div>
@@ -105,7 +106,7 @@
         {% if firm.office_hours %}<p class="text-muted-foreground">{{ firm.office_hours }}</p>{% endif %}
       </div>
     </div>
-    <div class="border-t">
+    <div class="border-t border-white/10">
       <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 text-xs text-muted-foreground">
         <p>© {{ frappe.utils.nowdate()[:4] }} {{ firm_name }}</p>
         <nav class="flex flex-wrap gap-4" aria-label="{{ _('Legal') }}">

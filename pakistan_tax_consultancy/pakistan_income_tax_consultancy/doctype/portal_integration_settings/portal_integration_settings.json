@@ -7,6 +7,12 @@
   "sb_wa",
   "whatsapp_provider",
   "whatsapp_enabled",
+  "wa_mock_mode",
+  "wa_app_id",
+  "wa_app_secret",
+  "wa_webhook_verify_token",
+  "wa_opt_out_keywords",
+  "wa_opt_in_keywords",
   "wa_phone_number_id",
   "wa_business_account_id",
   "wa_access_token",
@@ -50,6 +56,43 @@
    "fieldname": "whatsapp_enabled",
    "fieldtype": "Check",
    "label": "Send automatic WhatsApp updates"
+  },
+  {
+   "default": "1",
+   "description": "Every send succeeds with a fake id and nothing leaves the server; use Simulate in the inbox to test replies",
+   "fieldname": "wa_mock_mode",
+   "fieldtype": "Check",
+   "label": "Test mode (no real messages)"
+  },
+  {
+   "fieldname": "wa_app_id",
+   "fieldtype": "Data",
+   "label": "Meta App ID"
+  },
+  {
+   "description": "Used to check the webhook signature",
+   "fieldname": "wa_app_secret",
+   "fieldtype": "Password",
+   "label": "Meta App Secret",
+   "length": 500
+  },
+  {
+   "fieldname": "wa_webhook_verify_token",
+   "fieldtype": "Password",
+   "label": "Webhook Verify Token",
+   "length": 200
+  },
+  {
+   "default": "STOP\nUNSUBSCRIBE\nBAND KARO",
+   "fieldname": "wa_opt_out_keywords",
+   "fieldtype": "Small Text",
+   "label": "Opt-out words"
+  },
+  {
+   "default": "START\nSUBSCRIBE",
+   "fieldname": "wa_opt_in_keywords",
+   "fieldtype": "Small Text",
+   "label": "Opt-in words"
   },
   {
    "depends_on": "eval:doc.whatsapp_provider=='WhatsApp Cloud API (Meta)'",

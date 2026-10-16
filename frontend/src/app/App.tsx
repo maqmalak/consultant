@@ -23,6 +23,10 @@ import { ReportsPage } from "@/pages/staff/reports";
 import { ReturnWizard } from "@/pages/staff/return-wizard";
 import { ReturnsPage } from "@/pages/staff/returns";
 import { SettingsPage } from "@/pages/staff/settings";
+import { ClientForm } from "@/pages/staff/client-form";
+import { ContentPage } from "@/pages/staff/content";
+import { TeamPage } from "@/pages/staff/team";
+import { InboxPage } from "@/pages/staff/inbox";
 import { VisitForm, VisitsPage } from "@/pages/staff/visits";
 import { RequireAuth, RequireClient, RequireStaff } from "./guards";
 
@@ -39,7 +43,9 @@ export default function App() {
         <Route index element={<StaffHome />} />
         <Route path="dashboard" element={<StaffDashboard />} />
         <Route path="clients" element={<ClientsPage />} />
+        <Route path="clients/new" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT, FIELD]}><ClientForm /></RequireStaff>} />
         <Route path="clients/:name" element={<ClientDetail />} />
+        <Route path="clients/:name/edit" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT]}><ClientForm /></RequireStaff>} />
         <Route path="import" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT]}><ImportPage /></RequireStaff>} />
         <Route path="visits" element={<VisitsPage />} />
         <Route path="visits/new" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT, FIELD]}><VisitForm /></RequireStaff>} />
@@ -48,8 +54,11 @@ export default function App() {
         <Route path="queue/:queue" element={<QueuePage />} />
         <Route path="payments" element={<RequireStaff roles={[SM, ADMIN]}><PaymentsQueue /></RequireStaff>} />
         <Route path="consultations" element={<ConsultationsPage />} />
+        <Route path="inbox" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT, FIELD, ROLES.REVIEWER]}><InboxPage /></RequireStaff>} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="settings" element={<RequireStaff roles={[SM, ADMIN]}><SettingsPage /></RequireStaff>} />
+        <Route path="content" element={<RequireStaff roles={[SM, ADMIN]}><ContentPage /></RequireStaff>} />
+        <Route path="team" element={<RequireStaff roles={[SM, ADMIN]}><TeamPage /></RequireStaff>} />
       </Route>
 
       <Route element={<RequireAuth><RequireClient><ClientShell /></RequireClient></RequireAuth>}>

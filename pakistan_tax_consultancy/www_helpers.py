@@ -49,10 +49,21 @@ def hex_to_hsl(value: str | None) -> str | None:
 	return f"{round(h * 360)} {round(s * 100)}% {round(l * 100)}%"
 
 
+def site_css_version() -> str:
+	"""Cache-busting query for /assets/.../css/site.css: changes whenever the stylesheet is rebuilt."""
+	import os
+
+	try:
+		return str(int(os.path.getmtime(frappe.get_app_path("pakistan_tax_consultancy", "public", "css", "site.css"))))
+	except OSError:
+		return "1"
+
+
 def update_website_context(context):
 	path = frappe.local.request.path if getattr(frappe.local, "request", None) else ""
 	if path.startswith("/portal"):
 		return
+	context.site_css_version = site_css_version()
 	context.ptc_lang = "ur" if frappe.local.lang == "ur" else "en"
 	context.firm = firm()
 	context.footer_services = footer_services()
