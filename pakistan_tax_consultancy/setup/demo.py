@@ -253,6 +253,7 @@ def create_demo_data():
 			as_user(users["consultant"], wa_api.send, conv,
 				"Walaikum Assalam! Everything is received — your return summary is ready in the portal. Please confirm it there.")
 
+	create_demo_crm()
 	frappe.db.commit()
 	print(f"Demo data ready. Users: <role>@{DOMAIN} — password in {SECRETS}")
 	for key, *_ in STAFF:
@@ -261,10 +262,74 @@ def create_demo_data():
 		print("  client", email(key))
 
 
+# name, mobile, source, client type, package (deal value), pipeline stage (None: stays a lead), note
+CRM_DEMO = [
+	("Usman Tariq", "+923000000101", "Website", "Individual-Salaried", "Basic Filing", "Enquiry", "Wants to know if he must file this year."),
+	("Rabia Nadeem", "+923000000102", "WhatsApp", "Individual-Salaried", "Express Filing", "Consultation", "Two employers this year."),
+	("Hamza Iqbal", "+923000000103", "Referral", "Individual-Business", "Consultant Plus", "Proposal Sent", "Grocery store, sales tax question too."),
+	("Sadia Khan", "+923000000104", "Consultation Booking", "Individual-Salaried", "Express Filing", "Documents Pending", "Refund of bank WHT."),
+	("Faisal Textiles", "+923000000105", "Site Visit", "Company", "Consultant Plus", "Engaged", "Annual return + withholding statements."),
+	("Bilal Ahmed", "+923000000106", "Facebook", "Individual-Salaried", "Basic Filing", "Lost", "Went with a cheaper option."),
+	("Nida Farooq", "+923000000107", "Contact Form", "Individual-Salaried", None, None, "Asked about NTN registration."),
+	("Kashif Mehmood", "+923000000108", "Walk In", "Individual-Business", None, None, "Shopkeeper, never filed before."),
+]
+
+
+def create_demo_crm():
+	"""Leads and deals across the pipeline in Frappe CRM (fake names and 0300-00001xx numbers)."""
+	from pakistan_tax_consultancy.api import crm as crm_api
+	from pakistan_tax_consultancy.services import crm
+
+	if not crm.installed() or frappe.db.exists("CRM Lead", {"email": ("like", f"%@{DOMAIN}")}):
+		return
+	owner = email("consultant")
+	for i, (name, mobile, source, ctype, package, stage, note) in enumerate(CRM_DEMO, 1):
+		lead = crm.make_lead(name, mobile, f"lead{i}@{DOMAIN}", source=source, note=f"{note} ({TAG})", owner=owner, client_type=ctype)
+		if not stage:
+			continue
+		price = frappe.db.get_value("Service Package", package, "price") if package and frappe.db.exists("Service Package", package) else 0
+		deal = as_user(owner, crm_api.convert, lead)
+		frappe.db.set_value("CRM Deal", deal, {"expected_deal_value": price, "deal_owner": owner,
+			"service_package": package if package and frappe.db.exists("Service Package", package) else None,
+			"next_step": {"Enquiry": "Call back", "Consultation": "Meet on Monday", "Proposal Sent": "Follow up on the quote",
+				"Documents Pending": "Collect bank certificate"}.get(stage)})
+		order = [p[0] for p in crm.PIPELINE if p[1] != "Lost"]
+		for step in order[1:order.index(stage) + 1] if stage in order else []:  # walk the stages like a consultant would
+			as_user(owner, crm_api.move_deal, deal, step)
+		if stage == "Lost":
+			as_user(owner, crm_api.move_deal, deal, "Lost", "Fee too high")
+		client = frappe.db.get_value("CRM Deal", deal, "tax_client")
+		if client:
+			frappe.db.set_value("Tax Client", client, "internal_notes", TAG)
+	if frappe.db.exists("CRM Lead", {"email": f"lead7@{DOMAIN}"}):
+		frappe.get_doc({"doctype": "CRM Task", "title": "Call Nida about NTN registration", "assigned_to": owner, "status": "Todo",
+			"priority": "High", "due_date": frappe.utils.now_datetime(), "reference_doctype": "CRM Lead",
+			"reference_docname": frappe.db.get_value("CRM Lead", {"email": f"lead7@{DOMAIN}"})}).insert(ignore_permissions=True)
+
+
+def remove_demo_crm():
+	if "crm" not in frappe.get_installed_apps():
+		return
+	leads = frappe.get_all("CRM Lead", {"email": ("like", f"%@{DOMAIN}")}, pluck="name")
+	deals = frappe.get_all("CRM Deal", {"lead": ("in", leads or [""])}, pluck="name")
+	# clients created by winning demo deals are demo clients too: tag them so remove_demo_data deletes them
+	for client in frappe.get_all("CRM Deal", {"name": ("in", deals or [""]), "tax_client": ("is", "set")}, pluck="tax_client"):
+		frappe.db.set_value("Tax Client", client, "internal_notes", TAG)
+	for dt, names in (("CRM Deal", deals), ("CRM Lead", leads)):
+		for name in names:
+			for child in ("FCRM Note", "CRM Task"):
+				for n in frappe.get_all(child, {"reference_doctype": dt, "reference_docname": name}, pluck="name"):
+					frappe.delete_doc(child, n, force=True, ignore_permissions=True)
+			frappe.delete_doc(dt, name, force=True, ignore_permissions=True)
+	for c in frappe.get_all("Contact", {"email_id": ("like", f"%@{DOMAIN}")}, pluck="name"):
+		frappe.delete_doc("Contact", c, force=True, ignore_permissions=True)
+
+
 def remove_demo_data():
 	"""Delete only demo records (users in the demo domain, clients tagged DEMO DATA and everything linked to them)."""
 	frappe.set_user("Administrator")
 	frappe.flags.in_test = True  # allows audit-event cleanup for these records only
+	remove_demo_crm()
 	clients = frappe.get_all("Tax Client", {"internal_notes": ("like", f"%{TAG}%")}, pluck="name")
 	for client in clients:
 		for dt in ("Payment Proof", "Client Message", "Review Comment", "Filing Record", "Tax Approval", "Tax Review",

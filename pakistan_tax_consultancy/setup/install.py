@@ -26,6 +26,13 @@ def after_migrate():
 	except Exception:
 		print(frappe.get_traceback())
 		frappe.log_error(title="pakistan_tax_consultancy document templates")
+	try:
+		from pakistan_tax_consultancy.services.crm import setup as setup_crm
+
+		setup_crm()
+	except Exception:
+		print(frappe.get_traceback())
+		frappe.log_error(title="pakistan_tax_consultancy CRM setup")
 
 
 def ensure_fiscal_years(company):

@@ -168,7 +168,8 @@ def book_consultation(full_name, mobile, email=None, cnic=None, service=None, mo
 		frappe.throw(_("Choose a date from today onwards."))
 	if service and not frappe.db.exists("Service", {"name": service, "published": 1}):
 		service = None
-	lead = _make_lead(full_name, mobile, email, source_note=f"Consultation: {service or 'general'}")
+	lead = _make_lead(full_name, mobile, email, "Consultation Booking", source_note=f"Consultation: {service or 'general'}"
+		f"{' — ' + _clean(message, 2000) if _clean(message, 2000) else ''}")
 	req = frappe.get_doc({"doctype": "Consultation Request", "full_name": _clean(full_name), "mobile": mobile,
 		"email": _clean(email), "cnic": cnic, "service": service, "mode": mode if mode in ("Office", "Phone", "Video") else "Phone",
 		"call_preference": "Urgent" if call_preference == "Urgent" else "Scheduled", "preferred_date": preferred_date,
@@ -188,26 +189,12 @@ def contact(full_name, mobile=None, email=None, message=None):
 			mobile = normalize_mobile(mobile)
 		except ValueError as e:
 			frappe.throw(_(str(e)))
-	lead = _make_lead(full_name, mobile, email, source_note=_clean(message, 2000))
+	lead = _make_lead(full_name, mobile, email, "Contact Form", source_note=_clean(message, 2000))
 	return {"lead": bool(lead), "message": _("Thank you — we will get back to you shortly.")}
 
 
-def _make_lead(full_name, mobile, email, source_note=None):
-	"""ERPNext Lead for follow-up in CRM; reuses an open lead with the same mobile or email."""
-	existing = None
-	if mobile:
-		existing = frappe.db.get_value("Lead", {"mobile_no": mobile}, "name")
-	if not existing and email:
-		existing = frappe.db.get_value("Lead", {"email_id": _clean(email)}, "name")
-	if existing:
-		lead = frappe.get_doc("Lead", existing)
-	else:
-		lead = frappe.get_doc({"doctype": "Lead", "first_name": _clean(full_name), "lead_name": _clean(full_name),
-			"mobile_no": mobile, "email_id": _clean(email) or None, "source": "Website" if frappe.db.exists(
-				"Lead Source", "Website") else None})
-		lead.flags.ignore_permissions = True
-		lead.flags.ignore_mandatory = True
-		lead.insert()
-	if source_note:
-		lead.add_comment("Comment", frappe.utils.escape_html(source_note))
-	return lead.name
+def _make_lead(full_name, mobile, email, source, source_note=None):
+	"""A Frappe CRM lead for follow-up (services/crm.py reuses an open lead with the same mobile or email)."""
+	from pakistan_tax_consultancy.services import crm
+
+	return crm.make_lead(_clean(full_name), mobile, _clean(email) or None, source=source, note=source_note)

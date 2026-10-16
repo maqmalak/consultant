@@ -29,6 +29,7 @@ import { ContentPage } from "@/pages/staff/content";
 import { TeamPage } from "@/pages/staff/team";
 import { InboxPage } from "@/pages/staff/inbox";
 import { StaffVaultPage } from "@/pages/staff/vault";
+import { CrmPage } from "@/pages/staff/crm";
 import { VisitForm, VisitsPage } from "@/pages/staff/visits";
 import { RequireAuth, RequireClient, RequireStaff } from "./guards";
 
@@ -57,6 +58,7 @@ export default function App() {
         <Route path="payments" element={<RequireStaff roles={[SM, ADMIN]}><PaymentsQueue /></RequireStaff>} />
         <Route path="consultations" element={<ConsultationsPage />} />
         <Route path="inbox" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT, FIELD, ROLES.REVIEWER]}><InboxPage /></RequireStaff>} />
+        <Route path="crm" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT, FIELD, ROLES.REVIEWER]}><CrmPage /></RequireStaff>} />
         <Route path="vault" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT, FIELD, ROLES.REVIEWER, ROLES.APPROVER, ROLES.FILING_OFFICER]}><StaffVaultPage /></RequireStaff>} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="settings" element={<RequireStaff roles={[SM, ADMIN]}><SettingsPage /></RequireStaff>} />

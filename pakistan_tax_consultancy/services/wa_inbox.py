@@ -125,12 +125,9 @@ def find_client(phone):
 
 
 def find_lead(phone):
-	key = phone_key(phone)
-	if len(key) < 7:
-		return None
-	row = frappe.db.sql("""select name from `tabLead`
-		where RIGHT(REGEXP_REPLACE(IFNULL(mobile_no, ''), '[^0-9]', ''), 10) = %s order by modified desc limit 1""", key)
-	return row[0][0] if row else None
+	from pakistan_tax_consultancy.services import crm
+
+	return crm.find_lead(phone)
 
 
 def default_agent():
@@ -155,19 +152,17 @@ def link_party(doc, method=None):
 	if not lead and doc.direction == "Incoming":
 		lead = _create_lead(doc)
 	if lead:
-		doc.reference_doctype, doc.reference_docname = "Lead", lead
+		doc.reference_doctype, doc.reference_docname = "CRM Lead", lead
 
 
 def _create_lead(doc):
+	"""An unknown number wrote in: a Frappe CRM lead (its WhatsApp tab then shows this chat)."""
+	from pakistan_tax_consultancy.services import crm
+
 	profile = frappe.db.get_value("WhatsApp Profile", doc.to, ["profile_name", "phone_number"], as_dict=True)
 	name = (profile.profile_name or "").strip() or profile.phone_number
-	lead = frappe.get_doc({"doctype": "Lead", "first_name": name, "lead_name": name,
-		"mobile_no": "+" + profile.phone_number.lstrip("+"), "source": "WhatsApp" if frappe.db.exists("Lead Source", "WhatsApp") else None})
-	lead.flags.ignore_permissions = True
-	lead.flags.ignore_mandatory = True
-	lead.insert()
-	lead.add_comment("Info", _("Created from an incoming WhatsApp message"))
-	return lead.name
+	return crm.make_lead(name, "+" + profile.phone_number.lstrip("+"), source="WhatsApp",
+		note=_("First WhatsApp message: {0}").format(strip_html(doc.message or "")[:500]))
 
 
 def on_message(doc, method=None):
@@ -201,7 +196,7 @@ def conversation_for_profile(profile, msg=None):
 			"contact_name": p.profile_name or p.phone_number, "status": "Open"})
 	if msg and msg.get("reference_doctype") == "Tax Client" and msg.get("reference_docname"):
 		conv.tax_client = msg.reference_docname
-	elif msg and msg.get("reference_doctype") == "Lead" and not conv.tax_client:
+	elif msg and msg.get("reference_doctype") == "CRM Lead" and not conv.tax_client:
 		conv.lead = msg.reference_docname
 	if not conv.tax_client:
 		conv.tax_client = find_client(conv.phone)

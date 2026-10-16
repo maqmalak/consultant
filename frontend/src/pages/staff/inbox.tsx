@@ -67,7 +67,7 @@ function Thread({ conv, agents, onChanged }: { conv: Conversation; agents: { nam
           <p className="truncate font-semibold">{conv.contact_name}</p>
           <p className="truncate text-xs text-muted-foreground" dir="ltr">+{conv.phone}
             {ctx?.client && <> · <Link className="text-primary hover:underline" to={`/staff/clients/${ctx.client.name}`}>{ctx.client.name}</Link></>}
-            {!ctx?.client && conv.lead && <> · Lead {conv.lead}</>}
+            {!ctx?.client && conv.lead && <> · <a className="text-primary hover:underline" href={`/crm/leads/${encodeURIComponent(conv.lead)}`}>CRM lead {conv.lead}</a></>}
           </p>
         </div>
         <SelectInput aria-label="Assigned to" className="h-9 w-44" value={conv.agent ?? ""}

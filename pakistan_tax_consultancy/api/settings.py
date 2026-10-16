@@ -212,6 +212,9 @@ def save_member(email: str, full_name: str, roles: str | list, mobile_no: str | 
 	user.set("roles", keep + [{"role": r} for r in roles])
 	user.flags.ignore_permissions = True
 	user.save() if exists else user.insert()
+	from pakistan_tax_consultancy.services.crm import sync_roles
+
+	sync_roles(user.name)
 	link = None
 	if not exists:
 		link = user._reset_password(send_email=False)

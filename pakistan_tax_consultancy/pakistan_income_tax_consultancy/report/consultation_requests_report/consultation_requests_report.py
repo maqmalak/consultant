@@ -20,7 +20,7 @@ def execute(filters=None):
 		{"fieldname": "preferred_date", "label": _("Date"), "fieldtype": "Date", "width": 100},
 		{"fieldname": "status", "label": _("Status"), "width": 100},
 		{"fieldname": "assigned_to", "label": _("Assigned"), "fieldtype": "Link", "options": "User", "width": 150},
-		{"fieldname": "lead", "label": _("Lead"), "fieldtype": "Link", "options": "Lead", "width": 140},
+		{"fieldname": "lead", "label": _("Lead"), "fieldtype": "Link", "options": "CRM Lead", "width": 140},
 		{"fieldname": "creation", "label": _("Received"), "fieldtype": "Datetime", "width": 150},
 	]
 	return cols, rows

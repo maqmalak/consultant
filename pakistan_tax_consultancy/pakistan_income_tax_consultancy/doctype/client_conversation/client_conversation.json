@@ -53,8 +53,8 @@
   {
    "fieldname": "lead",
    "fieldtype": "Link",
-   "label": "Lead",
-   "options": "Lead"
+   "label": "CRM Lead",
+   "options": "CRM Lead"
   },
   {
    "fieldname": "cb1",
@@ -121,7 +121,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-16 22:00:00.000000",
+ "modified": "2026-10-17 03:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pakistan Income Tax Consultancy",
  "name": "Client Conversation",

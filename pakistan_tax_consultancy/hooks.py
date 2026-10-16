@@ -4,6 +4,7 @@ app_publisher = "maqmalak"
 app_description = "Pakistan FBR income tax filing and tax consultancy management"
 app_email = "maqmalak@gmail.com"
 app_license = "mit"
+required_apps = ["erpnext", "crm", "whatsapp"]
 
 # Fixtures: structure only. Content (services, packages, document types, tax years, slabs, FAQs) is seeded once by
 # setup/content.py and then owned by the admin, so a migrate never overwrites their edits.
@@ -86,6 +87,9 @@ doc_events["WhatsApp Message"] = {
 	"validate": "pakistan_tax_consultancy.services.wa_inbox.link_party",
 	"after_insert": "pakistan_tax_consultancy.services.wa_inbox.on_message",
 }
+# Frappe CRM: a won deal becomes a Tax Client; field prospects become CRM leads
+doc_events["CRM Deal"] = {"on_update": "pakistan_tax_consultancy.services.crm.on_deal_update"}
+doc_events["Site Visit"] = {"after_insert": "pakistan_tax_consultancy.services.crm.on_site_visit"}
 
 # Scheduled Tasks
 # ---------------

@@ -46,41 +46,31 @@
       </div>
       {% if tax_year %}<p class="mt-8 flex items-center gap-2 text-sm text-white/60"><span class="h-2 w-2 animate-pulse rounded-full bg-emerald-400"></span>{{ _("Now filing Tax Year {0} returns").format(tax_year) }}</p>{% endif %}
     </div>
-    {# partner / firm card #}
-    <div class="relative">
-      <div aria-hidden="true" class="absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-[#d4af37]/25 to-transparent blur-2xl"></div>
-      <div class="overflow-hidden rounded-3xl border border-[#d4af37]/30 bg-white/[0.04] backdrop-blur">
-        {% if firm.partner_photo %}
-        <div class="relative h-72 overflow-hidden">
-          <img src="{{ firm.partner_photo }}" alt="{{ firm.partner_name or '' }}" width="642" height="649" class="h-full w-full object-cover object-[50%_28%]" />
-          <div aria-hidden="true" class="absolute inset-0 bg-gradient-to-t from-[#0b0b0c] via-[#0b0b0c]/30 to-transparent"></div>
-          <div class="absolute inset-x-0 bottom-0 p-6">
-            <p class="font-display text-2xl font-semibold">{{ firm.partner_name or firm.firm_name }}</p>
-            <p class="text-sm text-[#f3d77a]">{{ firm.partner_title or "" }}</p>
+    {# partner card: compact, executive — photo anchored to the top so the head is always in frame #}
+    <div class="relative mx-auto w-full max-w-sm lg:me-0 lg:ms-auto">
+      <div aria-hidden="true" class="absolute -inset-8 -z-10 rounded-[2.5rem] bg-[radial-gradient(closest-side,rgba(212,175,55,0.28),transparent)] blur-2xl"></div>
+      <div class="rounded-[1.75rem] bg-gradient-to-b from-[#f3d77a]/80 via-[#d4af37]/30 to-[#d4af37]/10 p-px shadow-2xl shadow-black/60">
+        <div class="overflow-hidden rounded-[calc(1.75rem-1px)] bg-[#0f0f11]">
+          {% if firm.partner_photo %}
+          <div class="relative aspect-[5/4] overflow-hidden">
+            <img src="{{ firm.partner_photo }}" alt="{{ firm.partner_name or '' }}" width="642" height="649" class="h-full w-full object-cover object-top" />
+            <div aria-hidden="true" class="absolute inset-0 bg-gradient-to-t from-[#0f0f11] via-[#0f0f11]/10 to-transparent"></div>
+            <span class="absolute start-4 top-4 rounded-full border border-[#d4af37]/50 bg-black/45 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-[#f3d77a] backdrop-blur">{{ _("Partner") }}</span>
           </div>
-        </div>
-        {% endif %}
-        <div class="p-8 {{ 'pt-6' if firm.partner_photo else '' }}">
-        {% if not firm.partner_photo %}
-        <div class="flex items-center gap-4">
-          <img src="{{ firm.logo or '/assets/pakistan_tax_consultancy/images/vvs-mark.svg' }}" alt="" class="h-16 w-16 rounded-2xl ring-1 ring-[#d4af37]/40" />
-          <div>
-            <p class="font-display text-xl font-semibold">{{ firm.partner_name or firm.firm_name }}</p>
-            <p class="text-sm text-[#d4af37]">{{ firm.partner_title or "" }}</p>
+          {% endif %}
+          <div class="px-6 pb-6 {{ '-mt-14 relative' if firm.partner_photo else 'pt-6' }}">
+            {% if not firm.partner_photo %}<img src="{{ firm.logo or '/assets/pakistan_tax_consultancy/images/vvs-mark.svg' }}" alt="" class="mb-4 h-14 w-14 rounded-2xl ring-1 ring-[#d4af37]/40" />{% endif %}
+            <p class="font-display text-[1.65rem] font-semibold leading-tight tracking-tight">{{ firm.partner_name or firm.firm_name }}</p>
+            <p class="mt-1 flex items-center gap-2 text-sm text-[#f3d77a]"><span class="h-px w-6 bg-[#d4af37]"></span>{{ firm.partner_title or "" }}</p>
+            {% if creds %}<p class="mt-4 text-[11px] font-semibold uppercase leading-relaxed tracking-[0.16em] text-white/70">{% for c in creds %}<span class="whitespace-nowrap">{{ c }}</span>{% if not loop.last %}<span class="mx-1.5 text-[#d4af37]">·</span> {% endif %}{% endfor %}</p>{% endif %}
+            <div class="mt-5 h-px bg-gradient-to-r from-[#d4af37]/60 via-white/10 to-transparent"></div>
+            <dl class="mt-4 grid grid-cols-3 divide-x divide-white/10 text-center">
+              <div class="px-1"><dt class="text-[10px] uppercase tracking-[0.18em] text-white/45">{{ _("Office") }}</dt><dd class="mt-1 text-sm font-semibold">Faisalabad</dd></div>
+              <div class="px-1"><dt class="text-[10px] uppercase tracking-[0.18em] text-white/45">{{ _("Filing") }}</dt><dd class="mt-1 text-sm font-semibold">FBR IRIS</dd></div>
+              {% if firm.years_experience %}<div class="px-1"><dt class="text-[10px] uppercase tracking-[0.18em] text-white/45">{{ _("Experience") }}</dt><dd class="mt-1 text-sm font-semibold">{{ firm.years_experience }}+ {{ _("yrs") }}</dd></div>
+              {% else %}<div class="px-1"><dt class="text-[10px] uppercase tracking-[0.18em] text-white/45">{{ _("Review") }}</dt><dd class="mt-1 text-sm font-semibold">{{ _("2 consultants") }}</dd></div>{% endif %}
+            </dl>
           </div>
-        </div>
-        {% endif %}
-        {% if creds %}
-        <div class="{{ '' if firm.partner_photo else 'mt-6' }} flex flex-wrap gap-2">
-          {% for c in creds %}<span class="rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-3 py-1 text-xs font-semibold tracking-wide text-[#f3d77a]">{{ c }}</span>{% endfor %}
-        </div>
-        {% endif %}
-        <dl class="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-6 text-sm">
-          <div><dt class="text-white/50">{{ _("Office") }}</dt><dd class="mt-1 font-medium">Faisalabad</dd></div>
-          <div><dt class="text-white/50">{{ _("Filing") }}</dt><dd class="mt-1 font-medium">FBR IRIS</dd></div>
-          {% if firm.years_experience %}<div><dt class="text-white/50">{{ _("Experience") }}</dt><dd class="mt-1 font-medium">{{ firm.years_experience }}+ {{ _("years") }}</dd></div>{% endif %}
-          <div><dt class="text-white/50">{{ _("Review") }}</dt><dd class="mt-1 font-medium">{{ _("Two consultants") }}</dd></div>
-        </dl>
         </div>
       </div>
     </div>

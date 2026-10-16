@@ -1,4 +1,4 @@
-import { AlarmClock, BadgeCheck, BadgeDollarSign, CalendarClock, ClipboardCheck, FileCheck2, FileText, LayoutDashboard, MapPin, MessageCircle, PhoneCall, ShieldCheck, RefreshCw, Send, Undo2, Upload, UserPlus, Users, Wallet } from "lucide-react";
+import { AlarmClock, BadgeCheck, BadgeDollarSign, CalendarClock, ClipboardCheck, FileCheck2, FileText, Handshake, LayoutDashboard, MapPin, MessageCircle, PhoneCall, ShieldCheck, RefreshCw, Send, Undo2, Upload, UserPlus, Users, Wallet } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ChartCard } from "@/components/charts/chart-card";
 import { BarGauge, DonutChart } from "@/components/charts/charts";
@@ -47,6 +47,7 @@ export function StaffDashboard() {
     hasRole("Tax Admin", "System Manager") && { label: "Verify payments", hint: "Proofs to match", icon: Wallet, to: "/staff/payments", tone: "emerald", badge: data?.payments_to_verify || null },
     prep && { label: "Consultations", hint: "Website bookings", icon: PhoneCall, to: "/staff/consultations", tone: "rose", badge: data?.consultations_new || null },
     !!wa.data && { label: "WhatsApp inbox", hint: `${wa.data.mine ?? 0} mine · ${wa.data.unassigned ?? 0} unassigned`, icon: MessageCircle, to: "/staff/inbox", tone: "whatsapp", badge: wa.data.unread || null },
+    hasRole("Tax Admin", "Tax Consultant", "Tax Reviewer", "Field Officer", "System Manager") && { label: "CRM pipeline", hint: "Leads → deals → clients", icon: Handshake, to: "/staff/crm?tab=pipeline", tone: "primary" },
     { label: "Document vault", hint: "Files · generate letters", icon: ShieldCheck, to: "/staff/vault", tone: "amber" },
     prep && { label: "Import clients", hint: "CSV", icon: Upload, to: "/staff/import", tone: "slate" },
   ];
