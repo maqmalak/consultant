@@ -3,7 +3,7 @@
  * Secrets are write-only — the page only knows whether one is stored; leaving the field blank keeps it.
  */
 import { CheckCircle2, CreditCard, Mail, MessageCircle, Settings2, Store } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { ErrorState, InlineError, Loading } from "@/components/common/states";
 import { Button } from "@/components/ui/button";
 import { Field, SelectInput, TextArea, TextInput } from "@/components/ui/field";
@@ -72,9 +72,9 @@ function Text({ label, field, form, set, hint, type = "text", placeholder }: {
   );
 }
 
-function useForm(initial: Rec | undefined) {
-  const [form, setForm] = useState<Rec>({});
-  useEffect(() => { if (initial) setForm(initial); }, [initial]);
+/** Form state seeded once; the page remounts each tab (key) when fresh data arrives from the server. */
+function useForm(initial: Rec) {
+  const [form, setForm] = useState<Rec>(() => initial);
   return { form, set: (f: string, v: unknown) => setForm((p) => ({ ...p, [f]: v })), setForm };
 }
 
@@ -321,6 +321,8 @@ const TABS = [["firm", "Firm", Store], ["whatsapp", "WhatsApp", MessageCircle], 
 export function SettingsPage() {
   const { data, error, isLoading, mutate } = useApi<AllSettings>(`${S}.get_settings`);
   const [tab, setTab] = useState<(typeof TABS)[number][0]>("firm");
+  const [notice, setNotice] = useState<string | null>(null);
+  const saved = () => { setNotice("Saved"); void mutate(); window.setTimeout(() => setNotice(null), 4000); };
   return (
     <div className="page-container space-y-5">
       <PageHeader title="Settings" subtitle="Firm details, WhatsApp, email and payments" icon={<Settings2 className="h-5 w-5" />} />
@@ -333,12 +335,13 @@ export function SettingsPage() {
           </button>
         ))}
       </div>
+      {notice && <p role="status" className="flex items-center gap-1.5 text-sm text-success"><CheckCircle2 className="h-4 w-4" /> {notice}</p>}
       {isLoading && <Loading />}
       {error && <ErrorState error={error} onRetry={() => void mutate()} />}
-      {data && tab === "firm" && <FirmTab data={data.firm} onSaved={() => void mutate()} />}
-      {data && tab === "whatsapp" && <WhatsAppTab data={data.whatsapp} onSaved={() => void mutate()} />}
-      {data && tab === "email" && <EmailTab data={data.email} onSaved={() => void mutate()} />}
-      {data && tab === "payment" && <PaymentTab data={data.payment} onSaved={() => void mutate()} />}
+      {data && tab === "firm" && <FirmTab key={JSON.stringify(data.firm)} data={data.firm} onSaved={saved} />}
+      {data && tab === "whatsapp" && <WhatsAppTab key={JSON.stringify(data.whatsapp)} data={data.whatsapp} onSaved={saved} />}
+      {data && tab === "email" && <EmailTab key={JSON.stringify(data.email)} data={data.email} onSaved={saved} />}
+      {data && tab === "payment" && <PaymentTab key={JSON.stringify(data.payment)} data={data.payment} onSaved={saved} />}
     </div>
   );
 }

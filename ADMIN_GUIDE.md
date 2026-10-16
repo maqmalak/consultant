@@ -54,10 +54,18 @@ Changing any figure after review or approval sends the return back to **Pending 
 
 *Reports* card in the workspace (or *portal → Reports*): Client Master, Site Visits and Follow-ups, Missing Documents, Returns by Status, Review and Approval Aging, Consultant Workload, Filing Status and Errors, Tax Payable and Refund Summary, Fees and Collections, Consultation Requests. Each shows only the records the user may see; export to Excel / CSV is limited to Tax Admin.
 
-## 6. SMS and email
+## 6. Settings page: WhatsApp, email, payments
 
-- Email needs an outgoing **Email Account** (see GO_LIVE.md). Until then notifications still appear in-app, and portal invites return a link you can share by WhatsApp.
-- SMS uses the *Console (development)* provider, which writes messages to the log. To go live, add a provider class in `services/sms.py` (credentials in `site_config.json`, never in code) and select it in Tax Consultancy Settings.
+*Portal → Settings* (Tax Admin). Secrets (tokens, passwords, keys) are stored encrypted and never shown again; leave the field blank to keep the stored one.
+
+- **Firm**: the details shown on the website, portal and invoices, plus the bank / wallet details clients pay to.
+- **WhatsApp**
+  - *Click-to-chat* works now: every WhatsApp button opens a chat with your number.
+  - *WhatsApp Cloud API* sends automatic updates to clients who ticked "Send me updates on WhatsApp" (at sign-up or in their profile). You need a Meta Business account, a WhatsApp Business phone number, its **Phone Number ID**, a permanent **system-user access token**, and approved **message templates**. The page lists the placeholders each template needs, e.g. *filed*: `{{1}}` client name, `{{2}}` tax year, `{{3}}` IRIS acknowledgment no. Use **Send test** (Meta's `hello_world` template) before switching updates on.
+- **Email**: creates the default outgoing ERPNext Email Account. Saving checks the login with the mail server; then send a test. For Gmail / Google Workspace use an App Password.
+- **Payment gateway**: choose JazzCash, Easypaisa, Safepay, PayFast or Bank Alfalah and store the credentials the gateway gives you. Online checkout stays off until that gateway's checkout has been built and tested in Sandbox; until then clients pay by transfer and upload proof.
+
+SMS still uses the *Console (development)* provider (messages go to the server log). To go live, add the provider in `services/sms.py` with credentials in `site_config.json`, and select it in Tax Consultancy Settings.
 
 ## 7. Demo data
 
