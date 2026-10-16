@@ -1,7 +1,8 @@
 # Pakistan Tax Consultancy — Plan (Phase 0)
 
 Spec: `TAX_PORTAL_AGENT_PROMPT.md` (bench root). Site `consultant`, app `pakistan_tax_consultancy`.
-Status date: 2026-10-16. Nothing in this plan has been built yet; it waits for approval.
+Status 2026-10-16 (evening): **Phases 1–11 built** (see "Build status" at the end). Feature target also covers the
+competitor site befiler.com (feature parity only — no copied text, logos, claims or bank-partner badges).
 
 ## 1. Environment
 
@@ -192,3 +193,25 @@ Demo data (`pakistan_tax_consultancy.setup.demo.create_demo_data`): one user per
 4. **Work start:** should work start before or after payment? This is the default for the setting in §13.
 
 Unless you say otherwise, I'll take the recommended options and start Phase 1's leftovers, then Phase 2.
+
+
+## Build status (2026-10-16)
+
+| Phase | State |
+|---|---|
+| 1 Site, roles, settings, fixtures | ✅ roles + workspace + sidebar as fixtures/files; workflow and billing setup rebuilt by `setup/install.py` on every migrate |
+| 2 Clients, visits, import, duplicates, invite, sign-up/OTP | ✅ OTP sign-up (console SMS), email verification, account claim, CSV import with dry run, portal invite link |
+| 3 Documents & checklist | ✅ rules + questionnaire → checklist; private uploads (type/size/content checks, camera, compression); audited downloads |
+| 4 Engagement, return, slabs, calculation | ✅ packages + promo codes; withholding / advance tax / personal expense tables; `services/tax_calc.py` (DEMO slabs) |
+| 5 Workflow & filing | ✅ 12 states with server guards, four-eyes approval, auto-reopen on change, IRIS evidence required, revisions |
+| 6 Client portal | ✅ |
+| 7 Staff portal | ✅ (10-step wizard, queues, verification, consultations, reports) |
+| 8 Public website | ✅ all home sections, service pages, booking, FAQ schema, sitemap, robots, Urdu |
+| 9 Payments, reports, notifications | ✅ manual payments → Sales Invoice + Payment Entry; 10 reports; email + in-app + SMS adapter |
+| 10 Urdu, security, tests | ✅ 23 Python + 11 Vitest tests, 20 curl checks; ⚠ Lighthouse not measured; phone-width checked by layout only |
+| 11 Docs | ✅ README, ADMIN_GUIDE, GO_LIVE |
+
+Open items (need the owner or a provider): firm details, real prices, slab validation against the Finance Act, an SMS
+provider, an outgoing email account, the payment-gateway choice (§13 phase 2 — options to be presented), WhatsApp
+Business provider for automated messages, optional CAPTCHA, an automated data-retention purge job, rental/business
+calculators. FBR: no public, official IRIS filing API was found (2026-10-16), so `FbrApiAdapter` stays a disabled stub.
