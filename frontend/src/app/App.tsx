@@ -30,6 +30,7 @@ import { TeamPage } from "@/pages/staff/team";
 import { InboxPage } from "@/pages/staff/inbox";
 import { StaffVaultPage } from "@/pages/staff/vault";
 import { CrmShell } from "@/components/layout/crm-shell";
+import { BroadcastPage } from "@/pages/crm/broadcast";
 import { CrmCalendarPage } from "@/pages/crm/calendar";
 import { LeadFinderPage } from "@/pages/crm/finder";
 import { FollowUpsPage } from "@/pages/crm/follow-ups";
@@ -81,6 +82,7 @@ export default function App() {
         <Route path="follow-ups" element={<FollowUpsPage />} />
         <Route path="calendar" element={<CrmCalendarPage />} />
         <Route path="finder" element={<LeadFinderPage />} />
+        <Route path="broadcast" element={<BroadcastPage />} />
       </Route>
 
       <Route element={<RequireAuth><RequireClient><ClientShell /></RequireClient></RequireAuth>}>
