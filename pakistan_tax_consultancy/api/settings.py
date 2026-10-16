@@ -58,6 +58,9 @@ def get_settings():
 			"has_secret": _has_password("Portal Integration Settings", "Portal Integration Settings", "gateway_secret"),
 			"has_salt": _has_password("Portal Integration Settings", "Portal Integration Settings", "gateway_salt"),
 			"return_url": frappe.utils.get_url("/api/method/pakistan_tax_consultancy.api.payments.gateway_return")},
+		"lead_finder": {"apify_actor_id": integ.get("apify_actor_id") or "nwua9Gu5YrADL7ZDj", "apify_max_places": integ.get("apify_max_places") or 50,
+			"apify_language": integ.get("apify_language") or "en",
+			"has_token": _has_password("Portal Integration Settings", "Portal Integration Settings", "apify_api_token")},
 	}
 
 
@@ -164,6 +167,20 @@ def save_payment(data: str | dict):
 			doc.gateway_environment))
 	doc.save(ignore_permissions=True)
 	return get_settings()["payment"]
+
+
+@frappe.whitelist(methods=["POST"])
+def save_lead_finder(data: str | dict):
+	require_admin()
+	data = frappe.parse_json(data)
+	doc = frappe.get_single("Portal Integration Settings")
+	doc.apify_actor_id = (data.get("apify_actor_id") or "nwua9Gu5YrADL7ZDj").strip()
+	doc.apify_max_places = max(1, min(cint(data.get("apify_max_places")) or 50, 200))
+	doc.apify_language = (data.get("apify_language") or "en").strip()[:10]
+	if data.get("apify_api_token"):
+		doc.apify_api_token = data["apify_api_token"].strip()
+	doc.save(ignore_permissions=True)
+	return get_settings()["lead_finder"]
 
 
 # ----------------------------------------------------------------------------------------------- team

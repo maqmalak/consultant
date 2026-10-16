@@ -1,6 +1,6 @@
 {
  "actions": [],
- "creation": "2026-10-16 22:00:00.000000",
+ "creation": "2026-10-16 22:00:00",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -95,13 +95,13 @@
    "fieldtype": "Column Break"
   },
   {
-   "description": "Only true facts — shown in the trust strip",
+   "description": "Only true facts \u2014 shown in the trust strip",
    "fieldname": "years_experience",
    "fieldtype": "Int",
    "label": "Years of Experience"
   },
   {
-   "description": "e.g. ICAP / ICMAP / tax bar membership — leave blank if none",
+   "description": "e.g. ICAP / ICMAP / tax bar membership \u2014 leave blank if none",
    "fieldname": "membership_info",
    "fieldtype": "Data",
    "label": "Membership / Registration No."
@@ -160,7 +160,7 @@
    "label": "Address"
   },
   {
-   "default": "Mon–Sat, 9:00 AM – 6:00 PM",
+   "default": "Mon\u2013Sat, 9:00 AM \u2013 6:00 PM",
    "fieldname": "office_hours",
    "fieldtype": "Data",
    "label": "Office Hours"
@@ -272,13 +272,14 @@
    "label": "Announcement Bar"
   },
   {
+   "default": "0",
    "fieldname": "announcement_enabled",
    "fieldtype": "Check",
    "label": "Announcement Enabled"
   },
   {
    "fieldname": "announcement_text",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Announcement Text"
   },
   {
@@ -370,7 +371,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-16 22:00:00.000000",
+ "modified": "2026-10-17 03:23:20.824976",
  "modified_by": "Administrator",
  "module": "Pakistan Income Tax Consultancy",
  "name": "Firm Website Settings",
@@ -379,7 +380,6 @@
   {
    "create": 1,
    "email": 1,
-   "permlevel": 0,
    "print": 1,
    "read": 1,
    "role": "System Manager",
@@ -389,7 +389,6 @@
   {
    "create": 1,
    "email": 1,
-   "permlevel": 0,
    "print": 1,
    "read": 1,
    "role": "Tax Admin",

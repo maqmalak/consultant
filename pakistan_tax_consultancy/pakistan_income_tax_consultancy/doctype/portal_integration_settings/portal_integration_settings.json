@@ -36,7 +36,13 @@
   "gateway_api_key",
   "gateway_secret",
   "gateway_salt",
-  "gateway_status"
+  "gateway_status",
+  "sb_apify",
+  "apify_api_token",
+  "apify_actor_id",
+  "cb_apify",
+  "apify_max_places",
+  "apify_language"
  ],
  "fields": [
   {
@@ -232,11 +238,45 @@
    "fieldtype": "Small Text",
    "label": "Status",
    "read_only": 1
+  },
+  {
+   "fieldname": "sb_apify",
+   "fieldtype": "Section Break",
+   "label": "Lead Finder (Apify Google Maps)"
+  },
+  {
+   "fieldname": "apify_api_token",
+   "fieldtype": "Password",
+   "label": "Apify API Token",
+   "description": "Apify console \u2192 Settings \u2192 API & Integrations. Stored encrypted."
+  },
+  {
+   "fieldname": "apify_actor_id",
+   "fieldtype": "Data",
+   "label": "Actor ID",
+   "default": "nwua9Gu5YrADL7ZDj",
+   "description": "The Google Maps scraper actor run for type + city searches."
+  },
+  {
+   "fieldname": "cb_apify",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "apify_max_places",
+   "fieldtype": "Int",
+   "label": "Max Places per Search",
+   "default": "50"
+  },
+  {
+   "fieldname": "apify_language",
+   "fieldtype": "Data",
+   "label": "Result Language",
+   "default": "en"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-16 22:00:00.000000",
+ "modified": "2026-10-17 04:30:00.000000",
  "modified_by": "Administrator",
  "module": "Pakistan Income Tax Consultancy",
  "name": "Portal Integration Settings",

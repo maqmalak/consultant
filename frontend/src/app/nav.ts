@@ -59,7 +59,7 @@ export const STAFF_NAV: NavGroup[] = [
   {
     title: "Front Office",
     items: [
-      { path: "/staff/crm", label: "CRM", hint: "Leads · Pipeline", icon: Handshake, roles: [SM, ADMIN, CONSULTANT, REVIEWER, FIELD], hue: "orange" },
+      { path: "/crm", label: "CRM", hint: "Leads · Pipeline · Calendar", icon: Handshake, roles: [SM, ADMIN, CONSULTANT, REVIEWER, FIELD], hue: "orange" },
       { path: "/staff/inbox", label: "WhatsApp Inbox", hint: "Team chats with clients", icon: MessageCircle, roles: [SM, ADMIN, CONSULTANT, REVIEWER, FIELD], hue: "green" },
       { path: "/staff/vault", label: "Document Vault", hint: "Files · Generate letters", icon: ShieldCheck, roles: STAFF, hue: "amber" },
       { path: "/staff/payments", label: "Payments to Verify", hint: "Proofs → invoice", icon: Wallet, roles: [SM, ADMIN], hue: "lime" },

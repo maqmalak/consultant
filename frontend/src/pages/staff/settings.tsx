@@ -2,7 +2,7 @@
  * Tax Admin settings: firm details (website + portal), WhatsApp, outgoing email and the payment gateway.
  * Secrets are write-only — the page only knows whether one is stored; leaving the field blank keeps it.
  */
-import { CheckCircle2, CreditCard, Mail, MessageCircle, Settings2, Store } from "lucide-react";
+import { CheckCircle2, CreditCard, Mail, MessageCircle, Radar, Settings2, Store } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { ErrorState, InlineError, Loading } from "@/components/common/states";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ interface AllSettings {
     events: { field: string; event: string; params: string[] }[] };
   email: Rec & { configured: boolean; has_password: boolean };
   payment: Rec & { has_secret: boolean; has_salt: boolean; return_url: string; gateway_status: string | null };
+  lead_finder: Rec & { has_token: boolean };
 }
 
 function useSaver<T>(fn: (data: Rec) => Promise<T>) {
@@ -332,7 +333,31 @@ function PaymentTab({ data, onSaved }: { data: AllSettings["payment"]; onSaved: 
   );
 }
 
-const TABS = [["firm", "Firm", Store], ["whatsapp", "WhatsApp", MessageCircle], ["email", "Email", Mail], ["payment", "Payment gateway", CreditCard]] as const;
+function LeadFinderTab({ data, onSaved }: { data: AllSettings["lead_finder"]; onSaved: () => void }) {
+  const { form, set } = useForm({ ...data, apify_api_token: "" });
+  const save = useSaver((d) => apiCall(`${S}.save_lead_finder`, { data: d }));
+  const p = { form, set };
+  return (
+    <div className="space-y-5">
+      <Section title="Google Maps leads (Apify)" hint="Lead Finder can search Google Maps by business type and city — e.g. restaurant · Faisalabad, Pakistan — through your Apify account. Results wait in the review queue; nothing becomes a lead until someone approves it. Apify bills your account per run.">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Text label={`Apify API token ${data.has_token ? "(stored — leave blank to keep)" : ""}`} field="apify_api_token" type="password" {...p}
+            hint="Apify console → Settings → API & Integrations" />
+          <Text label="Actor ID" field="apify_actor_id" {...p} hint="Google Maps scraper actor (default nwua9Gu5YrADL7ZDj)" />
+          <Text label="Max places per search" field="apify_max_places" type="number" {...p} hint="1–200; more places cost more Apify credit" />
+          <Text label="Result language" field="apify_language" {...p} />
+        </div>
+        <p className="text-sm text-muted-foreground">{data.has_token ? "Token saved — staff can run Google Maps searches from CRM → Lead Finder." : "No token yet — Google Maps search stays off until one is saved."}</p>
+      </Section>
+      <div className="flex flex-wrap items-center gap-3">
+        <Button loading={save.busy} onClick={() => void save.run(form).then((r) => r && onSaved())}>Save Lead Finder settings</Button>
+        <Saved ok={save.ok} err={save.err} />
+      </div>
+    </div>
+  );
+}
+
+const TABS = [["firm", "Firm", Store], ["whatsapp", "WhatsApp", MessageCircle], ["email", "Email", Mail], ["payment", "Payment gateway", CreditCard], ["lead_finder", "Lead Finder", Radar]] as const;
 
 export function SettingsPage() {
   const { data, error, isLoading, mutate } = useApi<AllSettings>(`${S}.get_settings`);
@@ -358,6 +383,7 @@ export function SettingsPage() {
       {data && tab === "whatsapp" && <WhatsAppTab key={JSON.stringify(data.whatsapp)} data={data.whatsapp} onSaved={saved} />}
       {data && tab === "email" && <EmailTab key={JSON.stringify(data.email)} data={data.email} onSaved={saved} />}
       {data && tab === "payment" && <PaymentTab key={JSON.stringify(data.payment)} data={data.payment} onSaved={saved} />}
+      {data && tab === "lead_finder" && <LeadFinderTab key={JSON.stringify(data.lead_finder)} data={data.lead_finder} onSaved={saved} />}
     </div>
   );
 }

@@ -20,7 +20,7 @@ PIPELINE = [
 	("Lost", "Lost", 6, "red", 0),
 ]
 WON = "Engaged"
-LEAD_SOURCES = ["Website", "Contact Form", "Consultation Booking", "WhatsApp", "Site Visit", "Referral", "Walk In", "Facebook"]
+LEAD_SOURCES = ["Website", "Contact Form", "Consultation Booking", "WhatsApp", "Site Visit", "Referral", "Walk In", "Facebook", "Lead Finder"]
 LOST_REASONS = ["Fee too high", "Filed with another consultant", "Not responding", "Not required to file", "Will file next year"]
 # staff role -> CRM roles (Frappe CRM only opens for Sales User / Sales Manager / System Manager)
 CRM_ROLES = {"Tax Admin": ("Sales Manager", "Sales User"), "Tax Consultant": ("Sales User",), "Field Officer": ("Sales User",),

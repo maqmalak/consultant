@@ -1,0 +1,261 @@
+{
+ "actions": [],
+ "autoname": "PROSPECT-.#####",
+ "creation": "2026-10-17 04:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company_name",
+  "status",
+  "client_type",
+  "cb1",
+  "source_url",
+  "research_source",
+  "researched_on",
+  "converted_lead",
+  "sb_contact",
+  "phone",
+  "email",
+  "website",
+  "contact_page",
+  "cb2",
+  "address",
+  "city",
+  "country",
+  "social_media",
+  "sb_more",
+  "summary",
+  "notes",
+  "scrape_error",
+  "sb_maps",
+  "category",
+  "rating",
+  "reviews",
+  "cb_maps",
+  "maps_url",
+  "place_id",
+  "apify_run"
+ ],
+ "fields": [
+  {
+   "fieldname": "company_name",
+   "fieldtype": "Data",
+   "label": "Business",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending Review\nApproved\nConverted\nRejected",
+   "default": "Pending Review",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "client_type",
+   "fieldtype": "Select",
+   "label": "Client Type",
+   "options": "Individual-Salaried\nIndividual-Business\nAOP\nCompany\nOther",
+   "default": "Company"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "source_url",
+   "fieldtype": "Small Text",
+   "label": "Looked Up"
+  },
+  {
+   "fieldname": "research_source",
+   "fieldtype": "Data",
+   "label": "Found Via"
+  },
+  {
+   "fieldname": "researched_on",
+   "fieldtype": "Datetime",
+   "label": "Researched On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "converted_lead",
+   "fieldtype": "Link",
+   "label": "CRM Lead",
+   "options": "CRM Lead",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_contact",
+   "fieldtype": "Section Break",
+   "label": "Contact"
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Phone",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "website",
+   "fieldtype": "Data",
+   "label": "Website"
+  },
+  {
+   "fieldname": "contact_page",
+   "fieldtype": "Data",
+   "label": "Contact Page"
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "label": "Country"
+  },
+  {
+   "fieldname": "social_media",
+   "fieldtype": "Small Text",
+   "label": "Social Media"
+  },
+  {
+   "fieldname": "sb_more",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "summary",
+   "fieldtype": "Small Text",
+   "label": "What They Do"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "scrape_error",
+   "fieldtype": "Small Text",
+   "label": "Problem",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_maps",
+   "fieldtype": "Section Break",
+   "label": "Google Maps"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Data",
+   "label": "Category",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "rating",
+   "fieldtype": "Float",
+   "label": "Rating"
+  },
+  {
+   "fieldname": "reviews",
+   "fieldtype": "Int",
+   "label": "Reviews"
+  },
+  {
+   "fieldname": "cb_maps",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "maps_url",
+   "fieldtype": "Small Text",
+   "label": "Maps Link"
+  },
+  {
+   "fieldname": "place_id",
+   "fieldtype": "Data",
+   "label": "Place ID",
+   "unique": 0,
+   "search_index": 1
+  },
+  {
+   "fieldname": "apify_run",
+   "fieldtype": "Data",
+   "label": "Apify Run",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-17 04:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Lead Prospect",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "description": "Lead Finder review queue (ported from the mm_core CRM prospect scraper): public business contact details found on a website, reviewed before they become a CRM lead.",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Tax Admin",
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Sales Manager",
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Sales User",
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "write": 1,
+   "create": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "company_name",
+ "track_changes": 1
+}

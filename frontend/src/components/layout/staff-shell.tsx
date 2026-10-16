@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/cn";
 import { Brand } from "./brand";
 import { LanguageToggle } from "./language-toggle";
+import { AppSwitcher } from "./app-switcher";
 import { AwesomeBar, NotificationsBell, UserMenu } from "./header-tools";
 import { ThemeCustomizer } from "./theme-provider";
 
@@ -69,6 +70,7 @@ export function StaffShell() {
         <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b bg-background/80 px-4 backdrop-blur sm:px-6">
           <button className="rounded-lg p-2 text-muted-foreground hover:bg-accent lg:hidden" onClick={() => setOpen(true)}
             aria-label="Open menu"><Menu className="h-5 w-5" /></button>
+          <AppSwitcher />
           <AwesomeBar staff />
           <div className="ms-auto flex items-center gap-1">
             {role && <Badge variant="brand" className="me-1 hidden xl:inline-flex">{role}</Badge>}

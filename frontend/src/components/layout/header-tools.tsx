@@ -52,7 +52,7 @@ export function NotificationsBell() {
   const read = async (n?: Note) => {
     if (!n || !n.read) await apiCall(`${N}.mark_read`, n ? { name: n.name } : {}).catch(() => null);
     void mutate();
-    if (n?.href) { setOpen(false); if (n.href.startsWith("/crm")) window.location.href = n.href; else navigate(n.href); }
+    if (n?.href) { setOpen(false); navigate(n.href); }
   };
   return (
     <div ref={box} className="relative">
@@ -196,7 +196,7 @@ export function AwesomeBar({ staff }: { staff: boolean }) {
   const hits = [...local, ...(query.length >= 2 ? remote.data ?? [] : [])];
   const pick = (h: Hit) => {
     setOpen(false);
-    if (h.external || h.href.startsWith("http") || h.href.startsWith("/crm") || (!staff && h.href === "/faq")) window.open(h.href, h.href.startsWith("http") ? "_blank" : "_self");
+    if (h.external || h.href.startsWith("http") || (!staff && h.href === "/faq")) window.open(h.href, h.href.startsWith("http") ? "_blank" : "_self");
     else navigate(h.href);
   };
   const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);

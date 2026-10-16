@@ -29,7 +29,12 @@ import { ContentPage } from "@/pages/staff/content";
 import { TeamPage } from "@/pages/staff/team";
 import { InboxPage } from "@/pages/staff/inbox";
 import { StaffVaultPage } from "@/pages/staff/vault";
-import { CrmPage } from "@/pages/staff/crm";
+import { CrmShell } from "@/components/layout/crm-shell";
+import { CrmCalendarPage } from "@/pages/crm/calendar";
+import { LeadFinderPage } from "@/pages/crm/finder";
+import { FollowUpsPage } from "@/pages/crm/follow-ups";
+import { CrmRecordPage } from "@/pages/crm/lead";
+import { CrmDashboardPage, CrmLeadsPage, CrmPipelinePage } from "@/pages/crm/overview";
 import { VisitForm, VisitsPage } from "@/pages/staff/visits";
 import { RequireAuth, RequireClient, RequireStaff } from "./guards";
 
@@ -58,12 +63,24 @@ export default function App() {
         <Route path="payments" element={<RequireStaff roles={[SM, ADMIN]}><PaymentsQueue /></RequireStaff>} />
         <Route path="consultations" element={<ConsultationsPage />} />
         <Route path="inbox" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT, FIELD, ROLES.REVIEWER]}><InboxPage /></RequireStaff>} />
-        <Route path="crm" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT, FIELD, ROLES.REVIEWER]}><CrmPage /></RequireStaff>} />
+        <Route path="crm" element={<Navigate to="/crm" replace />} />
         <Route path="vault" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT, FIELD, ROLES.REVIEWER, ROLES.APPROVER, ROLES.FILING_OFFICER]}><StaffVaultPage /></RequireStaff>} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="settings" element={<RequireStaff roles={[SM, ADMIN]}><SettingsPage /></RequireStaff>} />
         <Route path="content" element={<RequireStaff roles={[SM, ADMIN]}><ContentPage /></RequireStaff>} />
         <Route path="team" element={<RequireStaff roles={[SM, ADMIN]}><TeamPage /></RequireStaff>} />
+      </Route>
+
+      {/* CRM: a separate app (own sidebar), same login — switch from the header */}
+      <Route path="/crm" element={<RequireAuth><RequireStaff roles={[SM, ADMIN, CONSULTANT, FIELD, ROLES.REVIEWER]}><CrmShell /></RequireStaff></RequireAuth>}>
+        <Route index element={<CrmDashboardPage />} />
+        <Route path="leads" element={<CrmLeadsPage />} />
+        <Route path="leads/:name" element={<CrmRecordPage doctype="CRM Lead" />} />
+        <Route path="deals/:name" element={<CrmRecordPage doctype="CRM Deal" />} />
+        <Route path="pipeline" element={<CrmPipelinePage />} />
+        <Route path="follow-ups" element={<FollowUpsPage />} />
+        <Route path="calendar" element={<CrmCalendarPage />} />
+        <Route path="finder" element={<LeadFinderPage />} />
       </Route>
 
       <Route element={<RequireAuth><RequireClient><ClientShell /></RequireClient></RequireAuth>}>

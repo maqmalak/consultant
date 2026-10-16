@@ -83,6 +83,8 @@ for _dt in ("Service", "Service Package", "FAQ", "Testimonial", "Tax Update", "T
 before_request = ["pakistan_tax_consultancy.services.wa_inbox.install_mock"]
 before_job = ["pakistan_tax_consultancy.services.wa_inbox.install_mock"]
 whatsapp_access_guard = ["pakistan_tax_consultancy.services.wa_inbox.access_guard"]
+# Frappe CRM's WhatsApp hooks expect the older frappe_whatsapp field names
+extend_doctype_class = {"WhatsApp Message": "pakistan_tax_consultancy.services.wa_compat.CrmWhatsAppCompat"}
 doc_events["WhatsApp Message"] = {
 	"validate": "pakistan_tax_consultancy.services.wa_inbox.link_party",
 	"after_insert": "pakistan_tax_consultancy.services.wa_inbox.on_message",

@@ -142,17 +142,21 @@ def profile_phone(profile):
 def link_party(doc, method=None):
 	"""validate: tag each message with its Tax Client (or Lead) when it has no reference yet."""
 	if doc.get("reference_docname") or not doc.to:
+		if doc.get("reference_docname"):
+			doc.flags.ptc_reference = (doc.reference_doctype, doc.reference_docname)
 		return
 	phone = profile_phone(doc.to)
 	client = find_client(phone)
 	if client:
 		doc.reference_doctype, doc.reference_docname = "Tax Client", client
+		doc.flags.ptc_reference = (doc.reference_doctype, doc.reference_docname)
 		return
 	lead = find_lead(phone)
 	if not lead and doc.direction == "Incoming":
 		lead = _create_lead(doc)
 	if lead:
 		doc.reference_doctype, doc.reference_docname = "CRM Lead", lead
+		doc.flags.ptc_reference = (doc.reference_doctype, doc.reference_docname)
 
 
 def _create_lead(doc):

@@ -5,8 +5,8 @@
 import {
   ArrowRightLeft, BadgeCheck, CalendarClock, ExternalLink, Handshake, MessageCircle, Plus, Search, Target, TrendingUp, Trophy, UserPlus, Users,
 } from "lucide-react";
-import { useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useMemo, useState, type ReactNode } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ChartCard } from "@/components/charts/chart-card";
 import { DonutChart } from "@/components/charts/charts";
 import { StateBadge } from "@/components/common/state-badge";
@@ -25,7 +25,6 @@ import { useApi } from "@/lib/use-api";
 import { apiCall } from "@/services/frappe";
 
 const C = "pakistan_tax_consultancy.api.crm";
-type Tab = "dashboard" | "leads" | "pipeline";
 interface Lead { name: string; person: string; mobile_no: string | null; email: string | null; status: string; source: string | null;
   owner_name: string | null; organization: string | null; creation: string; converted: number; tax_client: string | null; ptc_client_type: string | null; deal?: string | null }
 interface Deal { name: string; lead: string | null; person: string; mobile_no: string | null; status: string; owner_name: string | null; deal_owner: string | null;
@@ -100,7 +99,7 @@ function Dashboard() {
         <ChartCard title="Pipeline" subtitle="Open deals by stage" className="lg:col-span-3">
           <div className="space-y-3">
             {open.map((s) => (
-              <Link key={s.status} to="/staff/crm?tab=pipeline" className="block rounded-lg p-1 hover:bg-accent/50">
+              <Link key={s.status} to="/crm/pipeline" className="block rounded-lg p-1 hover:bg-accent/50">
                 <div className="mb-1 flex items-center justify-between text-sm">
                   <span className="flex items-center gap-2 font-medium"><span className={cn("h-2.5 w-2.5 rounded-full", CRM_COLORS[s.color] ?? CRM_COLORS.gray)} />{s.status}</span>
                   <span className="tabular-nums text-muted-foreground">{s.count} · {money(s.value, { compact: true })}</span>
@@ -120,26 +119,26 @@ function Dashboard() {
         </ChartCard>
       </div>
       <div className="grid gap-5 lg:grid-cols-2">
-        <ChartCard title="My follow-ups due" subtitle="Tasks assigned to you" actions={<a className="text-xs font-medium text-primary hover:underline" href="/crm/tasks">All tasks ↗</a>}>
+        <ChartCard title="My follow-ups due" subtitle="Tasks assigned to you" actions={<Link className="text-xs font-medium text-primary hover:underline" to="/crm/follow-ups">All follow-ups →</Link>}>
           {data.tasks.length ? (
             <ul className="divide-y">
               {data.tasks.map((t) => (
-                <li key={t.name}><a className="flex items-center gap-3 py-2.5 hover:text-primary" href={crmUrl(t.reference_doctype === "CRM Deal" ? "deals" : "leads", t.reference_docname)}>
+                <li key={t.name}><Link className="flex items-center gap-3 py-2.5 hover:text-primary" to={crmUrl(t.reference_doctype === "CRM Deal" ? "deals" : "leads", t.reference_docname)}>
                   <CalendarClock className={cn("h-4 w-4 shrink-0", t.priority === "High" ? "text-rose-500" : "text-muted-foreground")} />
                   <span className="min-w-0 flex-1 truncate text-sm font-medium">{t.title}</span>
-                  <span className="text-xs text-muted-foreground">{day(t.due_date)}</span></a></li>
+                  <span className="text-xs text-muted-foreground">{day(t.due_date)}</span></Link></li>
               ))}
             </ul>
           ) : <Empty title="Nothing due" hint="You're up to date." />}
         </ChartCard>
-        <ChartCard title="Newest leads" actions={<Link className="text-xs font-medium text-primary hover:underline" to="/staff/crm?tab=leads">All leads →</Link>}>
+        <ChartCard title="Newest leads" actions={<Link className="text-xs font-medium text-primary hover:underline" to="/crm/leads">All leads →</Link>}>
           <ul className="divide-y">
             {data.recent_leads.map((l) => (
-              <li key={l.name}><a className="flex items-center gap-3 py-2.5" href={crmUrl("leads", l.name)}>
+              <li key={l.name}><Link className="flex items-center gap-3 py-2.5" to={crmUrl("leads", l.name)}>
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">{l.person.slice(0, 2).toUpperCase()}</span>
                 <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium">{l.person}</span>
                   <span className="block truncate text-xs text-muted-foreground">{l.source ?? "—"} · {l.owner_name ?? "unassigned"}</span></span>
-                <StateBadge state={l.status} /></a></li>
+                <StateBadge state={l.status} /></Link></li>
             ))}
           </ul>
         </ChartCard>
@@ -182,7 +181,7 @@ function Leads({ meta, onPipeline }: { meta?: Meta; onPipeline: () => void }) {
         <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm">
           <ArrowRightLeft className="h-5 w-5 text-primary" /> <span><b>{moved.person}</b> is now a deal in <b>Enquiry</b>.</span>
           <button className="font-semibold text-primary hover:underline" onClick={onPipeline}>View pipeline →</button>
-          <a className="text-primary hover:underline" href={crmUrl("deals", moved.deal)}>Open deal ↗</a>
+          <Link className="text-primary hover:underline" to={crmUrl("deals", moved.deal)}>Open deal →</Link>
           <button className="ms-auto text-xs text-muted-foreground hover:text-foreground" onClick={() => setMoved(null)}>Dismiss</button>
         </div>
       )}
@@ -192,7 +191,7 @@ function Leads({ meta, onPipeline }: { meta?: Meta; onPipeline: () => void }) {
           <thead><tr><TH>Lead</TH><TH>Source</TH><TH>Status</TH><TH>Owner</TH><TH>Added</TH><TH className="text-end">Actions</TH></tr></thead>
           <tbody>{data.map((l) => (
             <TR key={l.name}>
-              <TD><a className="font-medium hover:text-primary" href={crmUrl("leads", l.name)}>{l.person}</a>
+              <TD><Link className="font-medium hover:text-primary" to={crmUrl("leads", l.name)}>{l.person}</Link>
                 <span className="block text-xs text-muted-foreground">{l.mobile_no ?? l.email ?? ""}{l.ptc_client_type ? ` · ${l.ptc_client_type}` : ""}</span></TD>
               <TD>{l.source ?? "—"}</TD>
               <TD><StateBadge state={l.status} /></TD>
@@ -202,10 +201,10 @@ function Leads({ meta, onPipeline }: { meta?: Meta; onPipeline: () => void }) {
                 <div className="flex justify-end gap-1.5">
                   {waLink(l.mobile_no) && <a className="rounded-md border p-1.5 text-[#128C7E] hover:bg-accent dark:text-[#25D366]" href={waLink(l.mobile_no)!} target="_blank" rel="noopener" aria-label="WhatsApp"><MessageCircle className="h-4 w-4" /></a>}
                   {l.converted
-                    ? l.deal ? <a className="inline-flex h-8 items-center gap-1 rounded-md bg-emerald-500/15 px-2.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300" href={crmUrl("deals", l.deal)}>Deal ✓</a>
+                    ? l.deal ? <Link className="inline-flex h-8 items-center gap-1 rounded-md bg-emerald-500/15 px-2.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300" to={crmUrl("deals", l.deal)}>Deal ✓</Link>
                       : <span className="text-xs text-muted-foreground">Converted</span>
                     : <Button size="sm" variant="outline" loading={busy === l.name} onClick={() => void convert(l)}><ArrowRightLeft className="h-3.5 w-3.5" /> To deal</Button>}
-                  <a className="rounded-md border p-1.5 hover:bg-accent" href={crmUrl("leads", l.name)} aria-label="Open in CRM"><ExternalLink className="h-4 w-4" /></a>
+                  <a className="rounded-md border p-1.5 hover:bg-accent" href={crmUrl("leads", l.name)} aria-label="Open in Frappe CRM" title="Open in Frappe CRM"><ExternalLink className="h-4 w-4" /></a>
                 </div>
               </TD>
             </TR>
@@ -264,7 +263,7 @@ function Pipeline({ meta }: { meta?: Meta }) {
         onCardMove={(d, status) => (data?.statuses.find((s) => s.name === status)?.type === "Lost" ? setLost({ deal: d, reason: meta?.lost_reasons[0] ?? "" }) : move(d, status))}
         renderCompact={(d) => (
           <div className="rounded-lg border bg-card px-2.5 py-2 shadow-sm">
-            <a className="block truncate text-sm font-medium hover:text-primary" href={crmUrl("deals", d.name)} draggable={false}>{d.person}</a>
+            <Link className="block truncate text-sm font-medium hover:text-primary" to={crmUrl("deals", d.name)} draggable={false}>{d.person}</Link>
             <div className="mt-0.5 flex items-center justify-between gap-1 text-[11px] text-muted-foreground">
               <span className="tabular-nums">{money(d.deal_value || d.expected_deal_value || 0, { compact: true })}</span>
               {d.tax_client && <Link to={`/staff/clients/${d.tax_client}`} className="font-semibold text-emerald-600 hover:underline dark:text-emerald-400" draggable={false}>Client ✓</Link>}
@@ -274,7 +273,7 @@ function Pipeline({ meta }: { meta?: Meta }) {
         renderCard={(d) => (
           <div className="rounded-xl border bg-card p-3 shadow-sm transition hover:border-primary/40 hover:shadow">
             <div className="flex items-start justify-between gap-2">
-              <a className="min-w-0 font-medium leading-tight hover:text-primary" href={crmUrl("deals", d.name)} draggable={false}>{d.person}</a>
+              <Link className="min-w-0 font-medium leading-tight hover:text-primary" to={crmUrl("deals", d.name)} draggable={false}>{d.person}</Link>
               <span className="shrink-0 text-[11px] text-muted-foreground">{age(d.modified)}</span>
             </div>
             <p className="mt-1 truncate text-xs text-muted-foreground">{d.service_package ?? d.source ?? ""}{d.mobile_no ? ` · ${d.mobile_no}` : ""}</p>
@@ -305,32 +304,51 @@ function Pipeline({ meta }: { meta?: Meta }) {
 }
 
 // ------------------------------------------------------------------------------------------------ page
-export function CrmPage() {
-  const [params, setParams] = useSearchParams();
-  const tab = (params.get("tab") as Tab) || "dashboard";
+/** Shared header for the CRM app pages: title, Frappe CRM link and New lead. */
+function CrmHeader({ title, subtitle, icon, meta, onAdded }: { title: string; subtitle: string; icon: ReactNode; meta?: Meta; onAdded?: () => void }) {
   const [adding, setAdding] = useState(false);
-  const meta = useApi<Meta>(`${C}.lead_statuses`);
-  const [stamp, setStamp] = useState(0);
-  const tabs: [Tab, string][] = [["dashboard", "Dashboard"], ["leads", "Leads"], ["pipeline", "Pipeline"]];
   return (
-    <div className={cn("page-container space-y-5", tab === "pipeline" && "max-w-none")}>
-      <PageHeader title="CRM" subtitle="Leads and deals — from first enquiry to engaged client" icon={<Handshake className="h-5 w-5" />}
+    <>
+      <PageHeader title={title} subtitle={subtitle} icon={icon}
         actions={<>
-          <a href={meta.data?.pipeline_view ? `/crm/deals/view/kanban?view=${meta.data.pipeline_view}` : "/crm"} className="inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-sm font-medium hover:bg-accent"><ExternalLink className="h-4 w-4" /> Full CRM</a>
+          <a href={meta?.pipeline_view ? `/crm/deals/view/kanban?view=${meta.pipeline_view}` : "/crm"} className="inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-sm font-medium hover:bg-accent"><ExternalLink className="h-4 w-4" /> Frappe CRM</a>
           <Button size="default" onClick={() => setAdding(true)}><Plus className="h-4 w-4" /> New lead</Button>
         </>} />
-      <div className="flex gap-1 border-b">
-        {tabs.map(([k, label]) => (
-          <button key={k} onClick={() => setParams({ tab: k })} className={cn("-mb-px border-b-2 px-4 py-2 text-sm font-medium",
-            tab === k ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground")}>{label}</button>
-        ))}
-      </div>
-      <div key={stamp}>
-        {tab === "dashboard" && <Dashboard />}
-        {tab === "leads" && <Leads meta={meta.data} onPipeline={() => setParams({ tab: "pipeline" })} />}
-        {tab === "pipeline" && <Pipeline meta={meta.data} />}
-      </div>
-      <NewLeadDialog open={adding} onClose={() => setAdding(false)} meta={meta.data} onDone={() => setStamp((s) => s + 1)} />
+      <NewLeadDialog open={adding} onClose={() => setAdding(false)} meta={meta} onDone={() => onAdded?.()} />
+    </>
+  );
+}
+
+export function CrmDashboardPage() {
+  const meta = useApi<Meta>(`${C}.lead_statuses`);
+  const [stamp, setStamp] = useState(0);
+  return (
+    <div className="page-container space-y-5">
+      <CrmHeader title="CRM dashboard" subtitle="Leads and deals — from first enquiry to engaged client" icon={<Handshake className="h-5 w-5" />}
+        meta={meta.data} onAdded={() => setStamp((s) => s + 1)} />
+      <Dashboard key={stamp} />
+    </div>
+  );
+}
+
+export function CrmLeadsPage() {
+  const meta = useApi<Meta>(`${C}.lead_statuses`);
+  const navigate = useNavigate();
+  const [stamp, setStamp] = useState(0);
+  return (
+    <div className="page-container space-y-5">
+      <CrmHeader title="Leads" subtitle="Everyone who asked about our services" icon={<Users className="h-5 w-5" />} meta={meta.data} onAdded={() => setStamp((s) => s + 1)} />
+      <Leads key={stamp} meta={meta.data} onPipeline={() => navigate("/crm/pipeline")} />
+    </div>
+  );
+}
+
+export function CrmPipelinePage() {
+  const meta = useApi<Meta>(`${C}.lead_statuses`);
+  return (
+    <div className="page-container max-w-none space-y-5">
+      <CrmHeader title="Pipeline" subtitle="Drag a deal to its next stage" icon={<Target className="h-5 w-5" />} meta={meta.data} />
+      <Pipeline meta={meta.data} />
     </div>
   );
 }

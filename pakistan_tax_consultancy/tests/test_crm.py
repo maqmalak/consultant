@@ -66,8 +66,72 @@ class TestCrm(IntegrationTestCase):
 
 		profile = wa_inbox.profile_for("923000990004")
 		frappe.db.set_value("WhatsApp Profile", profile, "profile_name", "Wa Stranger")
-		msg = frappe._dict(to=profile, direction="Incoming", message="Salam, fee kitni hai?", reference_docname=None)
+		msg = frappe._dict(to=profile, direction="Incoming", message="Salam, fee kitni hai?", reference_docname=None, flags=frappe._dict())
 		msg.get = lambda k, d=None: msg[k] if k in msg else d  # noqa: E731
 		wa_inbox.link_party(msg)
 		self.assertEqual(msg.reference_doctype, "CRM Lead")
 		self.assertEqual(frappe.db.get_value("CRM Lead", msg.reference_docname, "source"), "WhatsApp")
+
+	def test_whatsapp_messages_save_with_crm_installed(self):
+		"""Frappe CRM's WhatsApp hooks expect older field names; the compat class keeps every save working."""
+		from pakistan_tax_consultancy.api import whatsapp as wa
+		from pakistan_tax_consultancy.services import wa_inbox
+
+		frappe.db.set_single_value("Portal Integration Settings", "wa_mock_mode", 1)
+		wa_inbox.install_mock()
+		name = wa.simulate_incoming("03000990005", "Salam, tax return ki fee?", "Compat Tester")
+		msg = frappe.get_doc("WhatsApp Message", name)
+		self.assertEqual(msg.type, "Incoming")
+		self.assertEqual((msg.reference_doctype, msg.reference_name), ("CRM Lead", msg.reference_docname))
+
+	def test_lead_activities(self):
+		from frappe.utils import add_days, now_datetime
+
+		from pakistan_tax_consultancy.api import crm_activity as act
+
+		lead = crm.make_lead("Activity Person", "+923000990006", source="Walk In", owner=self.consultant.name)
+		frappe.set_user(self.consultant.name)
+		act.add_note("CRM Lead", lead, "Met at the office; salaried, two employers.")
+		act.add_task("CRM Lead", lead, "Collect salary certificates", str(add_days(now_datetime(), 1)), "High")
+		event = act.schedule("Call", str(add_days(now_datetime(), 2)), note="Call about documents", ref_doctype="CRM Lead", ref_name=lead)
+		d = act.detail("CRM Lead", lead)
+		kinds = {i["kind"] for i in d["timeline"]}
+		self.assertTrue({"note", "task", "event", "created"} <= kinds)
+		self.assertEqual(len(d["open_tasks"]), 1)
+		self.assertEqual(d["upcoming"][0]["id"], event)
+		cal = act.calendar(str(now_datetime().date()), str(add_days(now_datetime(), 7).date()))
+		self.assertTrue({"event", "task"} <= {c["kind"] for c in cal})
+		self.assertRaises(frappe.ValidationError, act.send_email, "CRM Lead", lead, "Hi", "Hello")  # no email address / account
+
+
+class TestLeadFinder(IntegrationTestCase):
+	def test_only_public_addresses_are_fetched(self):
+		from pakistan_tax_consultancy.services import lead_finder as lf
+
+		for url in ("http://127.0.0.1:8010/", "http://localhost/", "http://169.254.169.254/latest/meta-data", "http://10.0.0.5/", "file:///etc/passwd"):
+			self.assertFalse(lf._is_safe_url(url), url)
+		row = lf.find_one("http://127.0.0.1:8010/")
+		self.assertTrue(row.scrape_error)
+
+	def test_apify_run_import(self):
+		from unittest.mock import patch
+
+		from pakistan_tax_consultancy.services import apify
+
+		self.assertEqual(apify.run_id_from("https://console.apify.com/actors/nwua9Gu5YrADL7ZDj/runs/2FASrquyaonUxt8Iu#output"), "2FASrquyaonUxt8Iu")
+		items = [{"title": "Test Karahi House", "phoneUnformatted": "+924100990001", "address": "D Ground, Faisalabad", "city": "Faisalabad",
+			"countryCode": "PK", "categoryName": "Restaurant", "totalScore": 4.4, "reviewsCount": 120, "url": "https://maps.google.com/?cid=1",
+			"placeId": "TESTPLACE1"}, {"title": ""}]
+
+		def fake(method, path, token, **kw):
+			if path.startswith("/actor-runs/"):
+				return {"data": {"id": "2FASrquyaonUxt8Iu", "status": "SUCCEEDED", "defaultDatasetId": "DS1"}}
+			return items
+
+		with patch.object(apify, "_settings", return_value=(frappe._dict(), "token")), patch.object(apify, "_call", side_effect=fake):
+			first = apify.import_run("2FASrquyaonUxt8Iu")
+			again = apify.import_run("2FASrquyaonUxt8Iu")
+		self.assertEqual((first["added"], first["skipped"]), (1, 1))
+		self.assertEqual(again["added"], 0)  # the same place is never queued twice
+		p = frappe.get_doc("Lead Prospect", {"place_id": "TESTPLACE1"})
+		self.assertEqual((p.city, p.category, p.status), ("Faisalabad", "Restaurant", "Pending Review"))

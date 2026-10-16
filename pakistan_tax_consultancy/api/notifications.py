@@ -22,7 +22,8 @@ def _href(doctype, name, client):
 	return {"Tax Return": f"/staff/returns/{name}", "Tax Client": f"/staff/clients/{name}",
 		"Client Conversation": f"/staff/inbox?view=all&c={name}", "Consultation Request": "/staff/consultations",
 		"Payment Proof": "/staff/payments", "Site Visit": "/staff/visits", "Tax Document": "/staff/queue/documents",
-		"Generated Document": "/staff/vault"}.get(doctype)
+		"Generated Document": "/staff/vault", "CRM Lead": f"/crm/leads/{name}", "CRM Deal": f"/crm/deals/{name}",
+		"Lead Prospect": "/crm/finder"}.get(doctype)
 
 
 @frappe.whitelist(methods=["GET"])
@@ -65,6 +66,15 @@ def search(q: str = ""):
 		for c in search_clients(q, page_length=6):
 			out.append({"kind": "Client", "title": c.client_name, "hint": " · ".join(filter(None, [c.client_type, c.cnic_masked, c.mobile])),
 				"href": f"/staff/clients/{c.name}"})
+	if not client and set(frappe.get_roles()) & {"Sales User", "Sales Manager", "System Manager"}:
+		for r in frappe.get_list("CRM Lead", or_filters={"lead_name": ("like", like), "mobile_no": ("like", like), "organization": ("like", like)},
+				fields=["name", "lead_name", "status", "source", "mobile_no"], filters={"converted": 0}, order_by="modified desc", limit_page_length=5):
+			out.append({"kind": "CRM lead", "title": r.lead_name or r.name, "hint": " · ".join(filter(None, [r.status, r.source, r.mobile_no])),
+				"href": f"/crm/leads/{r.name}"})
+		for r in frappe.get_list("CRM Deal", or_filters={"lead_name": ("like", like), "mobile_no": ("like", like)},
+				fields=["name", "lead_name", "status", "mobile_no"], order_by="modified desc", limit_page_length=5):
+			out.append({"kind": "CRM deal", "title": r.lead_name or r.name, "hint": " · ".join(filter(None, [r.status, r.mobile_no])),
+				"href": f"/crm/deals/{r.name}"})
 	for r in frappe.get_list("Tax Return", or_filters={"name": ("like", like), "client_name": ("like", like), "tax_year": ("like", like)},
 			fields=["name", "client_name", "tax_year", "workflow_state"], order_by="modified desc", limit_page_length=6):
 		out.append({"kind": "Tax return", "title": f"{r.client_name} · TY{r.tax_year}", "hint": f"{r.name} · {r.workflow_state}",
