@@ -6,6 +6,7 @@ import { Empty, ErrorState, Loading } from "@/components/common/states";
 import { SelectInput } from "@/components/ui/field";
 import { PageHeader } from "@/components/ui/page-header";
 import { getList } from "@/services/frappe";
+import { ReturnProgressPanel } from "@/components/common/return-progress-panel";
 import { ReturnTable } from "./queue";
 
 const STATES = ["Documents Pending", "Draft", "Changes Required", "Pending Review", "Under Review", "Reviewed",
@@ -16,6 +17,7 @@ export function ReturnsPage() {
   const [state, setState] = useState("");
   const [year, setYear] = useState("");
   const [q, setQ] = useState("");
+  const [picked, setPicked] = useState<string | null>(null);
   const filters: [string, string, any][] = [];
   if (state) filters.push(["workflow_state", "=", state]);
   if (year) filters.push(["tax_year", "=", year]);
@@ -23,6 +25,9 @@ export function ReturnsPage() {
   const { data, error, isLoading, mutate } = useSWR(["returns", state, year, q], () => getList<Record<string, any>>("Tax Return", {
     fields: ["name", "tax_client", "client_name", "tax_year", "return_type", "workflow_state", "net_tax_payable", "refund_due", "client_confirmed", "modified"],
     filters, limit: 200 }));
+  // the picked return, else the first current-tax-year return in the list, else the first row
+  const selected = data?.some((r) => r.name === picked) ? picked
+    : data?.find((r) => r.tax_year === site?.tax_year)?.name ?? data?.[0]?.name ?? null;
   return (
     <div className="page-container">
       <PageHeader title="Tax returns" subtitle="Every return you may see, newest activity first" icon={<FileText className="h-5 w-5" />} />
@@ -34,9 +39,14 @@ export function ReturnsPage() {
         <SelectInput aria-label="Tax year" className="w-36" value={year} onChange={(e) => setYear(e.target.value)}>
           <option value="">All years</option>{(site?.tax_years ?? []).map((y) => <option key={y}>{y}</option>)}</SelectInput>
       </div>
-      {isLoading && <Loading />}
-      {error && <ErrorState error={error} onRetry={() => void mutate()} />}
-      {data && (data.length ? <ReturnTable rows={data} /> : <Empty title="No returns match" />)}
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="min-w-0">
+          {isLoading && <Loading />}
+          {error && <ErrorState error={error} onRetry={() => void mutate()} />}
+          {data && (data.length ? <ReturnTable rows={data} selected={selected} onSelect={setPicked} /> : <Empty title="No returns match" />)}
+        </div>
+        <ReturnProgressPanel name={selected} />
+      </div>
     </div>
   );
 }

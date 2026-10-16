@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { StateBadge } from "@/components/common/state-badge";
 import { StepChain } from "@/components/common/step-chain";
 import { FilingProgress } from "@/components/common/filing-progress";
+import { ReturnProgressPanel } from "@/components/common/return-progress-panel";
 import { QuickActions } from "@/components/common/quick-actions";
 import { Empty, ErrorState, InlineError, Loading } from "@/components/common/states";
 import { Button, LinkButton } from "@/components/ui/button";
@@ -139,8 +140,12 @@ export function ClientDetail() {
   const site = useSite().data;
   const [year, setYear] = useState("");
   const [err, setErr] = useState<unknown>(null);
+  const [picked, setPicked] = useState<string | null>(null);
   if (isLoading) return <Loading />;
   if (error || !data) return <div className="page-container"><ErrorState error={error} onRetry={() => void mutate()} /></div>;
+  // default: this filing season's return (current tax year), else the latest
+  const selectedReturn: string | null = data.returns.some((r: Row) => r.name === picked) ? picked
+    : data.returns.find((r: Row) => r.tax_year === site?.tax_year)?.name ?? data.latest?.name ?? data.returns[0]?.name ?? null;
   const fields: [string, any][] = [["Type", data.client_type], ["CNIC", data.cnic_masked], ["NTN", data.ntn], ["STRN", data.strn],
     ["Mobile", data.mobile], ["Email", data.email], ["City", data.city], ["FBR status", data.fbr_registration_status],
     ["Source", data.registration_source], ["Consultant", data.assigned_consultant], ["Consent", data.consent_given ? `Yes · ${formatDate(data.consent_timestamp)}` : "No"]];
@@ -161,17 +166,11 @@ export function ClientDetail() {
         { label: "Document vault", hint: "Files · generate letters", icon: ShieldCheck, to: `/staff/vault?client=${encodeURIComponent(data.name)}`, tone: "amber" as const },
         { label: "Edit details", hint: "Contact · CNIC · consultant", icon: Pencil, to: `/staff/clients/${data.name}/edit`, tone: "slate" as const },
       ].filter((a): a is NonNullable<typeof a> => !!a)} />
-      <div className="grid items-start gap-5 lg:grid-cols-[1fr_290px]">
-        <Card className="grid gap-x-6 gap-y-2 p-4 text-sm sm:grid-cols-2">
-          {fields.map(([k, v]) => <p key={k}><span className="text-muted-foreground">{k}:</span> {v || "—"}</p>)}
-        </Card>
-        {data.latest ? (
-          <FilingProgress step={data.latest.step} dates={data.latest.step_dates} title={`Tax year ${data.latest.tax_year}`}
-            problem={["Changes Required", "Filing Error"].includes(data.latest.state)}
-            footer={<Link className="font-medium text-primary hover:underline" to={`/staff/returns/${data.latest.name}`}>Open {data.latest.name} →</Link>} />
-        ) : <FilingProgress step={0} title="No return yet" />}
-      </div>
-      <section className="space-y-3">
+      <Card className="grid gap-x-6 gap-y-2 p-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
+        {fields.map(([k, v]) => <p key={k}><span className="text-muted-foreground">{k}:</span> {v || "—"}</p>)}
+      </Card>
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <section className="min-w-0 space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <h2 className="text-lg font-semibold">Returns</h2>
           <div className="flex items-center gap-2">
@@ -183,8 +182,11 @@ export function ClientDetail() {
           </div>
         </div>
         <InlineError error={err} />
-        {data.returns.length ? <ReturnTable rows={data.returns} /> : <Empty title="No returns yet" />}
+        {data.returns.length ? <ReturnTable rows={data.returns} selected={selectedReturn} onSelect={setPicked} /> : <Empty title="No returns yet" />}
+        {data.returns.length > 1 && <p className="text-xs text-muted-foreground">Click a return to see its progress on the right.</p>}
       </section>
+      {data.returns.length ? <ReturnProgressPanel name={selectedReturn} showClient={false} /> : <FilingProgress step={0} title="No return yet" />}
+      </div>
       <section className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-3">
           <h2 className="text-lg font-semibold">Engagements & fees</h2>

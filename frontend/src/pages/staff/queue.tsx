@@ -1,4 +1,6 @@
 import { Download, FileCheck2, Search, X } from "lucide-react";
+import { ReturnProgressPanel } from "@/components/common/return-progress-panel";
+import { useSite } from "@/components/layout/brand";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { STAFF_NAV } from "@/app/nav";
@@ -80,14 +82,15 @@ export function DocumentQueue() {
   );
 }
 
-export function ReturnTable({ rows }: { rows: Row[] }) {
+/** Return list; with `onSelect`, clicking a row selects it (the return number still opens the return). */
+export function ReturnTable({ rows, selected, onSelect }: { rows: Row[]; selected?: string | null; onSelect?: (name: string) => void }) {
   return (
     <Table>
       <thead><tr><TH>Return</TH><TH>Client</TH><TH>Year</TH><TH>Progress</TH><TH>Status</TH><TH className="text-end">Payable / refund</TH><TH>Updated</TH></tr></thead>
       <tbody>
         {rows.map((r) => (
-          <TR key={r.name}>
-            <TD><Link to={`/staff/returns/${r.name}`} className="font-medium text-primary hover:underline">{r.name}</Link>
+          <TR key={r.name} onClick={onSelect && (() => onSelect(r.name))} selected={!!onSelect && selected === r.name}>
+            <TD><Link to={`/staff/returns/${r.name}`} onClick={(e) => e.stopPropagation()} className="font-medium text-primary hover:underline">{r.name}</Link>
               {r.return_type === "Revised" && <span className="ms-1 text-xs text-muted-foreground">revised</span>}</TD>
             <TD>{r.client_name}</TD>
             <TD>{r.tax_year}</TD>
@@ -108,6 +111,11 @@ export function QueuePage() {
   const item = STAFF_NAV.flatMap((g) => g.items).find((i) => i.path === `/staff/queue/${queue}`);
   const isDocs = queue === "documents";
   const { data, error, isLoading, mutate } = useQueue(isDocs ? null : queue, search);
+  const [picked, setPicked] = useState<string | null>(null);
+  const site = useSite().data;
+  // the picked return, else the first current-tax-year return, else the first row
+  const selected = data?.rows.some((r: Row) => r.name === picked) ? picked
+    : data?.rows.find((r: Row) => r.tax_year === site?.tax_year)?.name ?? data?.rows[0]?.name ?? null;
   return (
     <div className="page-container">
       <PageHeader title={item?.label ?? "Queue"} subtitle={item?.hint} icon={item ? <item.icon className="h-5 w-5" /> : undefined} />
@@ -117,9 +125,14 @@ export function QueuePage() {
             <Search className="absolute start-2.5 top-3 h-4 w-4 text-muted-foreground" />
             <input className="field ps-8" placeholder="Search client or return" value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
-          {isLoading && <Loading />}
-          {error && <ErrorState error={error} onRetry={() => void mutate()} />}
-          {data && (data.rows.length ? <ReturnTable rows={data.rows} /> : <Empty title="Queue is empty" />)}
+          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+            <div className="min-w-0">
+              {isLoading && <Loading />}
+              {error && <ErrorState error={error} onRetry={() => void mutate()} />}
+              {data && (data.rows.length ? <ReturnTable rows={data.rows} selected={selected} onSelect={setPicked} /> : <Empty title="Queue is empty" />)}
+            </div>
+            {!!data?.rows.length && <ReturnProgressPanel name={selected} />}
+          </div>
         </div>
       )}
     </div>

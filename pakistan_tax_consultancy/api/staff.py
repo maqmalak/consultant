@@ -125,6 +125,20 @@ def _return_for_write(tax_return):
 
 
 @frappe.whitelist(methods=["GET"])
+def return_progress(tax_return: str):
+	"""One return's step on the 7-step client journey, with dates — the progress card beside return lists."""
+	from pakistan_tax_consultancy.api.portal import STEP_OF, step_dates
+
+	require_staff()
+	doc = frappe.get_doc("Tax Return", tax_return)
+	doc.check_permission("read")
+	return {"name": doc.name, "tax_client": doc.tax_client, "client_name": doc.client_name, "tax_year": doc.tax_year,
+		"state": doc.workflow_state, "step": STEP_OF.get(doc.workflow_state, 1), "step_dates": step_dates(doc.name, doc.tax_client),
+		"problem": doc.workflow_state in (wf.CHANGES_REQUIRED, wf.FILING_ERROR),
+		"net_tax_payable": doc.net_tax_payable, "refund_due": doc.refund_due, "assigned_consultant": doc.assigned_consultant}
+
+
+@frappe.whitelist(methods=["GET"])
 def return_overview(tax_return: str):
 	from pakistan_tax_consultancy.services.checklist import checklist
 	from pakistan_tax_consultancy.services.tax_calc import is_calculation_current

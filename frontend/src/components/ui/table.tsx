@@ -30,8 +30,12 @@ export function TD({ children, className, ...rest }: TdHTMLAttributes<HTMLTableC
   return <td className={cn("px-4 py-3 align-middle text-foreground", className)} {...rest}>{children}</td>;
 }
 
-export function TR({ children, className }: { children: ReactNode; className?: string }) {
-  return <tr className={cn("border-b border-border/60 last:border-0 transition-colors hover:bg-muted/40", className)}>{children}</tr>;
+export function TR({ children, className, onClick, selected }: { children: ReactNode; className?: string; onClick?: () => void; selected?: boolean }) {
+  return (
+    <tr onClick={onClick} aria-selected={selected}
+      className={cn("border-b border-border/60 last:border-0 transition-colors hover:bg-muted/40", onClick && "cursor-pointer",
+        selected && "bg-primary/[0.07] shadow-[inset_3px_0_0_hsl(var(--primary))] hover:bg-primary/10", className)}>{children}</tr>
+  );
 }
 
 /** Empty / no-results state row spanning the full table width. */

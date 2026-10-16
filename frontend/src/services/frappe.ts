@@ -101,6 +101,12 @@ async function wrap<T>(p: Promise<{ data: any }>): Promise<T> {
   return data as T;
 }
 
+/** Unwrap the `{data: ...}` envelope of the REST resource API (/api/resource). */
+async function wrapResource<T>(p: Promise<{ data: any }>): Promise<T> {
+  const res = await p;
+  return (res?.data && typeof res.data === "object" && "data" in res.data ? res.data.data : res?.data) as T;
+}
+
 /**
  * Call a whitelisted Python method: `/api/method/<path>` with JSON args.
  * Guest access allowed at the transport level; each method enforces its own
@@ -143,7 +149,7 @@ export function getList<T = Record<string, any>>(
     limit,
     limitPageLength,
   } = opts;
-  return wrap<T[]>(
+  return wrapResource<T[]>(
     http.get("/api/resource/" + encodeURIComponent(doctype), {
       params: {
         fields: JSON.stringify(fields),
@@ -159,7 +165,7 @@ export function getList<T = Record<string, any>>(
 
 /** Insert a document via the REST resource API (server-side perms apply). */
 export function insertDoc<T = Record<string, any>>(doc: Record<string, any>): Promise<T> {
-  return wrap<T>(http.post("/api/resource/" + encodeURIComponent(doc.doctype), doc));
+  return wrapResource<T>(http.post("/api/resource/" + encodeURIComponent(doc.doctype), doc));
 }
 
 /** Update fields on an existing document via `frappe.client.set_value`. */
