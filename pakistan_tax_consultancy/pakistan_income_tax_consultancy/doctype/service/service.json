@@ -6,10 +6,18 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
+  "slug",
+  "category",
+  "icon",
+  "published",
+  "display_order",
   "is_active",
   "price_from",
   "applies_to_client_types",
-  "description"
+  "description",
+  "summary",
+  "details",
+  "required_document_types"
  ],
  "fields": [
   {
@@ -19,6 +27,40 @@
    "label": "Title",
    "reqd": 1,
    "unique": 1
+  },
+  {
+   "description": "URL part: /services/<slug>",
+   "fieldname": "slug",
+   "fieldtype": "Data",
+   "label": "Slug",
+   "unique": 1
+  },
+  {
+   "default": "Tax Filing",
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Category",
+   "options": "Tax Filing\nRegistration\nCorporate\nAdvisory"
+  },
+  {
+   "description": "lucide icon name, e.g. file-text",
+   "fieldname": "icon",
+   "fieldtype": "Data",
+   "label": "Icon"
+  },
+  {
+   "default": "1",
+   "fieldname": "published",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Published on Website"
+  },
+  {
+   "default": "10",
+   "fieldname": "display_order",
+   "fieldtype": "Int",
+   "label": "Display Order"
   },
   {
    "default": "1",
@@ -41,10 +83,27 @@
    "fieldname": "description",
    "fieldtype": "Small Text",
    "label": "Description"
+  },
+  {
+   "description": "One-line card text",
+   "fieldname": "summary",
+   "fieldtype": "Small Text",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "details",
+   "fieldtype": "Text Editor",
+   "label": "Page Content"
+  },
+  {
+   "fieldname": "required_document_types",
+   "fieldtype": "Table MultiSelect",
+   "label": "Required Documents",
+   "options": "Service Document Type"
   }
  ],
  "links": [],
- "modified": "2026-10-16 10:00:00.000000",
+ "modified": "2026-10-16 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pakistan Income Tax Consultancy",
  "name": "Service",
@@ -108,7 +167,7 @@
   }
  ],
  "row_format": "Dynamic",
- "sort_field": "creation",
+ "sort_field": "display_order",
  "sort_order": "DESC",
  "states": []
 }

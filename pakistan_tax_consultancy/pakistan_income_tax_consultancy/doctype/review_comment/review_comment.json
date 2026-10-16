@@ -1,0 +1,171 @@
+{
+ "actions": [],
+ "autoname": "RC-.YYYY.-.#####",
+ "creation": "2026-10-16 22:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "tax_return",
+  "tax_client",
+  "stage",
+  "cb1",
+  "user",
+  "from_client",
+  "visible_to_client",
+  "resolved",
+  "sb2",
+  "comment"
+ ],
+ "fields": [
+  {
+   "fieldname": "tax_return",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Tax Return",
+   "options": "Tax Return",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "tax_return.tax_client",
+   "fieldname": "tax_client",
+   "fieldtype": "Link",
+   "label": "Client",
+   "options": "Tax Client",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stage",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Stage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "__user",
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "from_client",
+   "fieldtype": "Check",
+   "label": "From Client",
+   "read_only": 1
+  },
+  {
+   "description": "Show this comment to the client in the portal",
+   "fieldname": "visible_to_client",
+   "fieldtype": "Check",
+   "label": "Visible To Client"
+  },
+  {
+   "fieldname": "resolved",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Resolved"
+  },
+  {
+   "fieldname": "sb2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "comment",
+   "fieldtype": "Text",
+   "label": "Comment",
+   "reqd": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-16 22:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Review Comment",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Consultant",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Reviewer",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Approver",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Filing Officer"
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "role": "Client"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "stage",
+ "track_changes": 1
+}

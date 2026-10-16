@@ -1,0 +1,61 @@
+{
+ "actions": [],
+ "creation": "2026-10-16 22:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "cpr_no",
+  "payment_date",
+  "section",
+  "amount",
+  "challan"
+ ],
+ "fields": [
+  {
+   "fieldname": "cpr_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "CPR No.",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payment_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Payment Date"
+  },
+  {
+   "default": "147",
+   "fieldname": "section",
+   "fieldtype": "Data",
+   "label": "Section"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "reqd": 1
+  },
+  {
+   "fieldname": "challan",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Challan / CPR Copy",
+   "options": "Tax Document"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-16 22:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Tax Return Advance Tax",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

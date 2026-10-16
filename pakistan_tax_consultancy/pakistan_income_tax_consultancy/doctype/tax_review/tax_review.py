@@ -1,10 +1,6 @@
 # Copyright (c) 2026, maqmalak and contributors
 # For license information, please see license.txt
 
-# Copyright (c) 2026, maqmalak and contributors
-# For license information, please see license.txt
-
-# import frappe
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -23,9 +19,4 @@ class TaxReview(Document):
 		if not self.reviewer:
 			frappe.throw(_("Reviewer is required"))
 
-		if not self.decision:
-			frappe.throw(_("Decision is required"))
-
-
-class TaxReview(Document):
-	pass
+		# the decision follows from the checklist (api.staff.save_review); none yet while the review is open

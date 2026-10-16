@@ -1,0 +1,360 @@
+{
+ "actions": [],
+ "creation": "2026-10-16 22:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "sb_firm",
+  "firm_name",
+  "tagline",
+  "logo",
+  "brand_color",
+  "cb_firm",
+  "years_experience",
+  "membership_info",
+  "default_language",
+  "sb_contact",
+  "phone",
+  "whatsapp",
+  "whatsapp_message",
+  "email",
+  "cb_contact",
+  "address",
+  "office_hours",
+  "map_link",
+  "map_embed_url",
+  "sb_social",
+  "facebook",
+  "instagram",
+  "cb_social",
+  "linkedin",
+  "youtube",
+  "x_url",
+  "sb_home",
+  "hero_headline",
+  "hero_subtext",
+  "why_choose_us",
+  "sb_announce",
+  "announcement_enabled",
+  "announcement_text",
+  "cb_announce",
+  "announcement_link",
+  "announcement_expiry",
+  "sb_pay",
+  "bank_name",
+  "bank_account_title",
+  "bank_account_no",
+  "bank_iban",
+  "cb_pay",
+  "raast_id",
+  "jazzcash_number",
+  "jazzcash_title",
+  "easypaisa_number",
+  "easypaisa_title",
+  "sb_ops",
+  "work_before_payment",
+  "filing_deadline"
+ ],
+ "fields": [
+  {
+   "fieldname": "sb_firm",
+   "fieldtype": "Section Break",
+   "label": "Firm"
+  },
+  {
+   "default": "[FILL] Firm Name",
+   "fieldname": "firm_name",
+   "fieldtype": "Data",
+   "label": "Firm Name"
+  },
+  {
+   "fieldname": "tagline",
+   "fieldtype": "Data",
+   "label": "Tagline"
+  },
+  {
+   "fieldname": "logo",
+   "fieldtype": "Attach Image",
+   "label": "Logo"
+  },
+  {
+   "default": "#0d9488",
+   "fieldname": "brand_color",
+   "fieldtype": "Color",
+   "label": "Brand Color"
+  },
+  {
+   "fieldname": "cb_firm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Only true facts \u2014 shown in the trust strip",
+   "fieldname": "years_experience",
+   "fieldtype": "Int",
+   "label": "Years of Experience"
+  },
+  {
+   "description": "e.g. ICAP / ICMAP / tax bar membership \u2014 leave blank if none",
+   "fieldname": "membership_info",
+   "fieldtype": "Data",
+   "label": "Membership / Registration No."
+  },
+  {
+   "default": "en",
+   "fieldname": "default_language",
+   "fieldtype": "Select",
+   "label": "Default Language",
+   "options": "en\nur"
+  },
+  {
+   "fieldname": "sb_contact",
+   "fieldtype": "Section Break",
+   "label": "Contact"
+  },
+  {
+   "description": "[FILL] before launch",
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Phone",
+   "options": "Phone"
+  },
+  {
+   "description": "[FILL] International format, e.g. 923001234567",
+   "fieldname": "whatsapp",
+   "fieldtype": "Data",
+   "label": "WhatsApp Number"
+  },
+  {
+   "default": "Assalam-o-Alaikum, I would like help with my income tax return.",
+   "fieldname": "whatsapp_message",
+   "fieldtype": "Small Text",
+   "label": "Whatsapp Message"
+  },
+  {
+   "description": "[FILL] before launch",
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "cb_contact",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "[FILL] Office address",
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "default": "Mon\u2013Sat, 9:00 AM \u2013 6:00 PM",
+   "fieldname": "office_hours",
+   "fieldtype": "Data",
+   "label": "Office Hours"
+  },
+  {
+   "fieldname": "map_link",
+   "fieldtype": "Data",
+   "label": "Google Maps Link"
+  },
+  {
+   "fieldname": "map_embed_url",
+   "fieldtype": "Small Text",
+   "label": "Google Maps Embed URL"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sb_social",
+   "fieldtype": "Section Break",
+   "label": "Social Links"
+  },
+  {
+   "fieldname": "facebook",
+   "fieldtype": "Data",
+   "label": "Facebook"
+  },
+  {
+   "fieldname": "instagram",
+   "fieldtype": "Data",
+   "label": "Instagram"
+  },
+  {
+   "fieldname": "cb_social",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "linkedin",
+   "fieldtype": "Data",
+   "label": "Linkedin"
+  },
+  {
+   "fieldname": "youtube",
+   "fieldtype": "Data",
+   "label": "Youtube"
+  },
+  {
+   "fieldname": "x_url",
+   "fieldtype": "Data",
+   "label": "X (Twitter)"
+  },
+  {
+   "fieldname": "sb_home",
+   "fieldtype": "Section Break",
+   "label": "Home Page"
+  },
+  {
+   "default": "File your income tax return with a qualified consultant",
+   "fieldname": "hero_headline",
+   "fieldtype": "Data",
+   "label": "Hero Headline"
+  },
+  {
+   "default": "Answer a few questions, upload your documents and we prepare, review and file your return on FBR IRIS on your behalf.",
+   "fieldname": "hero_subtext",
+   "fieldtype": "Small Text",
+   "label": "Hero Subtext"
+  },
+  {
+   "fieldname": "why_choose_us",
+   "fieldtype": "Table",
+   "label": "Why Choose Us",
+   "options": "Firm Highlight"
+  },
+  {
+   "fieldname": "sb_announce",
+   "fieldtype": "Section Break",
+   "label": "Announcement Bar"
+  },
+  {
+   "fieldname": "announcement_enabled",
+   "fieldtype": "Check",
+   "label": "Announcement Enabled"
+  },
+  {
+   "fieldname": "announcement_text",
+   "fieldtype": "Data",
+   "label": "Announcement Text"
+  },
+  {
+   "fieldname": "cb_announce",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "announcement_link",
+   "fieldtype": "Data",
+   "label": "Announcement Link"
+  },
+  {
+   "fieldname": "announcement_expiry",
+   "fieldtype": "Date",
+   "label": "Announcement Expiry"
+  },
+  {
+   "fieldname": "sb_pay",
+   "fieldtype": "Section Break",
+   "label": "Payment Details (shown to clients)"
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank Name"
+  },
+  {
+   "fieldname": "bank_account_title",
+   "fieldtype": "Data",
+   "label": "Bank Account Title"
+  },
+  {
+   "fieldname": "bank_account_no",
+   "fieldtype": "Data",
+   "label": "Bank Account No"
+  },
+  {
+   "fieldname": "bank_iban",
+   "fieldtype": "Data",
+   "label": "IBAN"
+  },
+  {
+   "fieldname": "cb_pay",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "raast_id",
+   "fieldtype": "Data",
+   "label": "Raast ID"
+  },
+  {
+   "fieldname": "jazzcash_number",
+   "fieldtype": "Data",
+   "label": "JazzCash Number"
+  },
+  {
+   "fieldname": "jazzcash_title",
+   "fieldtype": "Data",
+   "label": "JazzCash Account Title"
+  },
+  {
+   "fieldname": "easypaisa_number",
+   "fieldtype": "Data",
+   "label": "Easypaisa Number"
+  },
+  {
+   "fieldname": "easypaisa_title",
+   "fieldtype": "Data",
+   "label": "Easypaisa Account Title"
+  },
+  {
+   "fieldname": "sb_ops",
+   "fieldtype": "Section Break",
+   "label": "Operations"
+  },
+  {
+   "default": "0",
+   "description": "Unchecked: the return is prepared only after the fee is verified as paid",
+   "fieldname": "work_before_payment",
+   "fieldtype": "Check",
+   "label": "Start Work Before Payment"
+  },
+  {
+   "description": "Overrides the active Tax Year's return due date on the website countdown",
+   "fieldname": "filing_deadline",
+   "fieldtype": "Date",
+   "label": "Filing Deadline"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-16 22:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Firm Website Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "role": "Tax Admin",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

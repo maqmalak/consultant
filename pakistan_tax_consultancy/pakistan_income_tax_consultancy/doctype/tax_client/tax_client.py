@@ -45,7 +45,7 @@ class TaxClient(Document):
 		self.mobile = v.format_mobile_display(mobile)
 		self.email = v.normalize_email(self.email)
 		self.email_normalized = self.email
-		if self.client_type == "Individual" and not (self.cnic or self.ntn):
+		if (self.client_type or "").startswith("Individual") and not (self.cnic or self.ntn):
 			frappe.msgprint(_("CNIC or NTN is recommended for individual clients."), indicator="orange",
 				alert=True)
 

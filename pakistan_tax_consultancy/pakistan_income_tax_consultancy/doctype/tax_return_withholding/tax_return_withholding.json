@@ -1,0 +1,66 @@
+{
+ "actions": [],
+ "creation": "2026-10-16 22:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section",
+  "payer",
+  "payer_ntn",
+  "tax_year_period",
+  "amount",
+  "certificate"
+ ],
+ "fields": [
+  {
+   "fieldname": "section",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Section",
+   "options": "Withholding Tax Section"
+  },
+  {
+   "fieldname": "payer",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Payer / Withholding Agent"
+  },
+  {
+   "fieldname": "payer_ntn",
+   "fieldtype": "Data",
+   "label": "Payer NTN"
+  },
+  {
+   "fieldname": "tax_year_period",
+   "fieldtype": "Data",
+   "label": "Period"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "reqd": 1
+  },
+  {
+   "fieldname": "certificate",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Certificate",
+   "options": "Tax Document"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-16 22:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Tax Return Withholding",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

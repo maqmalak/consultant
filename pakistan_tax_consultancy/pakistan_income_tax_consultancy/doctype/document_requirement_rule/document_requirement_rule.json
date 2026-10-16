@@ -10,6 +10,7 @@
   "is_active",
   "cb1",
   "client_type",
+  "when_answer",
   "taxpayer_type",
   "service",
   "tax_regime",
@@ -51,14 +52,20 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Client Type",
-   "options": "\nIndividual\nSole Proprietor\nAOP/Partnership\nCompany\nOther"
+   "options": "\nIndividual-Salaried\nIndividual-Business\nAOP\nCompany\nOther"
+  },
+  {
+   "fieldname": "when_answer",
+   "fieldtype": "Select",
+   "label": "Only When Client Answered Yes To",
+   "options": "\nhas_salary\nhas_business\nhas_property_income\nhas_capital_gains\nhas_profit_on_debt\nhas_foreign_income\nhas_other_income\nowns_property\nowns_vehicle\nfirst_time_filer"
   },
   {
    "description": "Blank = any taxpayer type",
    "fieldname": "taxpayer_type",
    "fieldtype": "Select",
    "label": "Taxpayer Type",
-   "options": "\nSalaried Individual\nNon-Salaried Individual\nSole Proprietor\nAOP/Partnership\nCompany\nOther"
+   "options": "\nSalaried Individual\nNon-Salaried Individual\nAOP\nCompany"
   },
   {
    "description": "Blank = any service",
@@ -93,7 +100,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-16 10:00:00.000000",
+ "modified": "2026-10-16 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pakistan Income Tax Consultancy",
  "name": "Document Requirement Rule",

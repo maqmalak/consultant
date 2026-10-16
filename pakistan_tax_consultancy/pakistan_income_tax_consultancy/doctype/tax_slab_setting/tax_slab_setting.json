@@ -57,7 +57,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Taxpayer Type",
-   "options": "\nSalaried Individual\nNon-Salaried Individual\nSole Proprietor\nAOP/Partnership\nCompany\nOther",
+   "options": "Salaried Individual\nNon-Salaried Individual\nAOP\nCompany",
    "reqd": 1
   },
   {

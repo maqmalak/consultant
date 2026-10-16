@@ -1,10 +1,6 @@
 # Copyright (c) 2026, maqmalak and contributors
 # For license information, please see license.txt
 
-# Copyright (c) 2026, maqmalak and contributors
-# For license information, please see license.txt
-
-# import frappe
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -26,7 +22,3 @@ class TaxEngagementDocument(Document):
 
 		if self.tax_document and not frappe.db.exists("Tax Document", self.tax_document):
 			frappe.throw(_("Tax Document {0} does not exist.").format(self.tax_document))
-
-
-class TaxEngagementDocument(Document):
-	pass

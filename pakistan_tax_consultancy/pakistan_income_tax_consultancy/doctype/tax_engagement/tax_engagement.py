@@ -1,10 +1,6 @@
 # Copyright (c) 2026, maqmalak and contributors
 # For license information, please see license.txt
 
-# Copyright (c) 2026, maqmalak and contributors
-# For license information, please see license.txt
-
-# import frappe
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -30,7 +26,3 @@ class TaxEngagement(Document):
 
 		if self.tax_year and not frappe.db.exists("Tax Year", self.tax_year):
 			frappe.throw(_("Tax Year {0} does not exist.").format(self.tax_year))
-
-
-class TaxEngagement(Document):
-	pass

@@ -38,7 +38,7 @@ def make_client(name_suffix, consultant=None, field_officer=None, portal_user=No
 	return frappe.get_doc({
 		"doctype": "Tax Client",
 		"client_name": f"Test Client {name_suffix}",
-		"client_type": "Individual",
+		"client_type": "Individual-Salaried",
 		"cnic": normalize_cnic(cnic),
 		"mobile": normalize_mobile(mobile),
 		"email": f"client{name_suffix}@example.com",
@@ -130,7 +130,7 @@ class TestPermissionIsolation(IntegrationTestCase):
 			frappe.get_doc({
 				"doctype": "Tax Client",
 				"client_name": "Should Not Exist",
-				"client_type": "Individual",
+				"client_type": "Individual-Salaried",
 				"cnic": normalize_cnic("1234567890123"),
 				"mobile": normalize_mobile("+923000000000"),
 			}).insert()
@@ -167,7 +167,7 @@ class TestPermissionIsolation(IntegrationTestCase):
 			frappe.get_doc({
 				"doctype": "Tax Client",
 				"client_name": "Duplicate",
-				"client_type": "Individual",
+				"client_type": "Individual-Salaried",
 				"cnic": cnic,
 			}).insert(ignore_permissions=True)
 

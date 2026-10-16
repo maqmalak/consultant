@@ -59,12 +59,14 @@ function load_summary(page) {
 
             var cards = [
                 {label: __("Total Returns"), value: d.total_returns, color: "blue"},
-                {label: __("Draft"), value: d.state_counts.Draft || 0, color: "gray"},
-                {label: __("Submitted"), value: d.state_counts.Submitted || 0, color: "orange"},
-                {label: __("Under Review"), value: d.state_counts["Under Review"] || 0, color: "blue"},
+                {label: __("Documents Pending"), value: d.state_counts["Documents Pending"] || 0, color: "orange"},
+                {label: __("In Preparation"), value: (d.state_counts.Draft || 0) + (d.state_counts["Changes Required"] || 0), color: "gray"},
+                {label: __("In Review"), value: (d.state_counts["Pending Review"] || 0) + (d.state_counts["Under Review"] || 0) + (d.state_counts.Reviewed || 0), color: "blue"},
+                {label: __("Awaiting Client"), value: d.state_counts["Awaiting Client Confirmation"] || 0, color: "orange"},
                 {label: __("Approved"), value: d.state_counts.Approved || 0, color: "green"},
-                {label: __("Filed"), value: d.state_counts.Filed || 0, color: "green"},
-                {label: __("Rejected"), value: d.state_counts.Rejected || 0, color: "red"},
+                {label: __("Submitted to FBR"), value: d.state_counts["Submitted to FBR"] || 0, color: "blue"},
+                {label: __("Acknowledged"), value: (d.state_counts.Acknowledged || 0) + (d.state_counts.Closed || 0), color: "green"},
+                {label: __("Filing Errors"), value: d.state_counts["Filing Error"] || 0, color: "red"},
             ];
 
             cards.forEach(function(c) {

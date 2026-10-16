@@ -46,7 +46,7 @@
    "fieldname": "taxpayer_type",
    "fieldtype": "Select",
    "label": "Taxpayer Type",
-   "options": "\nSalaried Individual\nNon-Salaried Individual\nSole Proprietor\nAOP/Partnership\nCompany\nOther"
+   "options": "\nSalaried Individual\nNon-Salaried Individual\nAOP\nCompany"
   },
   {
    "fieldname": "section_reference",

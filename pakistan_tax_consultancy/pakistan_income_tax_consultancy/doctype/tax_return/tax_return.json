@@ -18,6 +18,18 @@
   "workflow_state",
   "period_from",
   "period_to",
+  "sb_questions",
+  "has_salary",
+  "has_business",
+  "has_property_income",
+  "has_capital_gains",
+  "has_profit_on_debt",
+  "cb_questions",
+  "has_foreign_income",
+  "has_other_income",
+  "owns_property",
+  "owns_vehicle",
+  "first_time_filer",
   "sb_team",
   "assigned_consultant",
   "reviewer",
@@ -34,7 +46,8 @@
   "credit_lines",
   "total_tax_credits",
   "sb_paid",
-  "payment_lines",
+  "withholding_lines",
+  "advance_tax_lines",
   "total_tax_withheld",
   "total_advance_tax",
   "sb_calc",
@@ -44,6 +57,9 @@
   "cb3",
   "net_tax_payable",
   "refund_due",
+  "calculation_version",
+  "calculated_on",
+  "calc_input_hash",
   "sb_wealth",
   "wealth_statement_required",
   "asset_lines",
@@ -53,6 +69,9 @@
   "total_liabilities",
   "net_wealth",
   "net_wealth_previous_year",
+  "sb_expenses",
+  "personal_expense_lines",
+  "total_personal_expenses",
   "sb_notes",
   "client_action_requests",
   "review_comments",
@@ -65,10 +84,17 @@
   "cb6",
   "approved_content_hash",
   "content_hash",
+  "sb_client_ok",
+  "client_confirmed",
+  "client_confirmed_on",
+  "cb_client_ok",
+  "client_confirmed_by",
+  "client_confirmed_ip",
   "sb_filing",
   "fbr_submission_status",
   "iris_acknowledgment_no",
   "submission_timestamp",
+  "filing_date",
   "cb7",
   "fbr_receipt",
   "filing_error_notes"
@@ -98,11 +124,12 @@
    "options": "Tax Engagement"
   },
   {
+   "description": "Set from the client type; decides which slabs apply",
    "fieldname": "taxpayer_type",
    "fieldtype": "Select",
    "in_standard_filter": 1,
    "label": "Taxpayer Type",
-   "options": "\nSalaried Individual\nNon-Salaried Individual\nSole Proprietor\nAOP/Partnership\nCompany\nOther",
+   "options": "Salaried Individual\nNon-Salaried Individual\nAOP\nCompany",
    "reqd": 1
   },
   {
@@ -123,12 +150,12 @@
    "fieldname": "return_type",
    "fieldtype": "Select",
    "label": "Return Type",
-   "options": "Original\nRevised\nAmended"
+   "options": "Original\nRevised"
   },
   {
    "fieldname": "amended_from",
    "fieldtype": "Link",
-   "label": "Amended From",
+   "label": "Revision Of",
    "options": "Tax Return",
    "read_only": 1
   },
@@ -161,6 +188,66 @@
    "fieldname": "period_to",
    "fieldtype": "Date",
    "label": "Tax Period To"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sb_questions",
+   "fieldtype": "Section Break",
+   "label": "Questionnaire"
+  },
+  {
+   "fieldname": "has_salary",
+   "fieldtype": "Check",
+   "label": "Has Salary Income"
+  },
+  {
+   "fieldname": "has_business",
+   "fieldtype": "Check",
+   "label": "Has Business Income"
+  },
+  {
+   "fieldname": "has_property_income",
+   "fieldtype": "Check",
+   "label": "Has Rental / Property Income"
+  },
+  {
+   "fieldname": "has_capital_gains",
+   "fieldtype": "Check",
+   "label": "Has Capital Gains"
+  },
+  {
+   "fieldname": "has_profit_on_debt",
+   "fieldtype": "Check",
+   "label": "Has Profit on Bank Deposits / Debt"
+  },
+  {
+   "fieldname": "cb_questions",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "has_foreign_income",
+   "fieldtype": "Check",
+   "label": "Has Foreign Income"
+  },
+  {
+   "fieldname": "has_other_income",
+   "fieldtype": "Check",
+   "label": "Has Other Income"
+  },
+  {
+   "fieldname": "owns_property",
+   "fieldtype": "Check",
+   "label": "Owns Property"
+  },
+  {
+   "fieldname": "owns_vehicle",
+   "fieldtype": "Check",
+   "label": "Owns a Vehicle"
+  },
+  {
+   "fieldname": "first_time_filer",
+   "fieldtype": "Check",
+   "label": "First-time Filer"
   },
   {
    "fieldname": "sb_team",
@@ -254,10 +341,16 @@
    "label": "Tax Deducted / Collected & Advance Tax"
   },
   {
-   "fieldname": "payment_lines",
+   "fieldname": "withholding_lines",
    "fieldtype": "Table",
-   "label": "Tax Payments",
-   "options": "Tax Return Payment"
+   "label": "Tax Deducted / Withholding",
+   "options": "Tax Return Withholding"
+  },
+  {
+   "fieldname": "advance_tax_lines",
+   "fieldtype": "Table",
+   "label": "Advance Tax Paid",
+   "options": "Tax Return Advance Tax"
   },
   {
    "fieldname": "total_tax_withheld",
@@ -317,6 +410,28 @@
    "read_only": 1
   },
   {
+   "fieldname": "calculation_version",
+   "fieldtype": "Int",
+   "label": "Calculation Version",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "calculated_on",
+   "fieldtype": "Datetime",
+   "label": "Calculated On",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "calc_input_hash",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Calc Input Hash",
+   "permlevel": 1,
+   "read_only": 1
+  },
+  {
    "collapsible": 1,
    "fieldname": "sb_wealth",
    "fieldtype": "Section Break",
@@ -371,6 +486,26 @@
    "fieldtype": "Currency",
    "label": "Net Wealth Previous Year",
    "permlevel": 1
+  },
+  {
+   "fieldname": "sb_expenses",
+   "fieldtype": "Section Break",
+   "label": "Personal Expenses (Wealth Reconciliation)",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "personal_expense_lines",
+   "fieldtype": "Table",
+   "label": "Personal Expenses",
+   "options": "Tax Return Personal Expense",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "total_personal_expenses",
+   "fieldtype": "Currency",
+   "label": "Total Personal Expenses",
+   "permlevel": 1,
+   "read_only": 1
   },
   {
    "fieldname": "sb_notes",
@@ -447,6 +582,40 @@
    "read_only": 1
   },
   {
+   "fieldname": "sb_client_ok",
+   "fieldtype": "Section Break",
+   "label": "Client Confirmation"
+  },
+  {
+   "fieldname": "client_confirmed",
+   "fieldtype": "Check",
+   "label": "Client Confirmed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "client_confirmed_on",
+   "fieldtype": "Datetime",
+   "label": "Client Confirmed On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_client_ok",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "client_confirmed_by",
+   "fieldtype": "Link",
+   "label": "Client Confirmed By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "client_confirmed_ip",
+   "fieldtype": "Data",
+   "label": "Client IP",
+   "read_only": 1
+  },
+  {
    "collapsible": 1,
    "fieldname": "sb_filing",
    "fieldtype": "Section Break",
@@ -477,6 +646,12 @@
    "read_only": 1
   },
   {
+   "fieldname": "filing_date",
+   "fieldtype": "Date",
+   "label": "Filing Date",
+   "permlevel": 1
+  },
+  {
    "fieldname": "cb7",
    "fieldtype": "Column Break"
   },
@@ -496,7 +671,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-16 10:00:00.000000",
+ "modified": "2026-10-16 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pakistan Income Tax Consultancy",
  "name": "Tax Return",

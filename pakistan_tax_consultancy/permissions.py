@@ -17,7 +17,9 @@ from frappe import _
 
 ALL_SCOPE_ROLES = {"System Manager", "Tax Admin", "Tax Reviewer", "Tax Approver", "Filing Officer"}
 CLIENT_LINKED = ("Tax Engagement", "Tax Document", "Tax Return", "Tax Calculation", "Tax Review",
-	"Tax Approval", "Filing Record")
+	"Tax Approval", "Filing Record", "Review Comment", "Payment Proof", "Client Message")
+# what a client may see of their own records: never internal review work
+CLIENT_HIDDEN = ("Tax Calculation", "Tax Review", "Tax Approval")
 OWN_ASSIGNMENT = ("Tax Return", "Tax Engagement")
 
 
@@ -72,6 +74,11 @@ def client_linked_query(user=None, doctype=None):
 	if scope == "consultant" and doctype in OWN_ASSIGNMENT:
 		u = frappe.db.escape(user)
 		cond = f"({cond} or {t}.assigned_consultant = {u} or {t}._assign like {_assign_like(user)})"
+	if scope == "client":
+		if doctype in CLIENT_HIDDEN:
+			return "1=0"
+		if doctype == "Review Comment":
+			cond = f"({cond} and ({t}.visible_to_client = 1 or {t}.from_client = 1))"
 	return cond
 
 
@@ -143,8 +150,11 @@ def client_linked_has_permission(doc, ptype=None, user=None, debug=False):
 		return True
 	if scope == "none":
 		return False
-	if scope == "client" and ptype == "delete":
-		return False
+	if scope == "client":
+		if ptype == "delete" or doc.doctype in CLIENT_HIDDEN:
+			return False
+		if doc.doctype == "Review Comment" and not (doc.get("visible_to_client") or doc.get("from_client")):
+			return False
 	if scope == "consultant" and doc.doctype in OWN_ASSIGNMENT:
 		if doc.get("assigned_consultant") == user or user in _assignees(doc):
 			return True
@@ -180,3 +190,22 @@ def validate_client_link(doc, method=None):
 	if tax_client and not can_access_client(tax_client):
 		frappe.throw(_("You are not permitted to access client {0}").format(tax_client), frappe.PermissionError)
 
+
+
+def consultation_query(user=None, doctype=None):
+	user = user or frappe.session.user
+	scope = get_scope(user)
+	if scope == "all":
+		return ""
+	if scope == "consultant":
+		u = frappe.db.escape(user)
+		return f"(ifnull(`tabConsultation Request`.assigned_to, '') in ('', {u}))"
+	return "1=0"
+
+
+def consultation_has_permission(doc, ptype=None, user=None, debug=False):
+	user = user or frappe.session.user
+	scope = get_scope(user)
+	if scope == "all":
+		return True
+	return scope == "consultant" and (doc.get("assigned_to") or user) == user

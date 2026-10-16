@@ -9,6 +9,7 @@
   "description",
   "payer_or_employer",
   "tax_treatment",
+  "tax_rate_percent",
   "gross_amount",
   "exempt_amount",
   "taxable_amount",
@@ -41,6 +42,14 @@
    "in_list_view": 1,
    "label": "Tax Treatment",
    "options": "Normal\nFinal / Fixed\nSeparate Block\nExempt"
+  },
+  {
+   "depends_on": "eval:doc.tax_treatment!='Normal'",
+   "description": "From the Finance Act for this income type; not used for normal income",
+   "fieldname": "tax_rate_percent",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Rate % (final / separate block)"
   },
   {
    "fieldname": "gross_amount",

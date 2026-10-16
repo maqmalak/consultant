@@ -48,6 +48,10 @@
   "consent_terms_version",
   "cb7",
   "consent_timestamp",
+  "mobile_verified",
+  "email_verified",
+  "preferred_language",
+  "invited_on",
   "sb_notes",
   "internal_notes"
  ],
@@ -62,12 +66,13 @@
    "search_index": 1
   },
   {
+   "default": "Individual-Salaried",
    "fieldname": "client_type",
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Client Type",
-   "options": "Individual\nSole Proprietor\nAOP/Partnership\nCompany\nOther",
+   "options": "Individual-Salaried\nIndividual-Business\nAOP\nCompany\nOther",
    "reqd": 1
   },
   {
@@ -93,7 +98,7 @@
    "fieldname": "fbr_registration_status",
    "fieldtype": "Select",
    "label": "FBR Registration Status",
-   "options": "\nUnregistered\nRegistered - Not on ATL\nActive Taxpayer (ATL)\nInactive Taxpayer"
+   "options": "\nFiler (Active Taxpayer)\nNon-Filer\nNot Registered (No NTN)\nUnknown"
   },
   {
    "fieldname": "cnic_masked",
@@ -311,6 +316,31 @@
    "read_only": 1
   },
   {
+   "fieldname": "mobile_verified",
+   "fieldtype": "Check",
+   "label": "Mobile Verified",
+   "read_only": 1
+  },
+  {
+   "fieldname": "email_verified",
+   "fieldtype": "Check",
+   "label": "Email Verified",
+   "read_only": 1
+  },
+  {
+   "default": "en",
+   "fieldname": "preferred_language",
+   "fieldtype": "Select",
+   "label": "Preferred Language",
+   "options": "en\nur"
+  },
+  {
+   "fieldname": "invited_on",
+   "fieldtype": "Datetime",
+   "label": "Portal Invite Sent On",
+   "read_only": 1
+  },
+  {
    "collapsible": 1,
    "fieldname": "sb_notes",
    "fieldtype": "Section Break",
@@ -324,7 +354,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-16 10:00:00.000000",
+ "modified": "2026-10-16 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pakistan Income Tax Consultancy",
  "name": "Tax Client",

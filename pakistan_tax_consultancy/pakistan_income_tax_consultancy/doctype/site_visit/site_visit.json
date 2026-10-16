@@ -85,11 +85,11 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "Individual",
+   "default": "Individual-Salaried",
    "fieldname": "client_type",
    "fieldtype": "Select",
    "label": "Client Type",
-   "options": "Individual\nSole Proprietor\nAOP/Partnership\nCompany\nOther"
+   "options": "Individual-Salaried\nIndividual-Business\nAOP\nCompany\nOther"
   },
   {
    "fieldname": "cnic_or_ntn",
@@ -220,7 +220,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-16 10:00:00.000000",
+ "modified": "2026-10-16 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pakistan Income Tax Consultancy",
  "name": "Site Visit",

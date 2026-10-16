@@ -6,6 +6,9 @@
  "engine": "InnoDB",
  "field_order": [
   "document_type_name",
+  "category",
+  "client_hint",
+  "display_order",
   "is_active",
   "is_identity_document",
   "is_sensitive",
@@ -19,6 +22,26 @@
    "label": "Document Type Name",
    "reqd": 1,
    "unique": 1
+  },
+  {
+   "default": "Other",
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Category",
+   "options": "Identity\nIncome\nWithholding\nBanking\nProperty\nBusiness\nWealth\nPrevious Returns\nUtility\nOther"
+  },
+  {
+   "description": "Shown next to the upload button",
+   "fieldname": "client_hint",
+   "fieldtype": "Small Text",
+   "label": "Hint for Client"
+  },
+  {
+   "default": "10",
+   "fieldname": "display_order",
+   "fieldtype": "Int",
+   "label": "Display Order"
   },
   {
    "default": "1",
@@ -44,7 +67,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-16 10:00:00.000000",
+ "modified": "2026-10-16 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pakistan Income Tax Consultancy",
  "name": "Document Type",

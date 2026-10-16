@@ -1,10 +1,6 @@
 # Copyright (c) 2026, maqmalak and contributors
 # For license information, please see license.txt
 
-# Copyright (c) 2026, maqmalak and contributors
-# For license information, please see license.txt
-
-# import frappe
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -32,7 +28,3 @@ class TaxReturnIncomeSource(Document):
 				frappe.throw(
 					_("Gross Amount must be at least Exempt Amount plus Taxable Amount")
 				)
-
-
-class TaxReturnIncomeSource(Document):
-	pass

@@ -8,6 +8,7 @@
   "tax_client",
   "client_name",
   "service",
+  "service_package",
   "tax_year",
   "cb1",
   "status",
@@ -18,9 +19,13 @@
   "assigned_consultant",
   "sb_fee",
   "agreed_fee",
+  "promo_code",
+  "discount",
+  "net_fee",
   "payment_status",
   "cb2",
   "sales_invoice",
+  "tax_return",
   "sb_docs",
   "required_documents",
   "sb_notes",
@@ -53,6 +58,12 @@
    "label": "Service",
    "options": "Service",
    "reqd": 1
+  },
+  {
+   "fieldname": "service_package",
+   "fieldtype": "Link",
+   "label": "Package",
+   "options": "Service Package"
   },
   {
    "fieldname": "tax_year",
@@ -115,6 +126,24 @@
    "label": "Agreed Professional Fee"
   },
   {
+   "fieldname": "promo_code",
+   "fieldtype": "Link",
+   "label": "Promo Code",
+   "options": "Promo Code"
+  },
+  {
+   "fieldname": "discount",
+   "fieldtype": "Currency",
+   "label": "Discount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "net_fee",
+   "fieldtype": "Currency",
+   "label": "Net Fee",
+   "read_only": 1
+  },
+  {
    "default": "Unbilled",
    "fieldname": "payment_status",
    "fieldtype": "Select",
@@ -130,6 +159,13 @@
    "fieldtype": "Link",
    "label": "Sales Invoice",
    "options": "Sales Invoice"
+  },
+  {
+   "fieldname": "tax_return",
+   "fieldtype": "Link",
+   "label": "Tax Return",
+   "options": "Tax Return",
+   "read_only": 1
   },
   {
    "fieldname": "sb_docs",
@@ -160,7 +196,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-16 10:00:00.000000",
+ "modified": "2026-10-16 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pakistan Income Tax Consultancy",
  "name": "Tax Engagement",

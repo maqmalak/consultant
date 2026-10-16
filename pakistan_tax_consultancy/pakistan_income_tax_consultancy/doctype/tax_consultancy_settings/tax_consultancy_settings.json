@@ -21,11 +21,23 @@
   "sb_fbr",
   "filing_adapter",
   "fbr_api_enabled",
-  "fbr_environment",
   "cb3",
-  "fbr_api_base_url",
-  "fbr_api_username",
-  "fbr_api_password"
+  "sb_portal",
+  "allow_self_signup",
+  "sms_provider",
+  "otp_expiry_minutes",
+  "otp_max_attempts",
+  "cb_portal",
+  "max_upload_mb",
+  "deadline_reminder_days",
+  "followup_reminder_days",
+  "default_consultant",
+  "data_retention_years",
+  "sb_billing",
+  "fee_item",
+  "company",
+  "cb_billing",
+  "default_receivable_mode"
  ],
  "fields": [
   {
@@ -112,50 +124,124 @@
    "label": "FBR Filing Integration"
   },
   {
-   "default": "Manual",
+   "default": "Manual IRIS",
+   "description": "FBR API stays disabled until an official, authorised FBR API is confirmed",
    "fieldname": "filing_adapter",
    "fieldtype": "Select",
    "label": "Filing Adapter",
-   "options": "Manual\nFBR API"
+   "options": "Manual IRIS\nFBR API"
   },
   {
    "default": "0",
-   "description": "Locked until an official, authorised FBR API is verified",
+   "description": "Locked: no official FBR filing API has been verified for this firm",
    "fieldname": "fbr_api_enabled",
    "fieldtype": "Check",
    "label": "FBR API Enabled",
    "read_only": 1
   },
   {
-   "default": "Sandbox",
-   "fieldname": "fbr_environment",
-   "fieldtype": "Select",
-   "label": "FBR Environment",
-   "options": "Sandbox\nProduction"
-  },
-  {
    "fieldname": "cb3",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "fbr_api_base_url",
-   "fieldtype": "Data",
-   "label": "FBR API Base URL"
+   "fieldname": "sb_portal",
+   "fieldtype": "Section Break",
+   "label": "Portal & Sign-up"
   },
   {
-   "fieldname": "fbr_api_username",
-   "fieldtype": "Data",
-   "label": "FBR API Username"
+   "default": "1",
+   "fieldname": "allow_self_signup",
+   "fieldtype": "Check",
+   "label": "Allow Self Signup"
   },
   {
-   "fieldname": "fbr_api_password",
-   "fieldtype": "Password",
-   "label": "FBR API Password"
+   "default": "Console (development)",
+   "description": "Other providers are added as adapters in services/sms.py",
+   "fieldname": "sms_provider",
+   "fieldtype": "Select",
+   "label": "Sms Provider",
+   "options": "Console (development)"
+  },
+  {
+   "default": "10",
+   "fieldname": "otp_expiry_minutes",
+   "fieldtype": "Int",
+   "label": "Otp Expiry Minutes"
+  },
+  {
+   "default": "5",
+   "fieldname": "otp_max_attempts",
+   "fieldtype": "Int",
+   "label": "Otp Max Attempts"
+  },
+  {
+   "fieldname": "cb_portal",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "10",
+   "fieldname": "max_upload_mb",
+   "fieldtype": "Int",
+   "label": "Max Upload Size (MB)"
+  },
+  {
+   "default": "14",
+   "fieldname": "deadline_reminder_days",
+   "fieldtype": "Int",
+   "label": "Deadline Reminder (days before due date)"
+  },
+  {
+   "default": "0",
+   "fieldname": "followup_reminder_days",
+   "fieldtype": "Int",
+   "label": "Site Visit Follow-up Reminder (days before)"
+  },
+  {
+   "description": "Assigned to self-registered clients",
+   "fieldname": "default_consultant",
+   "fieldtype": "Link",
+   "label": "Default Consultant",
+   "options": "User"
+  },
+  {
+   "default": "6",
+   "description": "Years to keep client documents after the last return",
+   "fieldname": "data_retention_years",
+   "fieldtype": "Int",
+   "label": "Data Retention Years"
+  },
+  {
+   "fieldname": "sb_billing",
+   "fieldtype": "Section Break",
+   "label": "Billing"
+  },
+  {
+   "description": "ERPNext Item used on Sales Invoices for professional fees",
+   "fieldname": "fee_item",
+   "fieldtype": "Link",
+   "label": "Fee Item",
+   "options": "Item"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "cb_billing",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_receivable_mode",
+   "fieldtype": "Link",
+   "label": "Mode of Payment for Verified Proofs",
+   "options": "Mode of Payment"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-10-16 10:00:00.000000",
+ "modified": "2026-10-16 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "Pakistan Income Tax Consultancy",
  "name": "Tax Consultancy Settings",

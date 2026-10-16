@@ -1,10 +1,6 @@
 # Copyright (c) 2026, maqmalak and contributors
 # For license information, please see license.txt
 
-# Copyright (c) 2026, maqmalak and contributors
-# For license information, please see license.txt
-
-# import frappe
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -25,7 +21,3 @@ class TaxCalculation(Document):
 
 		if self.tax_regime and not frappe.db.exists("Tax Regime", self.tax_regime):
 			frappe.throw(_("Tax Regime {0} does not exist.").format(self.tax_regime))
-
-
-class TaxCalculation(Document):
-	pass

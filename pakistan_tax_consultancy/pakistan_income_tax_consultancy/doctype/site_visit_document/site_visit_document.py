@@ -1,10 +1,6 @@
 # Copyright (c) 2026, maqmalak and contributors
 # For license information, please see license.txt
 
-# Copyright (c) 2026, maqmalak and contributors
-# For license information, please see license.txt
-
-# import frappe
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -23,7 +19,3 @@ class SiteVisitDocument(Document):
 			frappe.throw(
 				_("Document Type {0} does not exist.").format(self.document_type)
 			)
-
-
-class SiteVisitDocument(Document):
-	pass
