@@ -1,0 +1,228 @@
+{
+ "actions": [],
+ "creation": "2026-10-16 22:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "sb_wa",
+  "whatsapp_provider",
+  "whatsapp_enabled",
+  "wa_phone_number_id",
+  "wa_business_account_id",
+  "wa_access_token",
+  "cb_wa",
+  "wa_api_version",
+  "wa_language",
+  "wa_tpl_ready_for_confirmation",
+  "wa_tpl_document_rejected",
+  "wa_tpl_documents_reminder",
+  "wa_tpl_filed",
+  "wa_tpl_payment_received",
+  "wa_tpl_deadline",
+  "wa_last_test",
+  "sb_pay",
+  "payment_gateway",
+  "gateway_environment",
+  "gateway_enabled",
+  "cb_pay",
+  "gateway_merchant_id",
+  "gateway_store_id",
+  "gateway_api_key",
+  "gateway_secret",
+  "gateway_salt",
+  "gateway_status"
+ ],
+ "fields": [
+  {
+   "fieldname": "sb_wa",
+   "fieldtype": "Section Break",
+   "label": "WhatsApp"
+  },
+  {
+   "default": "Click-to-chat only",
+   "description": "Click-to-chat: the website and portal open WhatsApp with your number. Cloud API: the app also sends automatic updates to clients who opted in.",
+   "fieldname": "whatsapp_provider",
+   "fieldtype": "Select",
+   "label": "Whatsapp Provider",
+   "options": "Click-to-chat only\nWhatsApp Cloud API (Meta)"
+  },
+  {
+   "fieldname": "whatsapp_enabled",
+   "fieldtype": "Check",
+   "label": "Send automatic WhatsApp updates"
+  },
+  {
+   "depends_on": "eval:doc.whatsapp_provider=='WhatsApp Cloud API (Meta)'",
+   "fieldname": "wa_phone_number_id",
+   "fieldtype": "Data",
+   "label": "Phone Number ID"
+  },
+  {
+   "depends_on": "eval:doc.whatsapp_provider=='WhatsApp Cloud API (Meta)'",
+   "fieldname": "wa_business_account_id",
+   "fieldtype": "Data",
+   "label": "WhatsApp Business Account ID"
+  },
+  {
+   "depends_on": "eval:doc.whatsapp_provider=='WhatsApp Cloud API (Meta)'",
+   "fieldname": "wa_access_token",
+   "fieldtype": "Password",
+   "label": "Permanent Access Token",
+   "length": 500
+  },
+  {
+   "fieldname": "cb_wa",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "v21.0",
+   "fieldname": "wa_api_version",
+   "fieldtype": "Data",
+   "label": "Graph API Version"
+  },
+  {
+   "default": "en",
+   "fieldname": "wa_language",
+   "fieldtype": "Data",
+   "label": "Template Language Code"
+  },
+  {
+   "description": "Approved template name in WhatsApp Manager; blank = not sent",
+   "fieldname": "wa_tpl_ready_for_confirmation",
+   "fieldtype": "Data",
+   "label": "Template: Return ready for confirmation"
+  },
+  {
+   "description": "Approved template name in WhatsApp Manager; blank = not sent",
+   "fieldname": "wa_tpl_document_rejected",
+   "fieldtype": "Data",
+   "label": "Template: Document rejected"
+  },
+  {
+   "description": "Approved template name in WhatsApp Manager; blank = not sent",
+   "fieldname": "wa_tpl_documents_reminder",
+   "fieldtype": "Data",
+   "label": "Template: Documents reminder"
+  },
+  {
+   "description": "Approved template name in WhatsApp Manager; blank = not sent",
+   "fieldname": "wa_tpl_filed",
+   "fieldtype": "Data",
+   "label": "Template: Return filed / acknowledged"
+  },
+  {
+   "description": "Approved template name in WhatsApp Manager; blank = not sent",
+   "fieldname": "wa_tpl_payment_received",
+   "fieldtype": "Data",
+   "label": "Template: Payment received"
+  },
+  {
+   "description": "Approved template name in WhatsApp Manager; blank = not sent",
+   "fieldname": "wa_tpl_deadline",
+   "fieldtype": "Data",
+   "label": "Template: Deadline approaching"
+  },
+  {
+   "fieldname": "wa_last_test",
+   "fieldtype": "Small Text",
+   "label": "Last Test Result",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_pay",
+   "fieldtype": "Section Break",
+   "label": "Payment Gateway"
+  },
+  {
+   "default": "Manual (bank / wallet proof)",
+   "fieldname": "payment_gateway",
+   "fieldtype": "Select",
+   "label": "Payment Gateway",
+   "options": "Manual (bank / wallet proof)\nJazzCash\nEasypaisa\nSafepay\nPayFast\nBank Alfalah (Alfa)"
+  },
+  {
+   "default": "Sandbox",
+   "fieldname": "gateway_environment",
+   "fieldtype": "Select",
+   "label": "Gateway Environment",
+   "options": "Sandbox\nLive"
+  },
+  {
+   "description": "Stays off until the checkout for the chosen gateway is built and tested in Sandbox",
+   "fieldname": "gateway_enabled",
+   "fieldtype": "Check",
+   "label": "Show online payment to clients"
+  },
+  {
+   "fieldname": "cb_pay",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "gateway_merchant_id",
+   "fieldtype": "Data",
+   "label": "Merchant ID"
+  },
+  {
+   "fieldname": "gateway_store_id",
+   "fieldtype": "Data",
+   "label": "Store ID / Account"
+  },
+  {
+   "fieldname": "gateway_api_key",
+   "fieldtype": "Data",
+   "label": "API Key / Public Key"
+  },
+  {
+   "fieldname": "gateway_secret",
+   "fieldtype": "Password",
+   "label": "Password / Secret Key",
+   "length": 500
+  },
+  {
+   "fieldname": "gateway_salt",
+   "fieldtype": "Password",
+   "label": "Integrity Salt / Hash Key",
+   "length": 500
+  },
+  {
+   "fieldname": "gateway_status",
+   "fieldtype": "Small Text",
+   "label": "Status",
+   "read_only": 1
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-16 22:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Portal Integration Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "role": "Tax Admin",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -11,7 +11,7 @@ from frappe.utils import cint, flt, getdate, strip_html
 from pakistan_tax_consultancy.utils.validators import normalize_cnic, normalize_mobile
 
 SITE_FIELDS = ("firm_name", "tagline", "logo", "brand_color", "years_experience", "membership_info", "default_language",
-	"phone", "whatsapp", "whatsapp_message", "email", "address", "office_hours", "map_link", "map_embed_url", "facebook",
+	"phone", "phone_2", "whatsapp", "whatsapp_message", "email", "address", "office_hours", "map_link", "map_embed_url", "facebook",
 	"instagram", "linkedin", "youtube", "x_url", "hero_headline", "hero_subtext", "announcement_enabled",
 	"announcement_text", "announcement_link", "announcement_expiry", "work_before_payment")
 PAYMENT_FIELDS = ("bank_name", "bank_account_title", "bank_account_no", "bank_iban", "raast_id", "jazzcash_number",

@@ -25,6 +25,8 @@
   "mobile",
   "mobile_e164",
   "preferred_contact_method",
+  "whatsapp_opt_in",
+  "whatsapp_opt_in_on",
   "cb3",
   "city",
   "province",
@@ -188,6 +190,17 @@
    "fieldtype": "Select",
    "label": "Preferred Contact Method",
    "options": "Email\nPhone Call\nWhatsApp\nSMS"
+  },
+  {
+   "fieldname": "whatsapp_opt_in",
+   "fieldtype": "Check",
+   "label": "WhatsApp updates (opted in)"
+  },
+  {
+   "fieldname": "whatsapp_opt_in_on",
+   "fieldtype": "Datetime",
+   "label": "WhatsApp Opt-in On",
+   "read_only": 1
   },
   {
    "fieldname": "cb3",

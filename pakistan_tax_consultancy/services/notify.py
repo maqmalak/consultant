@@ -8,6 +8,11 @@ from frappe import _
 from frappe.utils import fmt_money, get_url
 
 from pakistan_tax_consultancy.services import workflow as wf
+from pakistan_tax_consultancy.services.whatsapp import notify_client as whatsapp
+
+
+def first_name(tax_client):
+	return (frappe.db.get_value("Tax Client", tax_client, "client_name") or "").split(" ")[0]
 
 
 def users_with_role(*roles) -> list[str]:
@@ -80,6 +85,7 @@ def workflow_changed(doc, old_state, new_state, comment=None):
 		send([client], _("Your tax return is ready for your confirmation"),
 			body + f"<p><a href='{portal_link('/returns/' + doc.name)}'>{_('Review and confirm')}</a></p>", doc,
 			sms=_("Your tax return summary is ready. Please review and confirm in the portal: {0}").format(portal_link()))
+		whatsapp(doc.tax_client, "ready_for_confirmation", [first_name(doc.tax_client), doc.tax_year])
 	elif new_state == wf.APPROVED:
 		send([consultant, doc.filing_officer] if doc.filing_officer else [consultant] + users_with_role("Filing Officer"),
 			_("Return {0} approved for filing").format(doc.name), body, doc)
@@ -89,6 +95,7 @@ def workflow_changed(doc, old_state, new_state, comment=None):
 		send([client, consultant], _("Filed: acknowledgment received for tax year {0}").format(doc.tax_year),
 			body + f"<p>{_('IRIS acknowledgment no.')}: <b>{doc.iris_acknowledgment_no}</b></p>", doc,
 			sms=_("Your tax return for {0} is filed. IRIS acknowledgment: {1}").format(doc.tax_year, doc.iris_acknowledgment_no))
+		whatsapp(doc.tax_client, "filed", [first_name(doc.tax_client), doc.tax_year, doc.iris_acknowledgment_no])
 	elif new_state == wf.FILING_ERROR:
 		send([consultant, doc.filing_officer] + users_with_role("Tax Admin"),
 			_("Filing error on {0}").format(doc.name), body + f"<p>{frappe.utils.escape_html(doc.filing_error_notes or '')}</p>", doc)
@@ -100,6 +107,7 @@ def document_rejected(tdoc):
 		f"<p>{_('Your document was not accepted.')}</p><p><b>{_('Reason')}:</b> "
 		f"{frappe.utils.escape_html(tdoc.rejection_reason or '')}</p><p><a href='{portal_link()}'>{_('Open the portal')}</a></p>",
 		tdoc, sms=_("{0} needs to be uploaded again: {1}").format(tdoc.document_type, tdoc.rejection_reason or ""))
+	whatsapp(tdoc.tax_client, "document_rejected", [first_name(tdoc.tax_client), tdoc.document_type, tdoc.rejection_reason or ""])
 
 
 def new_registration(client_doc):
@@ -113,6 +121,7 @@ def payment_received(proof):
 	send([client], _("Payment received — thank you"),
 		f"<p>{_('We received your payment of {0}.').format(fmt_money(proof.amount, currency='PKR'))}</p>", proof,
 		sms=_("Payment of Rs {0} received. Thank you.").format(int(proof.amount or 0)))
+	whatsapp(proof.tax_client, "payment_received", [first_name(proof.tax_client), f"Rs {int(proof.amount or 0):,}"])
 
 
 def consultation_requested(req):

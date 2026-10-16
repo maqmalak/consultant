@@ -112,6 +112,7 @@ const ur: Record<string, string> = {
   "Notes on this return": "اس ریٹرن پر نوٹس",
   "Please check the figures. When you confirm, a senior consultant approves the return and we file it on FBR IRIS on your behalf.":
     "براہ کرم اعداد و شمار چیک کریں۔ تصدیق کے بعد سینئر کنسلٹنٹ منظوری دیتا ہے اور ہم آپ کی جانب سے ایف بی آر IRIS پر فائل کرتے ہیں۔",
+  "Send me updates about my return on WhatsApp": "میرے ریٹرن کی اپ ڈیٹس واٹس ایپ پر بھیجیں",
   // payments
   "How to pay": "ادائیگی کا طریقہ",
   "I have paid": "میں نے ادائیگی کر دی",

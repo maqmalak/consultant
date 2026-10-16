@@ -55,7 +55,7 @@ def _check_password(password, full_name, email):
 @frappe.whitelist(allow_guest=True, methods=["POST"])
 @rate_limit(limit=5, seconds=60 * 60)
 def signup(full_name: str, mobile: str, email: str, password: str, client_type: str, otp_request: str,
-		consent: int = 0, cnic: str | None = None, city: str | None = None):
+		consent: int = 0, cnic: str | None = None, city: str | None = None, whatsapp_opt_in: int = 0):
 	from pakistan_tax_consultancy.audit import log_event
 	from pakistan_tax_consultancy.services import notify
 
@@ -107,6 +107,8 @@ def signup(full_name: str, mobile: str, email: str, password: str, client_type: 
 			"status": "Active", "portal_user": user.name,
 			"assigned_consultant": frappe.db.get_single_value("Tax Consultancy Settings", "default_consultant")})
 	client.update({"consent_given": 1, "mobile_verified": 1})
+	if cint(whatsapp_opt_in):
+		client.update({"whatsapp_opt_in": 1, "whatsapp_opt_in_on": now_datetime()})
 	client.flags.ignore_permissions = True
 	client.save()
 	log_event("Create", client, details={"self_signup": True, "claimed_existing": bool(existing)})

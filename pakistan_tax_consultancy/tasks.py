@@ -8,7 +8,7 @@ from frappe import _
 from frappe.utils import add_days, cint, date_diff, getdate
 
 from pakistan_tax_consultancy.services import workflow as wf
-from pakistan_tax_consultancy.services.notify import client_user, send
+from pakistan_tax_consultancy.services.notify import client_user, first_name, send, whatsapp
 
 OPEN_STATES = (wf.DOCUMENTS_PENDING, wf.DRAFT, wf.CHANGES_REQUIRED, wf.PENDING_REVIEW, wf.UNDER_REVIEW, wf.REVIEWED,
 	wf.AWAITING_CLIENT, wf.APPROVED, wf.FILING_ERROR)
@@ -38,6 +38,7 @@ def deadline_reminders():
 				frappe.format(year.return_due_date, "Date"), left)
 			if r.workflow_state in (wf.DOCUMENTS_PENDING, wf.AWAITING_CLIENT):
 				send([client_user(r.tax_client)], _("Filing deadline approaching"), f"<p>{msg}</p>", doc, sms=msg)
+				whatsapp(r.tax_client, "deadline", [first_name(r.tax_client), year.name, frappe.format(year.return_due_date, "Date")])
 			send([r.assigned_consultant], _("Deadline in {0} days: {1}").format(left, r.client_name),
 				f"<p>{msg}</p><p>{_('Status')}: {r.workflow_state}</p>", doc)
 
@@ -58,6 +59,7 @@ def missing_document_reminders():
 		items = "".join(f"<li>{frappe.utils.escape_html(t)}</li>" for t in sorted(set(types)))
 		send([user], _("Documents still needed for your tax return"), f"<p>{_('Please upload:')}</p><ul>{items}</ul>",
 			sms=_("{0} document(s) still needed for your tax return. Please upload in the portal.").format(len(set(types))))
+		whatsapp(tax_client, "documents_reminder", [first_name(tax_client), len(set(types))])
 
 
 def followup_reminders():

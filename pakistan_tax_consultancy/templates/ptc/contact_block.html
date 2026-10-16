@@ -4,7 +4,7 @@
     <h2 id="contact" class="text-2xl font-bold sm:text-3xl">{{ _("Talk to us") }}</h2>
     <p class="text-muted-foreground">{{ _("Questions before you start? Call, message us on WhatsApp, or book a consultation.") }}</p>
     <dl class="space-y-2 text-sm">
-      {% if firm.phone %}<div><dt class="inline font-semibold">{{ _("Phone") }}:</dt> <dd class="inline"><a class="text-primary" href="tel:{{ firm.phone }}" dir="ltr">{{ firm.phone }}</a></dd></div>{% endif %}
+      {% if firm.phone %}<div><dt class="inline font-semibold">{{ _("Phone") }}:</dt> <dd class="inline"><a class="text-primary" href="tel:{{ firm.phone | replace(' ', '') }}" dir="ltr">{{ firm.phone }}</a>{% if firm.phone_2 %} · <a class="text-primary" href="tel:{{ firm.phone_2 | replace(' ', '') }}" dir="ltr">{{ firm.phone_2 }}</a>{% endif %}</dd></div>{% endif %}
       {% if firm.email %}<div><dt class="inline font-semibold">{{ _("Email") }}:</dt> <dd class="inline"><a class="text-primary" href="mailto:{{ firm.email }}">{{ firm.email }}</a></dd></div>{% endif %}
       {% if firm.address %}<div><dt class="inline font-semibold">{{ _("Office") }}:</dt> <dd class="inline">{{ firm.address }}</dd></div>{% endif %}
       {% if firm.office_hours %}<div><dt class="inline font-semibold">{{ _("Hours") }}:</dt> <dd class="inline">{{ firm.office_hours }}</dd></div>{% endif %}

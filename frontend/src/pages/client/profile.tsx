@@ -10,7 +10,7 @@ import { useApi } from "@/lib/use-api";
 
 type Profile = Record<string, string | number | null>;
 const EDITABLE = ["city", "province", "residential_address", "business_name", "business_address", "ntn",
-  "preferred_contact_method", "preferred_language"];
+  "preferred_contact_method", "preferred_language", "whatsapp_opt_in"];
 
 export function ProfilePage() {
   const { t } = useTranslation();
@@ -72,6 +72,11 @@ export function ProfilePage() {
             <SelectInput id={id} value={String(form.preferred_language ?? "en")} onChange={set("preferred_language")}>
               <option value="en">English</option><option value="ur">اردو</option>
             </SelectInput>)}</Field>
+          <label className="flex items-center gap-2 text-sm sm:col-span-2">
+            <input type="checkbox" className="h-5 w-5 accent-[hsl(var(--primary))]" checked={!!form.whatsapp_opt_in}
+              onChange={(e) => { setForm({ ...form, whatsapp_opt_in: e.target.checked ? 1 : 0 }); setSaved(false); }} />
+            {t("Send me updates about my return on WhatsApp")}
+          </label>
           <div className="flex items-center gap-3 sm:col-span-2">
             <Button type="submit" loading={busy}>{t("Save")}</Button>
             {saved && <span className="flex items-center gap-1 text-sm text-success"><CheckCircle2 className="h-4 w-4" /> Saved</span>}

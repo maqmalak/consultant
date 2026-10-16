@@ -99,7 +99,7 @@
       </div>
       <div class="space-y-2 text-sm">
         <p class="font-semibold">{{ _("Contact") }}</p>
-        {% if firm.phone %}<a class="block text-muted-foreground hover:text-foreground" href="tel:{{ firm.phone }}" dir="ltr">{{ firm.phone }}</a>{% endif %}
+        {% for ph in [firm.phone, firm.phone_2] if ph %}<a class="block text-muted-foreground hover:text-foreground" href="tel:{{ ph | replace(' ', '') }}" dir="ltr">{{ ph }}</a>{% endfor %}
         {% if firm.email %}<a class="block text-muted-foreground hover:text-foreground" href="mailto:{{ firm.email }}">{{ firm.email }}</a>{% endif %}
         {% if firm.address %}<p class="text-muted-foreground">{{ firm.address }}</p>{% endif %}
         {% if firm.office_hours %}<p class="text-muted-foreground">{{ firm.office_hours }}</p>{% endif %}

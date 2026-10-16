@@ -22,6 +22,7 @@ import { QueuePage } from "@/pages/staff/queue";
 import { ReportsPage } from "@/pages/staff/reports";
 import { ReturnWizard } from "@/pages/staff/return-wizard";
 import { ReturnsPage } from "@/pages/staff/returns";
+import { SettingsPage } from "@/pages/staff/settings";
 import { VisitForm, VisitsPage } from "@/pages/staff/visits";
 import { RequireAuth, RequireClient, RequireStaff } from "./guards";
 
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="payments" element={<RequireStaff roles={[SM, ADMIN]}><PaymentsQueue /></RequireStaff>} />
         <Route path="consultations" element={<ConsultationsPage />} />
         <Route path="reports" element={<ReportsPage />} />
+        <Route path="settings" element={<RequireStaff roles={[SM, ADMIN]}><SettingsPage /></RequireStaff>} />
       </Route>
 
       <Route element={<RequireAuth><RequireClient><ClientShell /></RequireClient></RequireAuth>}>

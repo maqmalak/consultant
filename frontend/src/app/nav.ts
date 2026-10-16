@@ -1,6 +1,6 @@
 import {
   BadgeCheck, BarChart3, ClipboardCheck, FileCheck2, FileText, FileUp, Home, LayoutDashboard, MapPin, MessageSquare,
-  PhoneCall, Send, ShieldAlert, Upload, User, Users, Wallet, type LucideIcon,
+  PhoneCall, Send, Settings2, ShieldAlert, Upload, User, Users, Wallet, type LucideIcon,
 } from "lucide-react";
 
 export const ROLES = {
@@ -62,6 +62,7 @@ export const STAFF_NAV: NavGroup[] = [
       { path: "/staff/payments", label: "Payments to Verify", hint: "Proofs → invoice", icon: Wallet, roles: [SM, ADMIN], hue: "lime" },
       { path: "/staff/consultations", label: "Consultations", hint: "Website bookings", icon: PhoneCall, roles: [SM, ADMIN, CONSULTANT], hue: "purple" },
       { path: "/staff/reports", label: "Reports", hint: "Excel · CSV", icon: BarChart3, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER], hue: "rose" },
+      { path: "/staff/settings", label: "Settings", hint: "Firm · WhatsApp · Email · Payments", icon: Settings2, roles: [SM, ADMIN], hue: "slate" },
     ],
   },
 ];

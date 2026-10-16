@@ -324,7 +324,7 @@ def profile():
 	c = my_client()
 	return {f: c.get(f) for f in ("client_name", "client_type", "cnic_masked", "ntn", "strn", "email", "mobile", "city",
 		"province", "residential_address", "business_name", "business_address", "preferred_contact_method",
-		"preferred_language", "fbr_registration_status", "email_verified", "mobile_verified")}
+		"preferred_language", "fbr_registration_status", "email_verified", "mobile_verified", "whatsapp_opt_in")}
 
 
 @frappe.whitelist(methods=["POST"])
@@ -334,6 +334,9 @@ def update_profile(**data):
 			"preferred_language", "ntn"):
 		if f in data:
 			c.set(f, (data[f] or "").strip()[:500] if isinstance(data[f], str) else data[f])
+	if "whatsapp_opt_in" in data and cint(data["whatsapp_opt_in"]) != cint(c.whatsapp_opt_in):
+		c.whatsapp_opt_in = cint(data["whatsapp_opt_in"])
+		c.whatsapp_opt_in_on = now_datetime() if c.whatsapp_opt_in else None
 	c.flags.ignore_permissions = True
 	c.save()
 	return profile()

@@ -15,6 +15,7 @@
   "default_language",
   "sb_contact",
   "phone",
+  "phone_2",
   "whatsapp",
   "whatsapp_message",
   "email",
@@ -88,13 +89,13 @@
    "fieldtype": "Column Break"
   },
   {
-   "description": "Only true facts \u2014 shown in the trust strip",
+   "description": "Only true facts — shown in the trust strip",
    "fieldname": "years_experience",
    "fieldtype": "Int",
    "label": "Years of Experience"
   },
   {
-   "description": "e.g. ICAP / ICMAP / tax bar membership \u2014 leave blank if none",
+   "description": "e.g. ICAP / ICMAP / tax bar membership — leave blank if none",
    "fieldname": "membership_info",
    "fieldtype": "Data",
    "label": "Membership / Registration No."
@@ -117,6 +118,11 @@
    "fieldtype": "Data",
    "label": "Phone",
    "options": "Phone"
+  },
+  {
+   "fieldname": "phone_2",
+   "fieldtype": "Data",
+   "label": "Second Phone"
   },
   {
    "description": "[FILL] International format, e.g. 923001234567",
@@ -148,7 +154,7 @@
    "label": "Address"
   },
   {
-   "default": "Mon\u2013Sat, 9:00 AM \u2013 6:00 PM",
+   "default": "Mon–Sat, 9:00 AM – 6:00 PM",
    "fieldname": "office_hours",
    "fieldtype": "Data",
    "label": "Office Hours"

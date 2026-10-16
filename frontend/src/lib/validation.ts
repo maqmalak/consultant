@@ -14,6 +14,7 @@ export const signupSchema = z.object({
   city: z.string().trim().optional(),
   client_type: z.enum(CLIENT_TYPES),
   consent: z.literal(true, { errorMap: () => ({ message: "Please accept to continue" }) }),
+  whatsapp_opt_in: z.boolean().optional(),
 });
 export type SignupDetails = z.infer<typeof signupSchema>;
 

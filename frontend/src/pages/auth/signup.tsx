@@ -56,7 +56,8 @@ export function SignupPage() {
   });
 
   const create = pw.handleSubmit((p) => run(async () => {
-    await auth.signup({ ...details, consent: 1, password: p.password, otp_request: otpRequest });
+    await auth.signup({ ...details, consent: 1, whatsapp_opt_in: details?.whatsapp_opt_in ? 1 : 0, password: p.password,
+      otp_request: otpRequest });
     await refresh();
     navigate("/", { replace: true });
   }));
@@ -88,6 +89,10 @@ export function SignupPage() {
               <a href="/terms" target="_blank" className="text-primary underline">terms</a></span>
           </label>
           {e.consent && <p role="alert" className="text-xs text-destructive">{e.consent.message}</p>}
+          <label className="flex items-start gap-2.5 text-sm">
+            <input type="checkbox" className="mt-0.5 h-5 w-5 accent-[hsl(var(--primary))]" {...form.register("whatsapp_opt_in")} />
+            <span>{t("Send me updates about my return on WhatsApp")}</span>
+          </label>
           <InlineError error={error} />
           <Button type="submit" className="w-full" size="lg" loading={busy}>{t("Send code")}</Button>
         </form>
