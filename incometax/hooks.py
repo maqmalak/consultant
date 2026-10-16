@@ -214,6 +214,7 @@ doc_events = {
 	"Tax Return": {
 		"validate": "incometax.permissions.validate_client_link",
 		"on_submit": "incometax.api.tax_calculation.calculate_tax",
+		"on_update": "incometax.notifications.notify_workflow_state_change",
 	},
 	"Tax Calculation": {
 		"validate": "incometax.permissions.validate_client_link",

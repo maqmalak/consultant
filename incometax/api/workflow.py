@@ -117,6 +117,15 @@ def transition_tax_return(tax_return, target_state, comments=None):
         }).insert(ignore_permissions=True)
         frappe.db.commit()
 
+    # Auto-submit to FBR when filing if FBR API is configured
+    if target_state == "Filed":
+        settings = frappe.get_single("Tax Consultancy Settings")
+        if (settings.filing_adapter == "FBR API"
+                and settings.fbr_api_enabled
+                and settings.fbr_api_base_url):
+            from incometax.api.fbr_filing import file_return_to_fbr
+            file_return_to_fbr(doc.name)
+
     return doc.as_dict()
 
 

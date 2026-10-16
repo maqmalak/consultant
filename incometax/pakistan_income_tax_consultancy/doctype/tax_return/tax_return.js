@@ -10,8 +10,20 @@ frappe.ui.form.on("Tax Return", {
 		frm.fields_map["net_payable"]?.df?.read_only === undefined && frm.set_df_property("net_payable", "read_only", 1);
 		frm.fields_map["refund_due"]?.df?.read_only === undefined && frm.set_df_property("refund_due", "read_only", 1);
 
+		// FBR filing fields are read-only; set by server-side filing flow
+		const fbrFields = [
+			"fbr_submission_status",
+			"fbr_acknowledgment_number",
+			"submission_timestamp",
+			"filing_error_details",
+		];
+		fbrFields.forEach((f) => {
+			frm.set_df_property(f, "read_only", 1);
+		});
+
 		setup_action_buttons(frm);
 		setup_status_indicator(frm);
+		setup_fbr_status(frm);
 	},
 
 	before_save(frm) {
@@ -72,6 +84,14 @@ function setup_action_buttons(frm) {
 	if (state === "Approved" && (isFilingOfficer || isAdmin)) {
 		frm.page.add_inner_button(__("File Return"), () => {
 			transition_workflow(frm, "Filed");
+		});
+	}
+
+	// --- File to FBR ---
+	// Visible when FBR submission exists (status tracking)
+	if (frm.doc.fbr_submission_status && (isFilingOfficer || isAdmin || isConsultant)) {
+		frm.page.add_inner_button(__("Check FBR Status"), () => {
+			check_filing_status(frm);
 		});
 	}
 
@@ -160,4 +180,76 @@ function transition_workflow(frm, target_state) {
 function format_currency(value) {
 	if (value === null || value === undefined) return "";
 	return accounting.format_value(value || 0, { precision: 2 });
+}
+
+function setup_fbr_status(frm) {
+	const status = frm.doc.fbr_submission_status;
+	const ack = frm.doc.fbr_acknowledgment_number;
+	if (!status) return;
+
+	let color = "blue";
+	switch (status) {
+		case "Submitted": color = "orange"; break;
+		case "Filed": color = "green"; break;
+		case "Accepted": color = "green"; break;
+		case "Rejected": color = "red"; break;
+		case "Error": color = "red"; break;
+		default: color = "gray";
+	}
+	const label = ack ? __("FBR: {0} ({1})").format([status, ack]) : __("FBR: {0}").format([status]);
+	frm.set_indicator(label, color);
+}
+
+function file_to_fbr(frm) {
+	frappe.confirm(
+		__("Submit this Tax Return to FBR e-Filing?"),
+		() => {
+			frm.call({
+				method: "incometax.api.fbr_filing.file_return_to_fbr",
+				args: { tax_return: frm.doc.name },
+				btn: $(frm.page.inner_buttons).last(),
+				freeze: true,
+				freeze_message: __("Filing to FBR..."),
+				callback(r) {
+					if (!r.exc && r.message) {
+						const m = r.message;
+						frm.set_value("fbr_submission_status", m.status);
+						frm.set_value("fbr_acknowledgment_number", m.acknowledgment_number);
+						frm.set_value("submission_timestamp", m.received_at);
+						frm.set_value("workflow_state", "Filed");
+						setup_fbr_status(frm);
+						setup_action_buttons(frm);
+						frappe.msgprint(__("Filed to FBR. Acknowledgment: {0}").format([
+							m.acknowledgment_number,
+						]));
+					}
+				},
+			});
+		}
+	);
+}
+
+function check_filing_status(frm) {
+	frm.call({
+		method: "incometax.api.fbr_filing.check_filing_status",
+		args: { tax_return: frm.doc.name },
+		btn: $(frm.page.inner_buttons).last(),
+		freeze: true,
+		freeze_message: __("Checking FBR status..."),
+		callback(r) {
+			if (!r.exc && r.message) {
+				const m = r.message;
+				frm.set_value("fbr_submission_status", m.status);
+				if (m.acknowledgment_number) {
+					frm.set_value("fbr_acknowledgment_number", m.acknowledgment_number);
+				}
+				if (m.filed_at) {
+					frm.set_value("submission_timestamp", m.filed_at);
+				}
+				setup_fbr_status(frm);
+				setup_action_buttons(frm);
+				frappe.msgprint(__("FBR Status: {0}").format([m.status]));
+			}
+		},
+	});
 }
