@@ -1,18 +1,11 @@
 import {
-  LayoutDashboard,
-  Users,
-  FileText,
-  MapPin,
-  ClipboardCheck,
-  BadgeCheck,
-  Send,
-  type LucideIcon,
+  BadgeCheck, BarChart3, ClipboardCheck, FileCheck2, FileText, FileUp, Home, LayoutDashboard, MapPin, MessageSquare,
+  PhoneCall, Send, ShieldAlert, Upload, User, Users, Wallet, type LucideIcon,
 } from "lucide-react";
 
-/** The 8 custom roles defined by the backend (spec §3). */
 export const ROLES = {
   SYSTEM_MANAGER: "System Manager",
-  CONSULTANT_ADMIN: "Tax Admin",
+  ADMIN: "Tax Admin",
   CONSULTANT: "Tax Consultant",
   REVIEWER: "Tax Reviewer",
   APPROVER: "Tax Approver",
@@ -21,100 +14,62 @@ export const ROLES = {
   CLIENT: "Client",
 } as const;
 
-/** Every role that works inside the consultant workspace (non-client). */
-export const STAFF_ROLES: string[] = [
-  ROLES.SYSTEM_MANAGER,
-  ROLES.CONSULTANT_ADMIN,
-  ROLES.CONSULTANT,
-  ROLES.REVIEWER,
-  ROLES.APPROVER,
-  ROLES.FILING_OFFICER,
-  ROLES.FIELD_OFFICER,
-];
+const { SYSTEM_MANAGER: SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILING_OFFICER: FILER, FIELD_OFFICER: FIELD } = ROLES;
+export const STAFF = [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER, FIELD];
 
 export interface NavItem {
   path: string;
   label: string;
+  hint: string;
   icon: LucideIcon;
-  /** Roles that see this item (UI-only; routes re-check, server enforces). */
   roles: string[];
+  hue: string;
 }
 
-export const WORKSPACE_NAV: NavItem[] = [
+export interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
+
+/** Staff navigation (sidebar and launcher). Roles hide items in the UI only — the server enforces access. */
+export const STAFF_NAV: NavGroup[] = [
   {
-    path: "/dashboard",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    roles: STAFF_ROLES,
-  },
-  {
-    path: "/clients",
-    label: "Clients",
-    icon: Users,
-    roles: [ROLES.SYSTEM_MANAGER, ROLES.CONSULTANT_ADMIN, ROLES.CONSULTANT, ROLES.FIELD_OFFICER],
-  },
-  {
-    path: "/returns",
-    label: "Tax Returns",
-    icon: FileText,
-    roles: [
-      ROLES.SYSTEM_MANAGER,
-      ROLES.CONSULTANT_ADMIN,
-      ROLES.CONSULTANT,
-      ROLES.REVIEWER,
-      ROLES.APPROVER,
-      ROLES.FILING_OFFICER,
+    title: "Workspace",
+    items: [
+      { path: "/staff/dashboard", label: "Dashboard", hint: "KPIs · Workload", icon: LayoutDashboard, roles: STAFF, hue: "blue" },
+      { path: "/staff/clients", label: "Clients", hint: "CNIC · NTN · Invite", icon: Users, roles: [SM, ADMIN, CONSULTANT, FIELD], hue: "violet" },
+      { path: "/staff/returns", label: "Tax Returns", hint: "Wizard · Draft → Filed", icon: FileText, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER], hue: "emerald" },
+      { path: "/staff/visits", label: "Site Visits", hint: "Field registration", icon: MapPin, roles: [SM, ADMIN, CONSULTANT, FIELD], hue: "amber" },
+      { path: "/staff/import", label: "Import Clients", hint: "CSV · Dry run", icon: Upload, roles: [SM, ADMIN, CONSULTANT], hue: "sky" },
     ],
   },
   {
-    path: "/visits",
-    label: "Site Visits",
-    icon: MapPin,
-    roles: [ROLES.SYSTEM_MANAGER, ROLES.CONSULTANT_ADMIN, ROLES.CONSULTANT, ROLES.FIELD_OFFICER],
+    title: "Queues",
+    items: [
+      { path: "/staff/queue/documents", label: "Verify Documents", hint: "Uploads to check", icon: FileCheck2, roles: [SM, ADMIN, CONSULTANT], hue: "teal" },
+      { path: "/staff/queue/preparation", label: "In Preparation", hint: "Docs · Draft · Changes", icon: FileUp, roles: [SM, ADMIN, CONSULTANT], hue: "orange" },
+      { path: "/staff/queue/review", label: "Review Queue", hint: "Check & send back", icon: ClipboardCheck, roles: [SM, ADMIN, REVIEWER], hue: "indigo" },
+      { path: "/staff/queue/confirmation", label: "Client Confirmation", hint: "Waiting on client", icon: User, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER], hue: "pink" },
+      { path: "/staff/queue/approval", label: "Approval Queue", hint: "Client confirmed", icon: BadgeCheck, roles: [SM, ADMIN, APPROVER], hue: "green" },
+      { path: "/staff/queue/filing", label: "Filing Queue", hint: "File on IRIS", icon: Send, roles: [SM, ADMIN, FILER], hue: "cyan" },
+      { path: "/staff/queue/submitted", label: "Awaiting Acknowledgment", hint: "Attach IRIS receipt", icon: FileCheck2, roles: [SM, ADMIN, FILER], hue: "sky" },
+      { path: "/staff/queue/errors", label: "Filing Errors", hint: "Retry", icon: ShieldAlert, roles: [SM, ADMIN, FILER], hue: "red" },
+    ],
+  },
+  {
+    title: "Front Office",
+    items: [
+      { path: "/staff/payments", label: "Payments to Verify", hint: "Proofs → invoice", icon: Wallet, roles: [SM, ADMIN], hue: "lime" },
+      { path: "/staff/consultations", label: "Consultations", hint: "Website bookings", icon: PhoneCall, roles: [SM, ADMIN, CONSULTANT], hue: "purple" },
+      { path: "/staff/reports", label: "Reports", hint: "Excel · CSV", icon: BarChart3, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER], hue: "rose" },
+    ],
   },
 ];
 
-export const QUEUE_NAV: NavItem[] = [
-  {
-    path: "/queue/review",
-    label: "Review Queue",
-    icon: ClipboardCheck,
-    roles: [ROLES.SYSTEM_MANAGER, ROLES.CONSULTANT_ADMIN, ROLES.REVIEWER],
-  },
-  {
-    path: "/queue/approval",
-    label: "Approval Queue",
-    icon: BadgeCheck,
-    roles: [ROLES.SYSTEM_MANAGER, ROLES.CONSULTANT_ADMIN, ROLES.APPROVER],
-  },
-  {
-    path: "/queue/filing",
-    label: "Filing Queue",
-    icon: Send,
-    roles: [ROLES.SYSTEM_MANAGER, ROLES.CONSULTANT_ADMIN, ROLES.FILING_OFFICER],
-  },
+export const CLIENT_NAV = [
+  { path: "/", label: "Home", icon: Home },
+  { path: "/documents", label: "Documents", icon: FileUp },
+  { path: "/messages", label: "Messages", icon: MessageSquare },
+  { path: "/payments", label: "Payments", icon: Wallet },
+  { path: "/profile", label: "Profile", icon: User },
 ];
-
-export const PORTAL_NAV: NavItem[] = [
-  { path: "/portal", label: "My Overview", icon: LayoutDashboard, roles: [ROLES.CLIENT] },
-];
-
-/** All nav items flattened — used for breadcrumbs and route label lookup. */
-export const ALL_NAV: NavItem[] = [...WORKSPACE_NAV, ...QUEUE_NAV, ...PORTAL_NAV];
-
-/**
- * Landing route for the current user after login and on `/`.
- * Mirrors spec §4 "Role-based dashboard redirection".
- */
-export function homeForRoles(roles: string[]): string {
-  const has = (r: string) => roles.includes(r);
-  if (has(ROLES.CLIENT)) return "/portal";
-  if (has(ROLES.FIELD_OFFICER)) return "/visits";
-  if (has(ROLES.REVIEWER)) return "/queue/review";
-  if (has(ROLES.APPROVER)) return "/queue/approval";
-  if (has(ROLES.FILING_OFFICER)) return "/queue/filing";
-  if (has(ROLES.CONSULTANT) || has(ROLES.CONSULTANT_ADMIN) || has(ROLES.SYSTEM_MANAGER)) {
-    return "/home";
-  }
-  return "/dashboard";
-}

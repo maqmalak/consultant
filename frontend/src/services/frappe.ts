@@ -235,3 +235,12 @@ export function humanizeError(error: unknown): string {
 export function stripHtml(s: string): string {
   return s.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
+
+/** POST a single file (multipart) plus string fields to a whitelisted method. */
+export function apiUpload<T = unknown>(method: string, file: File | Blob, fields: Record<string, string> = {},
+  filename?: string): Promise<T> {
+  const form = new FormData();
+  for (const [k, v] of Object.entries(fields)) form.append(k, v);
+  form.append("file", file, filename ?? (file instanceof File ? file.name : "upload"));
+  return wrap<T>(http.post(`/api/method/${method}`, form, { headers: { "Content-Type": "multipart/form-data" } }));
+}

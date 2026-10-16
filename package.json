@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "name": "pakistan_tax_consultancy",
+  "description": "Builds the React portal when `bench build --app pakistan_tax_consultancy` runs",
+  "scripts": {
+    "build": "cd frontend && npm run build",
+    "dev": "cd frontend && npm run dev"
+  }
+}

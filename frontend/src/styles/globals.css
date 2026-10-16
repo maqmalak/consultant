@@ -332,3 +332,10 @@
     @apply mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8;
   }
 }
+
+/* Urdu: Nastaliq needs a larger size and more line height to stay readable */
+.font-urdu, .font-urdu body {
+  font-family: "Noto Nastaliq Urdu", "Inter", system-ui, sans-serif;
+}
+html.font-urdu body { line-height: 2; }
+html.font-urdu .tabular-nums, html.font-urdu input, html.font-urdu [dir="ltr"] { font-family: "Inter", system-ui, sans-serif; }

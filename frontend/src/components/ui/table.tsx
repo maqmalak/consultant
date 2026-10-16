@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, TdHTMLAttributes } from "react";
 import { ChevronLeft, ChevronRight, Inbox } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -26,8 +26,8 @@ export function TH({ children, className }: { children?: ReactNode; className?: 
   );
 }
 
-export function TD({ children, className }: { children?: ReactNode; className?: string }) {
-  return <td className={cn("px-4 py-3 align-middle text-foreground", className)}>{children}</td>;
+export function TD({ children, className, ...rest }: TdHTMLAttributes<HTMLTableCellElement>) {
+  return <td className={cn("px-4 py-3 align-middle text-foreground", className)} {...rest}>{children}</td>;
 }
 
 export function TR({ children, className }: { children: ReactNode; className?: string }) {

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Link, type LinkProps } from "react-router-dom";
 import { cn } from "@/lib/cn";
 
 type Variant = "primary" | "default" | "secondary" | "outline" | "ghost" | "danger" | "destructive" | "success" | "link";
@@ -24,6 +25,19 @@ const sizes: Record<Size, string> = {
   icon: "h-9 w-9",
 };
 
+const BASE = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors " +
+  "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40 " +
+  "disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0";
+
+export function buttonClass(variant: Variant = "primary", size: Size = "md", className?: string) {
+  return cn(BASE, variants[variant], sizes[size], className);
+}
+
+/** A router link that looks like a button. */
+export function LinkButton({ variant = "primary", size = "md", className, ...props }: LinkProps & { variant?: Variant; size?: Size }) {
+  return <Link className={buttonClass(variant, size, className)} {...props} />;
+}
+
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
   size?: Size;
@@ -35,14 +49,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     <button
       ref={ref}
       disabled={disabled || loading}
-      className={cn(
-        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors",
-        "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40",
-        "disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0",
-        variants[variant],
-        sizes[size],
-        className,
-      )}
+      className={buttonClass(variant, size, className)}
       {...props}
     >
       {loading ? <LoaderSpinner /> : null}

@@ -192,7 +192,7 @@ class TestTaxPortalFlow(IntegrationTestCase):
 	def test_full_flow_draft_to_acknowledged(self):
 		from pakistan_tax_consultancy.api import portal, staff
 
-		res = self.signup("03001110001", "t.client1@example.com", "00000-0000000-1")
+		res = self.signup("03001110001", "t.client1@example.com", "00000-0090000-1")
 		client, client_user = res["client"], res["user"]
 		self.assertEqual(frappe.db.get_value("Tax Client", client, "portal_user"), client_user)
 
@@ -260,7 +260,7 @@ class TestTaxPortalFlow(IntegrationTestCase):
 	def test_approval_cancelled_after_material_change(self):
 		from pakistan_tax_consultancy.api import portal
 
-		res = self.signup("03001110002", "t.client2@example.com", "00000-0000000-2")
+		res = self.signup("03001110002", "t.client2@example.com", "00000-0090000-2")
 		tr = self.new_return(res["client"])
 		self.answer_and_upload(res["user"], tr.name)
 		self.verify_all(tr.name)
@@ -284,7 +284,7 @@ class TestTaxPortalFlow(IntegrationTestCase):
 	def test_four_eyes_preparer_cannot_approve(self):
 		from frappe.model.workflow import has_approval_access
 
-		res = self.signup("03001110003", "t.client3@example.com", "00000-0000000-3")
+		res = self.signup("03001110003", "t.client3@example.com", "00000-0090000-3")
 		tr = self.new_return(res["client"])  # owner = consultant
 		t = [x for x in frappe.get_doc("Workflow", "Tax Return Workflow").transitions if x.action == "Approve"][0]
 		self.assertFalse(has_approval_access(self.consultant, tr, t))
@@ -293,8 +293,8 @@ class TestTaxPortalFlow(IntegrationTestCase):
 	def test_client_isolation_and_private_files(self):
 		from pakistan_tax_consultancy.api import portal
 
-		a = self.signup("03001110004", "t.client4@example.com", "00000-0000000-4")
-		b = self.signup("03001110005", "t.client5@example.com", "00000-0000000-5")
+		a = self.signup("03001110004", "t.client4@example.com", "00000-0090000-4")
+		b = self.signup("03001110005", "t.client5@example.com", "00000-0090000-5")
 		tr = self.new_return(a["client"])
 		self.answer_and_upload(a["user"], tr.name)
 		doc_name = frappe.get_all("Tax Document", {"tax_return": tr.name, "status": "Pending"}, pluck="name")[0]
@@ -323,7 +323,7 @@ class TestTaxPortalFlow(IntegrationTestCase):
 	def test_upload_rejects_wrong_content(self):
 		from pakistan_tax_consultancy.api import portal
 
-		a = self.signup("03001110006", "t.client6@example.com", "00000-0000000-6")
+		a = self.signup("03001110006", "t.client6@example.com", "00000-0090000-6")
 		tr = self.new_return(a["client"])
 		as_user(a["user"])
 		item = portal.return_detail(tr.name)["checklist"][0]
@@ -332,14 +332,14 @@ class TestTaxPortalFlow(IntegrationTestCase):
 			portal.upload(item["name"])
 
 	def test_duplicate_signup_blocked(self):
-		self.signup("03001110007", "t.client7@example.com", "00000-0000000-7")
+		self.signup("03001110007", "t.client7@example.com", "00000-0090000-7")
 		with self.assertRaises(frappe.ValidationError):
-			self.signup("03001110007", "t.client7b@example.com", "00000-0000000-8")
+			self.signup("03001110007", "t.client7b@example.com", "00000-0090000-8")
 
 	def test_payment_verification_creates_invoice_and_payment(self):
 		from pakistan_tax_consultancy.api import portal, staff
 
-		a = self.signup("03001110009", "t.client9@example.com", "00000-0000000-9")
+		a = self.signup("03001110009", "t.client9@example.com", "00000-0090000-9")
 		as_user(a["user"])
 		order = portal.order("Basic Filing", "2026")
 		self.assertTrue(order["tax_return"])
@@ -362,7 +362,7 @@ class TestTaxPortalFlow(IntegrationTestCase):
 
 		frappe.db.set_single_value("Firm Website Settings", "work_before_payment", 0)
 		try:
-			a = self.signup("03001110010", "t.client10@example.com", "00000-0000001-0")
+			a = self.signup("03001110010", "t.client10@example.com", "00000-0090001-0")
 			as_user(a["user"])
 			order = portal.order("Basic Filing", "2026")
 			self.answer_and_upload(a["user"], order["tax_return"])

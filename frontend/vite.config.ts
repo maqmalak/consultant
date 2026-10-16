@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import path from "node:path";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   // loadEnv is required so server.proxy sees .env values (process.env alone
   // does not pick up VITE_* from .env inside vite.config).
   const env = loadEnv(mode, process.cwd(), "");
@@ -24,6 +24,8 @@ export default defineConfig(({ mode }) => {
   };
 
   return {
+    // built assets are served by Frappe from /assets/<app>/frontend/; the dev server serves them from /
+    base: command === "build" ? "/assets/pakistan_tax_consultancy/frontend/" : "/",
     plugins: [react()],
     resolve: {
       alias: {
@@ -47,13 +49,14 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      outDir: "dist",
+      outDir: "../pakistan_tax_consultancy/public/frontend",
+      emptyOutDir: true,
       sourcemap: false,
       rollupOptions: {
         output: {
           manualChunks: {
             "vendor-react": ["react", "react-dom", "react-router-dom"],
-            "vendor-frappe": ["frappe-react-sdk", "swr", "axios"],
+            "vendor-data": ["swr", "axios", "i18next", "react-i18next"],
             "vendor-charts": ["recharts"],
           },
         },

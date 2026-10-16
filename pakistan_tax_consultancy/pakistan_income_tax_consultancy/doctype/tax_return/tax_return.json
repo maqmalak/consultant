@@ -124,13 +124,12 @@
    "options": "Tax Engagement"
   },
   {
-   "description": "Set from the client type; decides which slabs apply",
+   "description": "Blank = derived from the client type; decides which slabs apply",
    "fieldname": "taxpayer_type",
    "fieldtype": "Select",
    "in_standard_filter": 1,
    "label": "Taxpayer Type",
-   "options": "Salaried Individual\nNon-Salaried Individual\nAOP\nCompany",
-   "reqd": 1
+   "options": "\nSalaried Individual\nNon-Salaried Individual\nAOP\nCompany"
   },
   {
    "fieldname": "cb1",

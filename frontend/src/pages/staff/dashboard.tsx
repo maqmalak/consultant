@@ -1,0 +1,83 @@
+import { AlarmClock, BadgeDollarSign, CalendarClock, FileCheck2, FileText, LayoutDashboard, PhoneCall, RefreshCw, Undo2, Users, Wallet } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ChartCard } from "@/components/charts/chart-card";
+import { BarGauge, DonutChart } from "@/components/charts/charts";
+import { STATUS_TONE } from "@/components/analytics/kit";
+import { StatCard } from "@/components/common/stat-card";
+import { StateBadge } from "@/components/common/state-badge";
+import { ErrorState, Loading } from "@/components/common/states";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
+import { Table, TD, TH, TR } from "@/components/ui/table";
+import { M } from "@/lib/api";
+import { money } from "@/lib/format";
+import { useApi } from "@/lib/use-api";
+
+interface Dash {
+  by_state: { state: string; count: number }[];
+  total_returns: number;
+  clients: number;
+  documents_to_verify: number;
+  followups_due: number;
+  overdue: number;
+  payments_to_verify: number;
+  consultations_new: number;
+  collected_this_month: number;
+  total_payable: number;
+  total_refund: number;
+  workload: { user: string; name: string; count: number }[];
+  recent: { name: string; client_name: string; tax_year: string; workflow_state: string; net_tax_payable: number; modified: string }[];
+}
+
+export function StaffDashboard() {
+  const { data, error, isLoading, mutate } = useApi<Dash>(`${M.STAFF}.dashboard`);
+  return (
+    <div className="page-container">
+      <PageHeader title="Dashboard" subtitle="Your clients, returns and queues — scoped to what you may see"
+        icon={<LayoutDashboard className="h-5 w-5" />}
+        actions={<Button variant="outline" size="default" onClick={() => void mutate()}><RefreshCw className="h-4 w-4" /> Refresh</Button>} />
+      {isLoading && <Loading />}
+      {error && <ErrorState error={error} onRetry={() => void mutate()} />}
+      {data && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <Link to="/staff/clients" className="block rounded-lg transition hover:-translate-y-0.5"><StatCard label="Clients" value={data.clients} icon={<Users className="h-4 w-4" />} tone="primary" /></Link>
+            <Link to="/staff/returns" className="block rounded-lg transition hover:-translate-y-0.5"><StatCard label="Returns" value={data.total_returns} icon={<FileText className="h-4 w-4" />} tone="sky" /></Link>
+            <Link to="/staff/queue/documents" className="block rounded-lg transition hover:-translate-y-0.5"><StatCard label="Documents to verify" value={data.documents_to_verify} icon={<FileCheck2 className="h-4 w-4" />} tone="amber" /></Link>
+            <StatCard label="Overdue returns" value={data.overdue} icon={<AlarmClock className="h-4 w-4" />} tone="rose" />
+            <Link to="/staff/visits" className="block rounded-lg transition hover:-translate-y-0.5"><StatCard label="Follow-ups due" value={data.followups_due} icon={<CalendarClock className="h-4 w-4" />} tone="indigo" /></Link>
+            <Link to="/staff/payments" className="block rounded-lg transition hover:-translate-y-0.5"><StatCard label="Payments to verify" value={data.payments_to_verify} icon={<Wallet className="h-4 w-4" />} tone="teal" /></Link>
+            <Link to="/staff/consultations" className="block rounded-lg transition hover:-translate-y-0.5"><StatCard label="New consultations" value={data.consultations_new} icon={<PhoneCall className="h-4 w-4" />} tone="slate" /></Link>
+            <StatCard label="Collected this month" value={money(data.collected_this_month, { compact: true })} icon={<BadgeDollarSign className="h-4 w-4" />} tone="emerald" />
+          </div>
+          <div className="grid gap-6 lg:grid-cols-5">
+            <ChartCard title="Returns by status" subtitle={`${money(data.total_payable, { compact: true })} payable · ${money(data.total_refund, { compact: true })} refunds`} className="lg:col-span-2">
+              {data.total_returns ? (
+                <DonutChart data={data.by_state.filter((s) => s.count).map((s) => ({ label: s.state, value: s.count, color: STATUS_TONE[s.state] }))} height={280} />
+              ) : <p className="py-10 text-center text-sm text-muted-foreground">No returns yet.</p>}
+            </ChartCard>
+            <ChartCard title="Consultant workload" subtitle="Open returns per consultant" className="lg:col-span-3">
+              {data.workload.length ? <BarGauge data={data.workload.map((w) => ({ label: w.name, value: w.count }))} format={(v) => String(v)} />
+                : <p className="py-10 text-center text-sm text-muted-foreground">Nothing open.</p>}
+            </ChartCard>
+          </div>
+          <ChartCard title="Recently updated returns" subtitle="Last 8">
+            <Table>
+              <thead><tr><TH>Return</TH><TH>Client</TH><TH>Year</TH><TH>Status</TH><TH className="text-end">Payable</TH></tr></thead>
+              <tbody>
+                {data.recent.map((r) => (
+                  <TR key={r.name}>
+                    <TD><Link className="font-medium text-primary hover:underline" to={`/staff/returns/${r.name}`}>{r.name}</Link></TD>
+                    <TD>{r.client_name}</TD><TD>{r.tax_year}</TD><TD><StateBadge state={r.workflow_state} /></TD>
+                    <TD className="text-end tabular-nums">{money(r.net_tax_payable)}</TD>
+                  </TR>
+                ))}
+              </tbody>
+            </Table>
+          </ChartCard>
+          {data.total_refund > 0 && <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Undo2 className="h-3.5 w-3.5" /> Refund figures are estimates until FBR processes them.</p>}
+        </div>
+      )}
+    </div>
+  );
+}
