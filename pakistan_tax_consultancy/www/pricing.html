@@ -1,0 +1,17 @@
+{% extends "templates/ptc/base.html" %}
+{% block content %}
+<section class="mx-auto max-w-6xl px-4 py-14">
+  <h1 class="text-center text-3xl font-bold sm:text-4xl">{{ _("Pricing") }}</h1>
+  <p class="mx-auto mt-3 max-w-xl text-center text-muted-foreground">{{ _("You see the fee before you start. FBR tax itself is paid separately to the government.") }}</p>
+  {% include "templates/ptc/packages.html" %}
+  {% if services %}
+  <h2 class="mt-16 text-xl font-bold">{{ _("Other services") }}</h2>
+  <div class="mt-4 overflow-x-auto rounded-xl border bg-card">
+    <table class="min-w-full text-sm">
+      <thead class="bg-muted/50"><tr><th class="px-4 py-3 text-start">{{ _("Service") }}</th><th class="px-4 py-3 text-end">{{ _("From") }}</th></tr></thead>
+      <tbody class="divide-y">{% for s in services %}<tr><td class="px-4 py-3"><a class="text-primary hover:underline" href="/services/{{ s.slug }}">{{ s.title }}</a></td><td class="px-4 py-3 text-end tabular-nums">Rs {{ "{:,.0f}".format(s.price_from) }}</td></tr>{% endfor %}</tbody>
+    </table>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

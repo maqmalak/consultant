@@ -6,7 +6,8 @@
   "description": "React + TypeScript frontend (client portal + consultant workspace) for the Pakistan Income Tax Consultancy ERP",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build && node scripts/write-portal-page.mjs",
+    "build": "tsc --noEmit && vite build && node scripts/write-portal-page.mjs && npm run build:site",
+    "build:site": "tailwindcss -c tailwind.site.config.js -i src/styles/globals.css -o ../pakistan_tax_consultancy/public/css/site.css --minify",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview"

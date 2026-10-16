@@ -1,0 +1,19 @@
+{% extends "templates/ptc/base.html" %}
+{% block content %}
+<section class="mx-auto max-w-6xl px-4 py-14">
+  <h1 class="text-3xl font-bold sm:text-4xl">{{ _("Services") }}</h1>
+  <p class="mt-3 max-w-2xl text-muted-foreground">{{ _("From your annual return to registrations and notices — prepared by a consultant, checked by a reviewer.") }}</p>
+  {% for category in services | map(attribute="category") | unique %}
+  <h2 class="mt-12 text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">{{ _(category) }}</h2>
+  <div class="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    {% for s in services if s.category == category %}
+    <a href="/services/{{ s.slug }}" class="group rounded-xl border bg-card p-5 transition hover:-translate-y-0.5 hover:border-primary/50">
+      <h3 class="font-semibold group-hover:text-primary">{{ s.title }}</h3>
+      <p class="mt-1.5 text-sm text-muted-foreground">{{ s.summary or "" }}</p>
+      {% if s.price_from %}<p class="mt-3 text-sm">{{ _("From") }} <b>Rs {{ "{:,.0f}".format(s.price_from) }}</b></p>{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}

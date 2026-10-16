@@ -1,0 +1,164 @@
+{%- set firm = firm or {} -%}
+{%- set urdu = (ptc_lang == "ur") -%}
+{%- set firm_name = firm.firm_name or _("Tax Consultancy") -%}
+<!doctype html>
+<html lang="{{ 'ur' if urdu else 'en' }}" dir="{{ 'rtl' if urdu else 'ltr' }}" class="{{ 'font-urdu' if urdu else '' }}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}{{ page_title or firm_name }}{% endblock %} · {{ firm_name }}</title>
+  <meta name="description" content="{% block description %}{{ meta_description or firm.hero_subtext or '' }}{% endblock %}" />
+  <link rel="canonical" href="{{ frappe.utils.get_url(path or "/") }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="{{ firm_name }}" />
+  <meta property="og:title" content="{{ self.title() }}" />
+  <meta property="og:description" content="{{ self.description() }}" />
+  {% if firm.logo %}<meta property="og:image" content="{{ frappe.utils.get_url(firm.logo) }}" />{% endif %}
+  <meta name="theme-color" content="#0d9488" />
+  <link rel="icon" href="/assets/pakistan_tax_consultancy/images/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/assets/pakistan_tax_consultancy/manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap{% if urdu %}&family=Noto+Nastaliq+Urdu:wght@400;600{% endif %}" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/pakistan_tax_consultancy/css/site.css?v={{ site_css_version or '1' }}" />
+  {% if brand_hsl %}<style>:root, .dark { --primary: {{ brand_hsl }}; --ring: {{ brand_hsl }}; }</style>{% endif %}
+  {% if frappe.session.user != "Guest" %}<meta name="csrf-token" content="{{ frappe.session.csrf_token }}" />{% endif %}
+  <script>
+    // Light by default on the website; dark only when the visitor chose it (shared with the portal).
+    try {
+      var m = localStorage.getItem("ptc-theme");
+      if (m === "dark" || (m === "system" && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.classList.add("dark");
+    } catch (e) {}
+  </script>
+  {% block head_extra %}{% endblock %}
+</head>
+<body class="min-h-screen bg-background text-foreground antialiased">
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:start-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground">{{ _("Skip to content") }}</a>
+
+  {% if firm.announcement_enabled and firm.announcement_text %}
+  <div class="bg-primary text-primary-foreground">
+    <p class="mx-auto max-w-6xl px-4 py-2 text-center text-sm">
+      {% if firm.announcement_link %}<a class="underline underline-offset-2" href="{{ firm.announcement_link }}">{{ firm.announcement_text }}</a>{% else %}{{ firm.announcement_text }}{% endif %}
+    </p>
+  </div>
+  {% endif %}
+
+  <header class="sticky top-0 z-30 border-b bg-background/90 backdrop-blur">
+    <div class="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4">
+      <a href="/" class="flex min-w-0 items-center gap-2.5" aria-label="{{ firm_name }} — {{ _('Home') }}">
+        {% if firm.logo %}<img src="{{ firm.logo }}" alt="" class="h-9 w-9 rounded-xl object-contain" width="36" height="36" />
+        {% else %}<span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-white shadow-md">
+          <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>{% endif %}
+        <span class="truncate font-semibold">{{ firm_name }}</span>
+      </a>
+      <nav class="ms-6 hidden items-center gap-1 text-sm lg:flex" aria-label="{{ _('Main') }}">
+        {% for href, label in [("/services", _("Services")), ("/pricing", _("Pricing")), ("/tax-calculator", _("Tax Calculator")), ("/faq", _("FAQ")), ("/tax-updates", _("Tax Updates")), ("/contact", _("Contact"))] %}
+        <a href="{{ href }}" class="rounded-md px-3 py-2 text-muted-foreground hover:bg-accent hover:text-foreground {{ 'text-foreground font-medium' if ('/' ~ (path or '')).startswith(href) else '' }}">{{ label }}</a>
+        {% endfor %}
+      </nav>
+      <div class="ms-auto flex items-center gap-1">
+        <button type="button" data-lang="{{ 'en' if urdu else 'ur' }}" class="lang-toggle rounded-md px-2.5 py-2 text-sm hover:bg-accent {{ '' if urdu else 'font-urdu' }}">{{ "English" if urdu else "اردو" }}</button>
+        <button type="button" class="theme-toggle rounded-md p-2 hover:bg-accent" aria-label="{{ _('Toggle theme') }}">
+          <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+        <a href="/portal/login" class="hidden rounded-md px-3 py-2 text-sm font-medium hover:bg-accent sm:inline-block">{{ _("Sign in") }}</a>
+        <a href="/portal/signup" class="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow hover:bg-primary/90">{{ _("Start Filing") }}</a>
+        <details class="relative lg:hidden">
+          <summary class="list-none rounded-md p-2 hover:bg-accent" aria-label="{{ _('Menu') }}">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </summary>
+          <nav class="absolute end-0 top-11 w-56 rounded-xl border bg-popover p-2 shadow-xl" aria-label="{{ _('Main') }}">
+            {% for href, label in [("/services", _("Services")), ("/pricing", _("Pricing")), ("/tax-calculator", _("Tax Calculator")), ("/book-consultation", _("Book a Consultation")), ("/faq", _("FAQ")), ("/tax-updates", _("Tax Updates")), ("/about", _("About")), ("/contact", _("Contact")), ("/portal/login", _("Sign in"))] %}
+            <a href="{{ href }}" class="block rounded-md px-3 py-2.5 text-sm hover:bg-accent">{{ label }}</a>
+            {% endfor %}
+          </nav>
+        </details>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">{% block content %}{% endblock %}</main>
+
+  <footer class="mt-16 border-t bg-card">
+    <div class="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="space-y-2 text-sm">
+        <p class="font-semibold">{{ firm_name }}</p>
+        {% if firm.tagline %}<p class="text-muted-foreground">{{ firm.tagline }}</p>{% endif %}
+        <p class="text-muted-foreground">{{ _("We file income tax returns on FBR IRIS on our clients' behalf, with their authorisation.") }}</p>
+      </div>
+      <div class="space-y-2 text-sm">
+        <p class="font-semibold">{{ _("Services") }}</p>
+        {% for s in footer_services or [] %}<a class="block text-muted-foreground hover:text-foreground" href="/services/{{ s.slug }}">{{ s.title }}</a>{% endfor %}
+      </div>
+      <div class="space-y-2 text-sm">
+        <p class="font-semibold">{{ _("Resources") }}</p>
+        <a class="block text-muted-foreground hover:text-foreground" href="/tax-calculator">{{ _("Salary Tax Calculator") }}</a>
+        <a class="block text-muted-foreground hover:text-foreground" href="/faq">{{ _("FAQ") }}</a>
+        <a class="block text-muted-foreground hover:text-foreground" href="/tax-updates">{{ _("Tax Updates") }}</a>
+        <a class="block text-muted-foreground hover:text-foreground" href="/about">{{ _("About") }}</a>
+      </div>
+      <div class="space-y-2 text-sm">
+        <p class="font-semibold">{{ _("Contact") }}</p>
+        {% if firm.phone %}<a class="block text-muted-foreground hover:text-foreground" href="tel:{{ firm.phone }}" dir="ltr">{{ firm.phone }}</a>{% endif %}
+        {% if firm.email %}<a class="block text-muted-foreground hover:text-foreground" href="mailto:{{ firm.email }}">{{ firm.email }}</a>{% endif %}
+        {% if firm.address %}<p class="text-muted-foreground">{{ firm.address }}</p>{% endif %}
+        {% if firm.office_hours %}<p class="text-muted-foreground">{{ firm.office_hours }}</p>{% endif %}
+      </div>
+    </div>
+    <div class="border-t">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 text-xs text-muted-foreground">
+        <p>© {{ frappe.utils.nowdate()[:4] }} {{ firm_name }}</p>
+        <nav class="flex flex-wrap gap-4" aria-label="{{ _('Legal') }}">
+          <a class="hover:text-foreground" href="/privacy">{{ _("Privacy Policy") }}</a>
+          <a class="hover:text-foreground" href="/terms">{{ _("Terms") }}</a>
+          <a class="hover:text-foreground" href="/refund-policy">{{ _("Refund Policy") }}</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  {% if firm.whatsapp %}
+  {%- set wa = "https://wa.me/" ~ (firm.whatsapp | replace("+", "") | replace(" ", "") | replace("-", "")) ~ ("?text=" ~ (firm.whatsapp_message | urlencode) if firm.whatsapp_message else "") -%}
+  <a href="{{ wa }}" target="_blank" rel="noopener" aria-label="{{ _('Chat on WhatsApp') }}"
+    class="fixed bottom-5 end-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl transition hover:scale-105">
+    <svg viewBox="0 0 32 32" class="h-7 w-7 fill-current" aria-hidden="true"><path d="M16.04 3C8.86 3 3.02 8.83 3.02 16.01c0 2.3.6 4.54 1.75 6.52L3 29l6.65-1.74a12.98 12.98 0 0 0 6.39 1.67h.01c7.18 0 13.02-5.84 13.02-13.02 0-3.48-1.36-6.75-3.82-9.21A12.93 12.93 0 0 0 16.04 3Zm5.93 15.64c-.33-.16-1.93-.95-2.23-1.06-.3-.11-.52-.16-.73.16-.22.33-.84 1.06-1.03 1.28-.19.22-.38.24-.71.08-.33-.16-1.38-.51-2.62-1.62-.97-.87-1.62-1.93-1.81-2.26-.19-.33-.02-.5.14-.67.15-.15.33-.38.49-.57.16-.19.22-.33.33-.55.11-.22.05-.41-.03-.57-.08-.16-.73-1.77-1-2.42-.27-.64-.54-.55-.73-.56h-.62c-.22 0-.57.08-.87.41-.3.33-1.14 1.11-1.14 2.71s1.17 3.15 1.33 3.36c.16.22 2.3 3.51 5.57 4.92.78.34 1.39.54 1.86.69.78.25 1.49.21 2.05.13.63-.09 1.93-.79 2.2-1.55.27-.76.27-1.42.19-1.55-.08-.14-.3-.22-.62-.38Z"/></svg>
+  </a>
+  {% endif %}
+
+  <div id="cookie-notice" hidden class="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-xl rounded-xl border bg-popover p-4 text-sm shadow-2xl sm:inset-x-auto sm:start-5">
+    <p>{{ _("We use only essential cookies to keep you signed in and remember your language. No advertising or tracking cookies.") }}
+      <a href="/privacy#cookies" class="text-primary underline">{{ _("Learn more") }}</a></p>
+    <div class="mt-3 flex justify-end"><button type="button" id="cookie-ok" class="rounded-md bg-primary px-4 py-1.5 font-medium text-primary-foreground">{{ _("OK") }}</button></div>
+  </div>
+
+  <script>
+    (function () {
+      function setCookie(n, v) { document.cookie = n + "=" + v + ";path=/;max-age=31536000;samesite=lax"; }
+      document.querySelectorAll(".lang-toggle").forEach(function (b) {
+        b.addEventListener("click", function () { setCookie("preferred_language", b.dataset.lang); try { localStorage.setItem("ptc-lang", b.dataset.lang); } catch (e) {} location.reload(); });
+      });
+      document.querySelectorAll(".theme-toggle").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var dark = document.documentElement.classList.toggle("dark");
+          try { localStorage.setItem("ptc-theme", dark ? "dark" : "light"); } catch (e) {}
+        });
+      });
+      var notice = document.getElementById("cookie-notice");
+      try { if (!localStorage.getItem("ptc-cookie-ok")) notice.hidden = false; } catch (e) {}
+      document.getElementById("cookie-ok").addEventListener("click", function () {
+        notice.hidden = true; try { localStorage.setItem("ptc-cookie-ok", "1"); } catch (e) {}
+      });
+      // POST helper for the public forms (guest sessions need no token; signed-in users send theirs)
+      window.ptcPost = function (method, data) {
+        var meta = document.querySelector('meta[name="csrf-token"]');
+        var headers = { "Content-Type": "application/json", "Accept": "application/json" };
+        if (meta) headers["X-Frappe-CSRF-Token"] = meta.content;
+        return fetch("/api/method/" + method, { method: "POST", headers: headers, credentials: "same-origin", body: JSON.stringify(data) })
+          .then(function (r) { return r.json().then(function (j) { if (!r.ok) { var m = "Something went wrong. Please try again.";
+            try { m = JSON.parse(JSON.parse(j._server_messages)[0]).message; } catch (e) {} throw new Error(m.replace(/<[^>]+>/g, "")); } return j.message; }); });
+      };
+    })();
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

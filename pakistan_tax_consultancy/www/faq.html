@@ -1,0 +1,25 @@
+{% extends "templates/ptc/base.html" %}
+{% block head_extra %}
+<script type="application/ld+json">
+{%- set entities = [] -%}
+{%- for q in faqs -%}{%- if entities.append({"@type": "Question", "name": q.question, "acceptedAnswer": {"@type": "Answer", "text": frappe.utils.strip_html(q.answer)}}) -%}{%- endif -%}{%- endfor -%}
+{{ {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": entities} | json }}
+</script>
+{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-3xl px-4 py-14">
+  <h1 class="text-3xl font-bold sm:text-4xl">{{ _("Frequently asked questions") }}</h1>
+  {% for category in faqs | map(attribute="category") | unique %}
+  <h2 class="mt-10 text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">{{ _(category) }}</h2>
+  <div class="mt-3 divide-y rounded-xl border bg-card">
+    {% for q in faqs if q.category == category %}
+    <details class="group p-4">
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 font-medium">{{ q.question }}<span class="text-muted-foreground transition group-open:rotate-45" aria-hidden="true">+</span></summary>
+      <div class="mt-3 text-sm text-muted-foreground [&_p]:mb-2">{{ q.answer }}</div>
+    </details>
+    {% endfor %}
+  </div>
+  {% endfor %}
+  <p class="mt-10 text-sm">{{ _("Still have a question?") }} <a href="/book-consultation" class="text-primary underline">{{ _("Book a consultation") }}</a></p>
+</section>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "templates/ptc/base.html" %}
+{% block content %}
+<article class="mx-auto max-w-3xl px-4 py-14">
+  <a href="/tax-updates" class="text-sm text-muted-foreground hover:text-foreground">← {{ _("Tax updates") }}</a>
+  <p class="mt-4 text-xs font-medium uppercase tracking-wider text-muted-foreground">{{ _(post.category) }}{% if post.published_on %} · {{ frappe.format(post.published_on, {"fieldtype": "Date"}) }}{% endif %}{% if post.author %} · {{ post.author }}{% endif %}</p>
+  <h1 class="mt-2 text-3xl font-bold sm:text-4xl">{{ post.title }}</h1>
+  {% if post.cover_image %}<img src="{{ post.cover_image }}" alt="" class="mt-6 w-full rounded-xl border" loading="lazy" />{% endif %}
+  <div class="mt-8 space-y-4 leading-relaxed [&_a]:text-primary [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-bold [&_li]:ms-5 [&_ul]:list-disc [&_ol]:list-decimal">{{ post.content }}</div>
+  <div class="mt-10 rounded-xl border bg-card p-5 text-sm">{{ _("Need help applying this to your return?") }} <a href="/book-consultation" class="font-semibold text-primary">{{ _("Book a consultation") }}</a></div>
+</article>
+{% endblock %}

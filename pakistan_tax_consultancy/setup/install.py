@@ -15,6 +15,7 @@ def after_migrate():
 	try:
 		ensure_billing_setup()
 		ensure_workflow()
+		ensure_website()
 	except Exception:
 		print(frappe.get_traceback())
 		frappe.log_error(title="pakistan_tax_consultancy setup")
@@ -99,3 +100,17 @@ def ensure_workflow():
 				"allow_self_approval": self_ok})
 	doc.flags.ignore_permissions = True
 	doc.save()
+
+
+def ensure_website():
+	"""Urdu available for the website toggle; robots.txt keeps the desk, portal and API out of search engines."""
+	if frappe.db.exists("Language", "ur") and not frappe.db.get_value("Language", "ur", "enabled"):
+		frappe.db.set_value("Language", "ur", "enabled", 1)
+	ws = frappe.get_single("Website Settings")
+	if not (ws.robots_txt or "").strip():
+		from frappe.utils import get_url
+
+		ws.robots_txt = ("User-agent: *\nDisallow: /app\nDisallow: /portal\nDisallow: /api\nDisallow: /private\n"
+			f"Sitemap: {get_url('/sitemap.xml')}\n")
+		ws.flags.ignore_permissions = True
+		ws.save()

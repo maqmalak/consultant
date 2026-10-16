@@ -1,0 +1,23 @@
+{% extends "templates/ptc/legal.html" %}
+{% block legal %}
+<h1>{{ _("Privacy Policy") }}</h1>
+<p>This policy explains what personal information {{ firm.firm_name or "we" }} collect, why, and how it is protected.</p>
+<h2>What we collect</h2>
+<ul>
+  <li>Identity and contact details: name, CNIC, NTN, mobile number, email, address.</li>
+  <li>Tax information you give us: income, deductions, tax deducted, bank and property records, wealth statement details.</li>
+  <li>Documents you upload, and records of your payments to us.</li>
+</ul>
+<h2>Why we use it</h2>
+<p>Only to prepare, review and file your tax returns and registrations with your authorisation, to contact you about your case, to bill our fees, and to meet our legal record-keeping duties.</p>
+<h2>How it is protected</h2>
+<p>Documents are stored as private files. Only you and the staff assigned to your case can open them, and every download is logged. Sensitive fields such as your CNIC and bank details are restricted to authorised staff.</p>
+<h2>Sharing</h2>
+<p>We submit your return and related information to the Federal Board of Revenue (FBR) through IRIS when you authorise filing. We do not sell your information or share it for advertising.</p>
+<h2>Retention</h2>
+<p>We keep your records for the period required by tax law and our retention policy, then delete them.</p>
+<h2 id="cookies">Cookies</h2>
+<p>We use essential cookies only: to keep you signed in, protect forms, and remember your language and theme. We do not use advertising or tracking cookies.</p>
+<h2>Your rights</h2>
+<p>You can ask for a copy of your information, ask us to correct it, or ask us to delete what we are not legally required to keep. Contact us using the details on our contact page.</p>
+{% endblock %}

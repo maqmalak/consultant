@@ -1,0 +1,19 @@
+{% extends "templates/ptc/base.html" %}
+{% block content %}
+<section class="mx-auto max-w-5xl px-4 py-14">
+  <h1 class="text-3xl font-bold sm:text-4xl">{{ _("Tax updates") }}</h1>
+  {% if posts %}
+  <div class="mt-8 grid gap-5 sm:grid-cols-2">
+    {% for p in posts %}
+    <a href="/tax-updates/{{ (p.route or '').split('/')[-1] }}" class="group rounded-xl border bg-card p-5 hover:border-primary/50">
+      <p class="text-xs font-medium uppercase tracking-wider text-muted-foreground">{{ _(p.category) }}{% if p.published_on %} · {{ frappe.format(p.published_on, {"fieldtype": "Date"}) }}{% endif %}</p>
+      <h2 class="mt-2 font-semibold group-hover:text-primary">{{ p.title }}</h2>
+      {% if p.summary %}<p class="mt-1.5 text-sm text-muted-foreground">{{ p.summary }}</p>{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="mt-8 text-muted-foreground">{{ _("No articles yet — check back soon.") }}</p>
+  {% endif %}
+</section>
+{% endblock %}

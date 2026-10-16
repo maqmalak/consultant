@@ -1,0 +1,42 @@
+<form id="salary-calc" class="form-card" novalidate>
+  <div class="form-card-head">{{ _("Salary tax calculator") }}</div>
+  <div class="form-card-body space-y-4">
+    <div class="grid gap-4 sm:grid-cols-2">
+      <label class="block text-sm font-semibold">{{ _("Monthly salary (PKR)") }}
+        <input name="monthly_salary" type="number" min="0" step="1000" inputmode="numeric" required class="field mt-1.5" placeholder="150000" />
+      </label>
+      <label class="block text-sm font-semibold">{{ _("Tax year") }}
+        <select name="tax_year" class="field mt-1.5">
+          {% for y in (tax_years or firm.tax_years or []) %}<option value="{{ y }}" {{ 'selected' if y == (tax_year or firm.tax_year) else '' }}>{{ y }}</option>{% endfor %}
+        </select>
+      </label>
+    </div>
+    <button type="submit" class="w-full rounded-lg bg-primary px-4 py-2.5 font-semibold text-primary-foreground hover:bg-primary/90">{{ _("Calculate") }}</button>
+    <div id="calc-result" hidden aria-live="polite" class="space-y-1.5 rounded-lg bg-muted/60 p-4 text-sm">
+      <p class="flex justify-between"><span>{{ _("Annual salary") }}</span><b data-k="annual_salary"></b></p>
+      <p class="flex justify-between"><span>{{ _("Annual tax") }}</span><b data-k="annual_tax"></b></p>
+      <p class="flex justify-between"><span>{{ _("Monthly tax") }}</span><b data-k="monthly_tax"></b></p>
+      <p class="flex justify-between text-base"><span>{{ _("Monthly take-home") }}</span><b data-k="monthly_take_home"></b></p>
+      <p class="pt-2 text-xs text-muted-foreground">{{ _("Estimate only — final tax depends on your complete return.") }} <span data-k="demo"></span></p>
+    </div>
+    <p id="calc-error" role="alert" class="text-sm text-destructive"></p>
+  </div>
+</form>
+<script>
+  (function () {
+    var form = document.getElementById("salary-calc"), out = document.getElementById("calc-result"), err = document.getElementById("calc-error");
+    var demo = {{ _("(Slab figures on this site are demo values until verified against the Finance Act.)") | json }};
+    function rs(v) { return "Rs " + Math.round(v).toLocaleString("en-PK"); }
+    form.addEventListener("submit", function (e) {
+      e.preventDefault(); err.textContent = "";
+      var salary = Number(form.monthly_salary.value);
+      if (!(salary >= 0) || form.monthly_salary.value === "") { err.textContent = {{ _("Enter your monthly salary.") | json }}; return; }
+      ptcPost("pakistan_tax_consultancy.api.public.salary_calculator", { monthly_salary: salary, tax_year: form.tax_year.value })
+        .then(function (r) {
+          ["annual_salary", "annual_tax", "monthly_tax", "monthly_take_home"].forEach(function (k) { out.querySelector('[data-k="' + k + '"]').textContent = rs(r[k]); });
+          out.querySelector('[data-k="demo"]').textContent = r.rules_are_demo ? demo : "";
+          out.hidden = false;
+        }).catch(function (x) { err.textContent = x.message; });
+    });
+  })();
+</script>

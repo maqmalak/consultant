@@ -1,0 +1,23 @@
+{%- set wa = ("https://wa.me/" ~ (firm.whatsapp | replace("+", "") | replace(" ", "")) ~ "?text=" ~ ((firm.whatsapp_message or "") | urlencode)) if firm.whatsapp else None -%}
+<div class="grid gap-8 lg:grid-cols-2">
+  <div class="space-y-4">
+    <h2 id="contact" class="text-2xl font-bold sm:text-3xl">{{ _("Talk to us") }}</h2>
+    <p class="text-muted-foreground">{{ _("Questions before you start? Call, message us on WhatsApp, or book a consultation.") }}</p>
+    <dl class="space-y-2 text-sm">
+      {% if firm.phone %}<div><dt class="inline font-semibold">{{ _("Phone") }}:</dt> <dd class="inline"><a class="text-primary" href="tel:{{ firm.phone }}" dir="ltr">{{ firm.phone }}</a></dd></div>{% endif %}
+      {% if firm.email %}<div><dt class="inline font-semibold">{{ _("Email") }}:</dt> <dd class="inline"><a class="text-primary" href="mailto:{{ firm.email }}">{{ firm.email }}</a></dd></div>{% endif %}
+      {% if firm.address %}<div><dt class="inline font-semibold">{{ _("Office") }}:</dt> <dd class="inline">{{ firm.address }}</dd></div>{% endif %}
+      {% if firm.office_hours %}<div><dt class="inline font-semibold">{{ _("Hours") }}:</dt> <dd class="inline">{{ firm.office_hours }}</dd></div>{% endif %}
+    </dl>
+    <div class="flex flex-wrap gap-3">
+      <a href="/book-consultation" class="rounded-lg bg-primary px-5 py-2.5 font-semibold text-primary-foreground hover:bg-primary/90">{{ _("Book a Consultation") }}</a>
+      {% if wa %}<a href="{{ wa }}" target="_blank" rel="noopener" class="rounded-lg border px-5 py-2.5 font-semibold text-[#128C7E] hover:bg-accent dark:text-[#25D366]">{{ _("Chat on WhatsApp") }}</a>{% endif %}
+      {% if firm.map_link %}<a href="{{ firm.map_link }}" target="_blank" rel="noopener" class="rounded-lg border px-5 py-2.5 font-semibold hover:bg-accent">{{ _("Directions") }}</a>{% endif %}
+    </div>
+  </div>
+  {% if firm.map_embed_url %}
+  <iframe title="{{ _('Office location') }}" src="{{ firm.map_embed_url }}" class="h-72 w-full rounded-xl border" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  {% else %}
+  <div class="flex h-72 items-center justify-center rounded-xl border border-dashed text-sm text-muted-foreground">{{ _("Map appears here once the office location is set.") }}</div>
+  {% endif %}
+</div>

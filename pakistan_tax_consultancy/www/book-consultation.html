@@ -1,0 +1,44 @@
+{% extends "templates/ptc/base.html" %}
+{% block content %}
+<section class="mx-auto max-w-2xl px-4 py-14">
+  <h1 class="text-3xl font-bold sm:text-4xl">{{ _("Book a consultation") }}</h1>
+  <p class="mt-3 text-muted-foreground">{{ _("Tell us when suits you. We call to confirm the time — weekday daytime requests are answered fastest.") }}</p>
+  <form id="book" class="form-card mt-8" novalidate>
+    <div class="form-card-body grid gap-4 sm:grid-cols-2">
+      <label class="block text-sm font-semibold sm:col-span-2">{{ _("Full name") }} *<input name="full_name" required autocomplete="name" class="field mt-1.5" /></label>
+      <label class="block text-sm font-semibold">{{ _("Mobile") }} *<input name="mobile" required type="tel" autocomplete="tel" placeholder="0300 1234567" class="field mt-1.5" /></label>
+      <label class="block text-sm font-semibold">{{ _("Email") }}<input name="email" type="email" autocomplete="email" class="field mt-1.5" /></label>
+      <label class="block text-sm font-semibold">{{ _("CNIC (optional)") }}<input name="cnic" inputmode="numeric" placeholder="12345-1234567-1" class="field mt-1.5" /></label>
+      <label class="block text-sm font-semibold">{{ _("Service") }}<select name="service" class="field mt-1.5"><option value="">{{ _("Not sure yet") }}</option>
+        {% for s in services %}<option value="{{ s.name }}" {{ 'selected' if s.name == selected else '' }}>{{ s.title }}</option>{% endfor %}</select></label>
+      <label class="block text-sm font-semibold">{{ _("How") }}<select name="mode" class="field mt-1.5">
+        <option value="Phone">{{ _("Phone call") }}</option><option value="Video">{{ _("Video call") }}</option><option value="Office">{{ _("Office visit") }}</option></select></label>
+      <label class="block text-sm font-semibold">{{ _("When") }}<select name="call_preference" class="field mt-1.5">
+        <option value="Scheduled">{{ _("At a time I choose") }}</option><option value="Urgent">{{ _("As soon as possible") }}</option></select></label>
+      <label class="block text-sm font-semibold">{{ _("Preferred date") }}<input name="preferred_date" type="date" min="{{ today }}" class="field mt-1.5" /></label>
+      <label class="block text-sm font-semibold">{{ _("Time") }}<select name="preferred_slot" class="field mt-1.5"><option value="">—</option>
+        <option>Morning (9–12)</option><option>Afternoon (12–3)</option><option>Evening (3–6)</option></select></label>
+      <label class="block text-sm font-semibold sm:col-span-2">{{ _("Message") }}<textarea name="message" rows="4" maxlength="2000" class="field mt-1.5 h-auto"></textarea></label>
+      <p id="book-msg" role="status" class="text-sm sm:col-span-2"></p>
+      <button class="rounded-lg bg-primary px-5 py-3 font-semibold text-primary-foreground hover:bg-primary/90 sm:col-span-2" type="submit">{{ _("Request consultation") }}</button>
+    </div>
+  </form>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+  (function () {
+    var f = document.getElementById("book"), msg = document.getElementById("book-msg");
+    f.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var data = Object.fromEntries(new FormData(f).entries());
+      if (!data.full_name || !data.mobile) { msg.className = "text-sm text-destructive sm:col-span-2"; msg.textContent = {{ _("Please give your name and mobile number.") | json }}; return; }
+      f.querySelector("button").disabled = true;
+      ptcPost("pakistan_tax_consultancy.api.public.book_consultation", data).then(function (r) {
+        msg.className = "rounded-md bg-success/10 p-3 text-sm sm:col-span-2"; msg.textContent = r.message; f.reset();
+      }).catch(function (x) { msg.className = "text-sm text-destructive sm:col-span-2"; msg.textContent = x.message; })
+        .finally(function () { f.querySelector("button").disabled = false; });
+    });
+  })();
+</script>
+{% endblock %}

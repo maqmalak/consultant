@@ -1,0 +1,152 @@
+{% extends "templates/ptc/base.html" %}
+{% block head_extra %}
+<script type="application/ld+json">
+{{ {
+  "@context": "https://schema.org",
+  "@type": ["AccountingService", "LocalBusiness"],
+  "name": firm.firm_name or "",
+  "description": firm.hero_subtext or "",
+  "telephone": firm.phone or None,
+  "email": firm.email or None,
+  "address": {"@type": "PostalAddress", "streetAddress": firm.address or "", "addressCountry": "PK"},
+  "openingHours": firm.office_hours or None,
+  "url": frappe.utils.get_url("/"),
+  "areaServed": "PK",
+  "priceRange": "PKR"
+} | json }}
+</script>
+{% endblock %}
+{% block content %}
+{%- set wa = ("https://wa.me/" ~ (firm.whatsapp | replace("+", "") | replace(" ", "")) ~ "?text=" ~ ((firm.whatsapp_message or "") | urlencode)) if firm.whatsapp else None -%}
+
+{# 2. Hero #}
+<section class="relative overflow-hidden border-b">
+  <div aria-hidden="true" class="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_420px_at_15%_0%,hsl(var(--primary)/0.14),transparent_60%),radial-gradient(700px_380px_at_90%_20%,rgb(99_102_241/0.10),transparent_60%)]"></div>
+  <div class="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:py-20 lg:grid-cols-[1.2fr_1fr]">
+    <div>
+      {% if tax_year %}<p class="mb-4 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-medium">
+        <span class="h-2 w-2 rounded-full bg-success"></span>{{ _("Now filing Tax Year {0} returns").format(tax_year) }}</p>{% endif %}
+      <h1 class="text-3xl font-bold leading-tight tracking-tight sm:text-5xl">{{ firm.hero_headline or _("File your income tax return with a qualified consultant") }}</h1>
+      <p class="mt-5 max-w-xl text-lg text-muted-foreground">{{ firm.hero_subtext }}</p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="/portal/signup" class="rounded-lg bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90">{{ _("Start Filing") }}</a>
+        {% if wa %}<a href="{{ wa }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg border border-[#25D366]/50 bg-card px-6 py-3 text-base font-semibold text-[#128C7E] hover:bg-[#25D366]/10 dark:text-[#25D366]">{{ _("Chat on WhatsApp") }}</a>{% endif %}
+      </div>
+    </div>
+    {# 3. Trust strip — only facts the firm provides #}
+    <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+      {% if firm.years_experience %}<li class="rounded-xl border bg-card p-4"><p class="text-2xl font-bold">{{ firm.years_experience }}+</p><p class="text-sm text-muted-foreground">{{ _("years in tax practice") }}</p></li>{% endif %}
+      {% if firm.membership_info %}<li class="rounded-xl border bg-card p-4"><p class="font-semibold">{{ firm.membership_info }}</p><p class="text-sm text-muted-foreground">{{ _("Professional membership / registration") }}</p></li>{% endif %}
+      <li class="rounded-xl border bg-card p-4"><p class="font-semibold">{{ _("Private document storage") }}</p><p class="text-sm text-muted-foreground">{{ _("Only you and your assigned consultant can open your files; every download is logged.") }}</p></li>
+      <li class="rounded-xl border bg-card p-4"><p class="font-semibold">{{ _("Filed on FBR IRIS, with your authorisation") }}</p><p class="text-sm text-muted-foreground">{{ _("You confirm the summary first; we send you the IRIS acknowledgment.") }}</p></li>
+    </ul>
+  </div>
+</section>
+
+{# 4. How it works #}
+<section class="mx-auto max-w-6xl px-4 py-16" aria-labelledby="how">
+  <h2 id="how" class="text-center text-2xl font-bold sm:text-3xl">{{ _("How it works") }}</h2>
+  <ol class="mt-10 grid gap-5 md:grid-cols-4">
+    {% for title, text in [
+      (_("Create account & verify mobile"), _("Sign up in two minutes; we confirm your number with a one-time code.")),
+      (_("Answer questions & upload documents"), _("A short questionnaire builds your checklist — upload from your phone.")),
+      (_("We prepare and review, you confirm"), _("A consultant prepares, a second person reviews, and you approve the summary.")),
+      (_("We file on FBR IRIS"), _("We submit on your behalf and send you the acknowledgment and receipt."))] %}
+    <li class="relative rounded-xl border bg-card p-5">
+      <span class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{{ loop.index }}</span>
+      <h3 class="mt-4 font-semibold">{{ title }}</h3>
+      <p class="mt-1.5 text-sm text-muted-foreground">{{ text }}</p>
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+
+{# 5. Packages #}
+{% if packages %}
+<section class="border-y bg-card/50 py-16" aria-labelledby="packages">
+  <div class="mx-auto max-w-6xl px-4">
+    <h2 id="packages" class="text-center text-2xl font-bold sm:text-3xl">{{ _("Filing packages") }}</h2>
+    <p class="mx-auto mt-2 max-w-xl text-center text-muted-foreground">{{ _("One clear price. No hidden charges.") }}</p>
+    {% include "templates/ptc/packages.html" %}
+  </div>
+</section>
+{% endif %}
+
+{# 6. Salary tax calculator #}
+<section class="mx-auto max-w-6xl px-4 py-16" aria-labelledby="calc">
+  <div class="grid items-start gap-8 lg:grid-cols-2">
+    <div>
+      <h2 id="calc" class="text-2xl font-bold sm:text-3xl">{{ _("Salary tax calculator") }}</h2>
+      <p class="mt-3 text-muted-foreground">{{ _("See your monthly tax and take-home pay for the selected tax year.") }}</p>
+    </div>
+    {% include "templates/ptc/calculator.html" %}
+  </div>
+</section>
+
+{# 7. Why choose us #}
+{% if firm.why_choose_us %}
+<section class="border-y bg-card/50 py-16" aria-labelledby="why">
+  <div class="mx-auto max-w-6xl px-4">
+    <h2 id="why" class="text-center text-2xl font-bold sm:text-3xl">{{ _("Why clients choose us") }}</h2>
+    <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {% for h in firm.why_choose_us %}
+      <div class="rounded-xl border bg-card p-5"><h3 class="font-semibold">{{ h.title }}</h3><p class="mt-1.5 text-sm text-muted-foreground">{{ h.description }}</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# 8. Testimonials — only real, consented reviews; hidden when there are none #}
+{% if testimonials %}
+<section class="mx-auto max-w-6xl px-4 py-16" aria-labelledby="reviews">
+  <h2 id="reviews" class="text-center text-2xl font-bold sm:text-3xl">{{ _("What clients say") }}</h2>
+  <div class="mt-10 grid gap-5 md:grid-cols-3">
+    {% for t in testimonials %}
+    <figure class="rounded-xl border bg-card p-5">
+      {% if t.rating %}<p class="text-amber-500" aria-label="{{ (t.rating * 5) | round(1) }} / 5">{{ "★" * ((t.rating * 5) | round | int) }}</p>{% endif %}
+      <blockquote class="mt-2 text-sm">“{{ t.text }}”</blockquote>
+      <figcaption class="mt-3 text-xs text-muted-foreground">— {{ t.display_name }}{% if t.city %}, {{ t.city }}{% endif %}</figcaption>
+    </figure>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{# 9. Deadline countdown #}
+{% if deadline %}
+<section class="mx-auto max-w-6xl px-4 py-6">
+  <div class="flex flex-col items-center justify-between gap-4 rounded-2xl bg-gradient-to-br from-primary to-primary/75 p-6 text-primary-foreground sm:flex-row sm:p-8">
+    <div>
+      <p class="text-sm opacity-90">{{ _("Filing deadline for Tax Year {0}").format(tax_year) }}</p>
+      <p class="text-2xl font-bold">{{ frappe.format(deadline, {"fieldtype": "Date"}) }}</p>
+    </div>
+    <p id="countdown" data-deadline="{{ deadline }}" class="text-center text-3xl font-bold tabular-nums" aria-live="polite"></p>
+    <a href="/portal/signup" class="rounded-lg bg-white px-5 py-2.5 font-semibold text-primary shadow hover:bg-white/90">{{ _("Start Filing") }}</a>
+  </div>
+</section>
+{% endif %}
+
+{# 10. Contact #}
+<section class="mx-auto max-w-6xl px-4 py-16" aria-labelledby="contact">
+  {% include "templates/ptc/contact_block.html" %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var el = document.getElementById("countdown");
+    if (!el) return;
+    var end = new Date(el.dataset.deadline + "T23:59:59+05:00").getTime();
+    var dayWord = {{ _("days") | json }}, closed = {{ _("Deadline passed — late filing is still possible") | json }};
+    function tick() {
+      var left = end - Date.now();
+      if (left <= 0) { el.textContent = closed; el.classList.remove("text-3xl"); el.classList.add("text-base"); return; }
+      var d = Math.floor(left / 864e5), h = Math.floor(left % 864e5 / 36e5), m = Math.floor(left % 36e5 / 6e4);
+      el.textContent = d + " " + dayWord + " · " + String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+    }
+    tick(); setInterval(tick, 30000);
+  })();
+</script>
+{% endblock %}

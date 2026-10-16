@@ -37,6 +37,7 @@ website_context = {
 }
 update_website_context = "pakistan_tax_consultancy.www_helpers.update_website_context"
 role_home_page = {"Client": "portal"}
+home_page = "home"
 
 # Permissions
 # -----------
@@ -68,6 +69,10 @@ doc_events = {
 	dt: {"validate": "pakistan_tax_consultancy.permissions.validate_client_link"}
 	for dt in ("Tax Client",) + _CLIENT_LINKED
 }
+# website content changed -> drop the cached pages and the cached firm/service data
+for _dt in ("Service", "Service Package", "FAQ", "Testimonial", "Tax Update", "Tax Year"):
+	doc_events[_dt] = {"on_update": "pakistan_tax_consultancy.www_helpers.on_content_change",
+		"on_trash": "pakistan_tax_consultancy.www_helpers.on_content_change"}
 
 # Scheduled Tasks
 # ---------------
