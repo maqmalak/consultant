@@ -1,4 +1,4 @@
-import { Copy, FilePlus2, Mail, MessageCircle, Pencil, Phone, Plus, Search, Send, Upload, Users } from "lucide-react";
+import { Copy, FilePlus2, Mail, MessageCircle, Pencil, Phone, Plus, Search, Send, ShieldCheck, Upload, Users } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { StateBadge } from "@/components/common/state-badge";
@@ -158,6 +158,7 @@ export function ClientDetail() {
         data.mobile ? { label: "WhatsApp", hint: "Open in team inbox", icon: MessageCircle, tone: "whatsapp" as const,
           onClick: () => void apiCall<string>("pakistan_tax_consultancy.api.whatsapp.open_conversation", { tax_client: data.name })
             .then((c) => navigate(`/staff/inbox?view=all&c=${encodeURIComponent(c)}`)).catch(setErr) } : null,
+        { label: "Document vault", hint: "Files · generate letters", icon: ShieldCheck, to: `/staff/vault?client=${encodeURIComponent(data.name)}`, tone: "amber" as const },
         { label: "Edit details", hint: "Contact · CNIC · consultant", icon: Pencil, to: `/staff/clients/${data.name}/edit`, tone: "slate" as const },
       ].filter((a): a is NonNullable<typeof a> => !!a)} />
       <div className="grid items-start gap-5 lg:grid-cols-[1fr_290px]">

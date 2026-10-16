@@ -137,6 +137,12 @@ const ur: Record<string, string> = {
   "Save my details": "میری تفصیلات محفوظ کریں", "Saved — your consultant can see it": "محفوظ — آپ کا کنسلٹنٹ اسے دیکھ سکتا ہے",
   "Quick actions": "فوری کام", "Upload documents": "دستاویزات اپ لوڈ کریں", "Check the summary": "خلاصہ چیک کریں",
   "Salary, bank, property…": "تنخواہ، بینک، جائیداد…", "PDF or photo": "پی ڈی ایف یا تصویر", "Pay fee": "فیس ادا کریں",
+  "Document vault": "دستاویزات والٹ", "Vault": "والٹ", "All files · letters": "تمام فائلیں · خطوط", "Generate a document": "دستاویز تیار کریں",
+  "Authority letter, summary, checklist…": "اتھارٹی لیٹر، خلاصہ، چیک لسٹ…", "Notifications": "اطلاعات", "Mark all read": "سب پڑھ لیے",
+  "You're all caught up": "کوئی نئی اطلاع نہیں", "new": "نئی", "My profile": "میری پروفائل", "Visit website": "ویب سائٹ دیکھیں",
+  "Sign in as someone else": "کسی اور اکاؤنٹ سے سائن اِن کریں", "Client": "کلائنٹ", "Search": "تلاش", "Search…": "تلاش کریں…",
+  "Search pages, returns, documents…": "صفحات، ریٹرنز، دستاویزات تلاش کریں…", "Pages": "صفحات", "Searching…": "تلاش جاری ہے…",
+  "No results for": "کوئی نتیجہ نہیں", "to move": "منتقل کریں", "to open": "کھولیں", "Tip: press / anywhere": "اشارہ: کہیں بھی / دبائیں",
   "Message consultant": "کنسلٹنٹ کو پیغام", "WhatsApp us": "واٹس ایپ کریں", "Chat now": "ابھی بات کریں",
   // payments
   "How to pay": "ادائیگی کا طریقہ",

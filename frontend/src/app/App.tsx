@@ -12,6 +12,7 @@ import { OrderPage } from "@/pages/client/order";
 import { PaymentsPage } from "@/pages/client/payments";
 import { ProfilePage } from "@/pages/client/profile";
 import { ReturnPage } from "@/pages/client/return";
+import { VaultPage } from "@/pages/client/vault";
 import { ClientDetail, ClientsPage } from "@/pages/staff/clients";
 import { ConsultationsPage } from "@/pages/staff/consultations";
 import { StaffDashboard } from "@/pages/staff/dashboard";
@@ -27,6 +28,7 @@ import { ClientForm } from "@/pages/staff/client-form";
 import { ContentPage } from "@/pages/staff/content";
 import { TeamPage } from "@/pages/staff/team";
 import { InboxPage } from "@/pages/staff/inbox";
+import { StaffVaultPage } from "@/pages/staff/vault";
 import { VisitForm, VisitsPage } from "@/pages/staff/visits";
 import { RequireAuth, RequireClient, RequireStaff } from "./guards";
 
@@ -55,6 +57,7 @@ export default function App() {
         <Route path="payments" element={<RequireStaff roles={[SM, ADMIN]}><PaymentsQueue /></RequireStaff>} />
         <Route path="consultations" element={<ConsultationsPage />} />
         <Route path="inbox" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT, FIELD, ROLES.REVIEWER]}><InboxPage /></RequireStaff>} />
+        <Route path="vault" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT, FIELD, ROLES.REVIEWER, ROLES.APPROVER, ROLES.FILING_OFFICER]}><StaffVaultPage /></RequireStaff>} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="settings" element={<RequireStaff roles={[SM, ADMIN]}><SettingsPage /></RequireStaff>} />
         <Route path="content" element={<RequireStaff roles={[SM, ADMIN]}><ContentPage /></RequireStaff>} />
@@ -66,6 +69,7 @@ export default function App() {
         <Route path="order" element={<OrderPage />} />
         <Route path="returns/:name" element={<ReturnPage />} />
         <Route path="documents" element={<DocumentsPage />} />
+        <Route path="vault" element={<VaultPage />} />
         <Route path="messages" element={<MessagesPage />} />
         <Route path="payments" element={<PaymentsPage />} />
         <Route path="profile" element={<ProfilePage />} />

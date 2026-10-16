@@ -49,17 +49,29 @@
     {# partner / firm card #}
     <div class="relative">
       <div aria-hidden="true" class="absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-[#d4af37]/25 to-transparent blur-2xl"></div>
-      <div class="rounded-3xl border border-[#d4af37]/30 bg-white/[0.04] p-8 backdrop-blur">
+      <div class="overflow-hidden rounded-3xl border border-[#d4af37]/30 bg-white/[0.04] backdrop-blur">
+        {% if firm.partner_photo %}
+        <div class="relative h-72 overflow-hidden">
+          <img src="{{ firm.partner_photo }}" alt="{{ firm.partner_name or '' }}" width="642" height="649" class="h-full w-full object-cover object-[50%_28%]" />
+          <div aria-hidden="true" class="absolute inset-0 bg-gradient-to-t from-[#0b0b0c] via-[#0b0b0c]/30 to-transparent"></div>
+          <div class="absolute inset-x-0 bottom-0 p-6">
+            <p class="font-display text-2xl font-semibold">{{ firm.partner_name or firm.firm_name }}</p>
+            <p class="text-sm text-[#f3d77a]">{{ firm.partner_title or "" }}</p>
+          </div>
+        </div>
+        {% endif %}
+        <div class="p-8 {{ 'pt-6' if firm.partner_photo else '' }}">
+        {% if not firm.partner_photo %}
         <div class="flex items-center gap-4">
-          {% if firm.partner_photo %}<img src="{{ firm.partner_photo }}" alt="" class="h-16 w-16 rounded-2xl object-cover ring-2 ring-[#d4af37]/60" />
-          {% else %}<img src="{{ firm.logo or '/assets/pakistan_tax_consultancy/images/vvs-mark.svg' }}" alt="" class="h-16 w-16 rounded-2xl ring-1 ring-[#d4af37]/40" />{% endif %}
+          <img src="{{ firm.logo or '/assets/pakistan_tax_consultancy/images/vvs-mark.svg' }}" alt="" class="h-16 w-16 rounded-2xl ring-1 ring-[#d4af37]/40" />
           <div>
             <p class="font-display text-xl font-semibold">{{ firm.partner_name or firm.firm_name }}</p>
             <p class="text-sm text-[#d4af37]">{{ firm.partner_title or "" }}</p>
           </div>
         </div>
+        {% endif %}
         {% if creds %}
-        <div class="mt-6 flex flex-wrap gap-2">
+        <div class="{{ '' if firm.partner_photo else 'mt-6' }} flex flex-wrap gap-2">
           {% for c in creds %}<span class="rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-3 py-1 text-xs font-semibold tracking-wide text-[#f3d77a]">{{ c }}</span>{% endfor %}
         </div>
         {% endif %}
@@ -69,10 +81,38 @@
           {% if firm.years_experience %}<div><dt class="text-white/50">{{ _("Experience") }}</dt><dd class="mt-1 font-medium">{{ firm.years_experience }}+ {{ _("years") }}</dd></div>{% endif %}
           <div><dt class="text-white/50">{{ _("Review") }}</dt><dd class="mt-1 font-medium">{{ _("Two consultants") }}</dd></div>
         </dl>
+        </div>
       </div>
     </div>
   </div>
 </section>
+
+{# ---------------------------------------------------------------- announcement spotlight #}
+{% if firm.announcement_enabled and firm.announcement_text and firm.announcement_expiry %}
+{%- set ex = frappe.utils.getdate(firm.announcement_expiry) -%}
+<section class="relative z-10 mx-auto -mt-10 max-w-6xl px-4" aria-labelledby="spotlight">
+  <div class="overflow-hidden rounded-3xl border border-[#d4af37]/40 bg-card shadow-2xl shadow-black/10">
+    <div class="grid items-center gap-6 p-6 sm:grid-cols-[auto_1fr_auto] sm:p-8">
+      <div class="mx-auto w-28 overflow-hidden rounded-2xl text-center shadow-lg ring-1 ring-[#d4af37]/40 sm:mx-0">
+        <p class="bg-gradient-to-r from-[#d4af37] to-[#b8912a] py-1.5 text-xs font-bold uppercase tracking-[0.25em] text-[#141416]">{{ ex.strftime("%b") }}</p>
+        <p class="bg-[#0b0b0c] pb-1 pt-2 font-display text-5xl font-semibold leading-none text-white">{{ ex.day }}</p>
+        <p class="bg-[#0b0b0c] pb-2 text-xs font-semibold tracking-widest text-[#f3d77a]">{{ ex.year }}</p>
+      </div>
+      <div class="text-center sm:text-start">
+        <p class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-[#8a6914] dark:text-[#f3d77a]">
+          <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500"></span>{{ _("Announcement") }}</p>
+        <h2 id="spotlight" class="mt-2 font-display text-2xl font-semibold leading-snug sm:text-3xl">{{ firm.announcement_text }}</h2>
+        <p class="mt-2 text-muted-foreground">{{ _("Don't leave it to the last week — FBR IRIS slows down near every deadline. Send us your documents today and we'll take it from there.") }}</p>
+      </div>
+      <div class="flex flex-col items-stretch gap-2 sm:items-end">
+        {% if announcement_days is not none and announcement_days >= 0 %}<p class="text-center font-display text-3xl font-semibold tabular-nums sm:text-end">{{ announcement_days }} <span class="text-base font-normal text-muted-foreground">{{ _("days left") }}</span></p>{% endif %}
+        <a href="/portal/signup" class="rounded-full bg-[#141416] px-6 py-3 text-center text-sm font-semibold text-[#f3d77a] shadow hover:bg-black dark:bg-[#d4af37] dark:text-[#141416]">{{ _("File my return now") }}</a>
+        {% if firm.announcement_link %}<a href="{{ firm.announcement_link }}" class="text-center text-sm font-semibold text-primary hover:underline sm:text-end">{{ _("Read the full update") }} →</a>{% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
 
 {# ---------------------------------------------------------------- trust strip #}
 <section class="border-b bg-card">
@@ -94,6 +134,16 @@
       <p class="text-xs font-semibold uppercase tracking-[0.3em] text-primary">{{ _("About us") }}</p>
       <h2 id="about" class="mt-3 font-display text-3xl font-semibold sm:text-4xl">{{ firm.about_heading }}</h2>
       <div class="mt-6 h-1 w-16 rounded-full bg-gradient-to-r from-[#d4af37] to-transparent"></div>
+      {% if firm.partner_photo %}
+      <figure class="mt-8 flex items-center gap-4">
+        <img src="{{ firm.partner_photo }}" alt="" width="80" height="80" loading="lazy" class="h-20 w-20 rounded-2xl object-cover object-[50%_25%] ring-2 ring-[#d4af37]/60 ring-offset-2 ring-offset-background" />
+        <figcaption>
+          <p class="font-display text-lg font-semibold">{{ firm.partner_name }}</p>
+          <p class="text-sm text-muted-foreground">{{ firm.partner_title }}</p>
+          {% if creds %}<p class="mt-1 text-xs font-semibold tracking-wide text-[#8a6914] dark:text-[#f3d77a]">{{ creds | join(" · ") }}</p>{% endif %}
+        </figcaption>
+      </figure>
+      {% endif %}
     </div>
     <div class="space-y-4 text-lg leading-relaxed text-muted-foreground">
       {% for para in firm.about_text.split("\n\n") if para.strip() %}<p>{{ para.strip() }}</p>{% endfor %}

@@ -1,0 +1,47 @@
+{%- set f = ptc_firm() -%}
+{%- set c = frappe.get_doc("Tax Client", doc.tax_client) -%}
+{%- set pkg = frappe.get_doc("Service Package", doc.service_package) if doc.service_package else None -%}
+<div class="ptc">
+  <p class="eyebrow">{{ _("Engagement letter") }} · {{ doc.name }}</p>
+  <h1>{{ doc.service_package or doc.service }}{% if doc.tax_year %} — {{ _("Tax Year") }} {{ doc.tax_year }}{% endif %}</h1>
+  <p class="muted">{{ _("Date") }}: {{ ptc_date(doc.engagement_date) }}</p>
+
+  <table class="meta"><tr>
+    <td><span class="k">{{ _("Client") }}</span>{{ c.client_name }}</td>
+    <td><span class="k">{{ _("CNIC") }}</span>{{ c.cnic_masked or "" }}</td>
+    <td><span class="k">{{ _("Service") }}</span>{{ doc.service }}</td>
+    <td><span class="k">{{ _("Status") }}</span>{{ _(doc.status) }}</td>
+  </tr></table>
+
+  <p style="margin-top:14px;">{{ _("Dear {0},").format(c.client_name) }}</p>
+  <p>{{ _("Thank you for choosing {0}. This letter sets out what we will do for you, the fee, and what we need from you.").format(f.firm_name or "VVS Consultants") }}</p>
+
+  <h2>{{ _("What we will do") }}</h2>
+  {% if pkg and pkg.inclusions %}
+  <ul>{% for i in pkg.inclusions %}<li>{{ i.item }}</li>{% endfor %}</ul>
+  {% else %}
+  <ul><li>{{ _("Prepare your return from your documents and information") }}</li><li>{{ _("Send you a clear summary to check and confirm") }}</li><li>{{ _("File on FBR IRIS after your confirmation and send you the acknowledgment") }}</li></ul>
+  {% endif %}
+  {% if pkg and pkg.turnaround %}<p class="muted">{{ _("Usual turnaround") }}: {{ pkg.turnaround }}, {{ _("counted from the day all documents are received") }}.</p>{% endif %}
+
+  <h2>{{ _("Fee") }}</h2>
+  <table class="grid">
+    <tr><th>{{ _("Item") }}</th><th class="num">{{ _("Amount") }}</th></tr>
+    <tr><td>{{ doc.service_package or doc.service }}</td><td class="num">{{ ptc_money(doc.agreed_fee) }}</td></tr>
+    {% if doc.discount %}<tr><td>{{ _("Discount") }}{% if doc.promo_code %} ({{ doc.promo_code }}){% endif %}</td><td class="num">− {{ ptc_money(doc.discount) }}</td></tr>{% endif %}
+    <tr class="total"><td>{{ _("Total fee") }} · {{ _(doc.payment_status or "Unpaid") }}</td><td class="num">{{ ptc_money(doc.net_fee or doc.agreed_fee) }}</td></tr>
+  </table>
+  <p class="muted" style="font-size:10px;">{{ _("FBR taxes, penalties or default surcharge, if any, are payable by you directly to FBR and are not part of our fee.") }}</p>
+
+  <h2>{{ _("What we need from you") }}</h2>
+  <ul>
+    <li>{{ _("Complete and true documents and information, uploaded in your portal") }}</li>
+    <li>{{ _("A quick reply to our questions, and your confirmation of the final summary before we file") }}</li>
+    <li>{{ _("Payment of the fee as agreed") }}</li>
+  </ul>
+
+  <table class="sign"><tr>
+    <td><div class="line">{{ _("For") }} {{ f.firm_name or "VVS Consultants" }}<br><span class="muted">{{ f.partner_name or "" }}{% if f.partner_title %}, {{ f.partner_title }}{% endif %}</span></div></td>
+    <td><div class="line">{{ _("Accepted by client") }}<br><span class="muted">{{ c.client_name }}</span></div></td>
+  </tr></table>
+</div>

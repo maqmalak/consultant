@@ -36,10 +36,28 @@
   <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:start-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground">{{ _("Skip to content") }}</a>
 
   {% if firm.announcement_enabled and firm.announcement_text %}
-  <div class="bg-primary text-primary-foreground">
-    <p class="mx-auto max-w-6xl px-4 py-2 text-center text-sm">
-      {% if firm.announcement_link %}<a class="underline underline-offset-2" href="{{ firm.announcement_link }}">{{ firm.announcement_text }}</a>{% else %}{{ firm.announcement_text }}{% endif %}
-    </p>
+  {# announcement bar: dark + gold, countdown to the expiry date, dismissible per announcement #}
+  <div id="ptc-announce" data-key="{{ (firm.announcement_text ~ firm.announcement_expiry) | length }}-{{ firm.announcement_expiry or '' }}" class="relative overflow-hidden bg-[#0b0b0c] text-white">
+    <div aria-hidden="true" class="absolute inset-0 bg-[radial-gradient(500px_80px_at_15%_50%,rgba(212,175,55,0.22),transparent_70%)]"></div>
+    <div class="relative mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 text-sm">
+      <span class="hidden shrink-0 items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 py-1 pe-3 ps-1 sm:inline-flex">
+        <span class="grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-[#f3d77a] to-[#b8912a] text-[#141416]">
+          <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+        </span>
+        <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#f3d77a]">{{ _("Update") }}</span>
+      </span>
+      <p class="min-w-0 flex-1 leading-snug"><span class="font-medium">{{ firm.announcement_text }}</span>
+        {% if announcement_days is not none and announcement_days >= 0 %}
+        <span class="ms-1.5 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-white/10 px-2 py-0.5 align-middle text-xs font-semibold text-[#f3d77a]">
+          <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400"></span>{% if announcement_days == 0 %}{{ _("Last day today") }}{% elif announcement_days == 1 %}{{ _("1 day left") }}{% else %}{{ _("{0} days left").format(announcement_days) }}{% endif %}</span>
+        {% endif %}
+      </p>
+      {% if firm.announcement_link %}<a href="{{ firm.announcement_link }}" class="shrink-0 whitespace-nowrap rounded-full bg-gradient-to-r from-[#d4af37] to-[#b8912a] px-3.5 py-1 text-xs font-bold text-[#141416] hover:brightness-110">{{ _("Read more") }} →</a>{% endif %}
+      <button type="button" id="ptc-announce-close" class="shrink-0 rounded-full p-1 text-white/60 hover:bg-white/10 hover:text-white" aria-label="{{ _('Dismiss') }}">
+        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div aria-hidden="true" class="h-px bg-gradient-to-r from-transparent via-[#d4af37] to-transparent"></div>
   </div>
   {% endif %}
 
@@ -62,16 +80,23 @@
         <button type="button" class="theme-toggle rounded-md p-2 hover:bg-accent" aria-label="{{ _('Toggle theme') }}">
           <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
         </button>
+        {% if ptc_user %}
+        <button type="button" class="ptc-signout hidden whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground sm:inline-block">{{ _("Sign out") }}</button>
+        <a href="/portal" class="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[#141416] py-1.5 pe-4 ps-1.5 text-sm font-semibold text-[#f3d77a] shadow ring-1 ring-[#d4af37]/40 hover:bg-black dark:bg-[#d4af37] dark:text-[#141416]">
+          <span class="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-[#f3d77a] to-[#b8912a] text-xs font-bold text-[#141416]">{{ (ptc_user.full_name or "?")[:1] | upper }}</span>{{ _("My portal") }}</a>
+        {% else %}
         <a href="/portal/login" class="hidden whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium hover:bg-accent sm:inline-block">{{ _("Sign in") }}</a>
         <a href="/portal/signup" class="whitespace-nowrap rounded-full bg-[#141416] px-5 py-2 text-sm font-semibold text-[#f3d77a] shadow ring-1 ring-[#d4af37]/40 hover:bg-black dark:bg-[#d4af37] dark:text-[#141416]">{{ _("Start Filing") }}</a>
+        {% endif %}
         <details class="relative lg:hidden">
           <summary class="list-none rounded-md p-2 hover:bg-accent" aria-label="{{ _('Menu') }}">
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
           </summary>
           <nav class="absolute end-0 top-11 w-56 rounded-xl border bg-popover p-2 shadow-xl" aria-label="{{ _('Main') }}">
-            {% for href, label in [("/services", _("Services")), ("/pricing", _("Pricing")), ("/tax-calculator", _("Tax Calculator")), ("/book-consultation", _("Book a Consultation")), ("/faq", _("FAQ")), ("/tax-updates", _("Tax Updates")), ("/about", _("About")), ("/contact", _("Contact")), ("/portal/login", _("Sign in"))] %}
+            {% for href, label in [("/services", _("Services")), ("/pricing", _("Pricing")), ("/tax-calculator", _("Tax Calculator")), ("/book-consultation", _("Book a Consultation")), ("/faq", _("FAQ")), ("/tax-updates", _("Tax Updates")), ("/about", _("About")), ("/contact", _("Contact")), ("/portal", _("My portal")) if ptc_user else ("/portal/login", _("Sign in"))] %}
             <a href="{{ href }}" class="block rounded-md px-3 py-2.5 text-sm hover:bg-accent">{{ label }}</a>
             {% endfor %}
+            {% if ptc_user %}<button type="button" class="ptc-signout block w-full rounded-md px-3 py-2.5 text-start text-sm text-rose-600 hover:bg-accent">{{ _("Sign out") }}</button>{% endif %}
           </nav>
         </details>
       </div>
@@ -149,6 +174,21 @@
       document.getElementById("cookie-ok").addEventListener("click", function () {
         notice.hidden = true; try { localStorage.setItem("ptc-cookie-ok", "1"); } catch (e) {}
       });
+      var bar = document.getElementById("ptc-announce");
+      if (bar) {
+        var k = "ptc-announce-" + bar.dataset.key;
+        try { if (localStorage.getItem(k)) bar.remove(); } catch (e) {}
+        var x = document.getElementById("ptc-announce-close");
+        if (x) x.addEventListener("click", function () { bar.remove(); try { localStorage.setItem(k, "1"); } catch (e) {} });
+      }
+      {% if ptc_user %}
+      document.querySelectorAll(".ptc-signout").forEach(function (b) {
+        b.addEventListener("click", function () {
+          fetch("/api/method/logout", { method: "POST", credentials: "same-origin", headers: { "X-Frappe-CSRF-Token": {{ ptc_user.csrf | tojson }} } })
+            .finally(function () { window.location.href = "/"; });
+        });
+      });
+      {% endif %}
       // POST helper for the public forms (guest sessions need no token; signed-in users send theirs)
       window.ptcPost = function (method, data) {
         var meta = document.querySelector('meta[name="csrf-token"]');

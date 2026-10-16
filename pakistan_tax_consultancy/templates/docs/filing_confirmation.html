@@ -1,0 +1,24 @@
+{%- set f = ptc_firm() -%}
+{%- set rec = frappe.get_all("Filing Record", filters={"tax_return": doc.name, "status": "Acknowledged"}, fields=["filing_datetime", "channel"], order_by="creation desc", limit=1) -%}
+<div class="ptc">
+  <p class="draft" style="background:#ecfdf5;border-color:#10b981;color:#065f46;">{{ _("FILED ON FBR IRIS") }}</p>
+  <p class="eyebrow">{{ _("Filing confirmation") }} · {{ _("Tax Year") }} {{ doc.tax_year }}</p>
+  <h1>{{ doc.client_name }}</h1>
+  <p>{{ _("This confirms that the income tax return of {0} for Tax Year {1} has been filed on FBR IRIS and acknowledged.").format(doc.client_name, doc.tax_year) }}</p>
+  <table class="meta"><tr>
+    <td><span class="k">{{ _("IRIS acknowledgment no.") }}</span><b style="font-size:13px;">{{ doc.iris_acknowledgment_no }}</b></td>
+    <td><span class="k">{{ _("Filed on") }}</span>{{ ptc_date(rec[0].filing_datetime) if rec and rec[0].filing_datetime else "—" }}</td>
+    <td><span class="k">{{ _("Return type") }}</span>{{ _(doc.return_type or "") }}</td>
+  </tr><tr>
+    <td><span class="k">{{ _("Taxable income") }}</span>{{ ptc_money(doc.taxable_income) }}</td>
+    <td><span class="k">{{ _("Tax liability") }}</span>{{ ptc_money(doc.tax_liability) }}</td>
+    <td><span class="k">{% if (doc.refund_due or 0) > 0 %}{{ _("Refund claimed") }}{% else %}{{ _("Tax payable") }}{% endif %}</span>{{ ptc_money(doc.refund_due if (doc.refund_due or 0) > 0 else doc.net_tax_payable) }}</td>
+  </tr></table>
+  <h2>{{ _("What happens next") }}</h2>
+  <ul>
+    <li>{{ _("Keep the IRIS acknowledgment and this confirmation with your records — both are in your Document vault.") }}</li>
+    <li>{{ _("Your name appears on FBR's Active Taxpayers List (ATL) after FBR's next update; you can check it on the FBR website.") }}</li>
+    <li>{{ _("Send us any FBR notice you receive about this return — we will reply with you.") }}</li>
+  </ul>
+  <table class="sign"><tr><td><div class="line">{{ _("For") }} {{ f.firm_name or "VVS Consultants" }}<br><span class="muted">{{ f.partner_name or "" }}{% if f.partner_title %}, {{ f.partner_title }}{% endif %}</span></div></td><td></td></tr></table>
+</div>

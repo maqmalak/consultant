@@ -1,13 +1,13 @@
-import { LayoutGrid, LogOut, Menu, X } from "lucide-react";
+import { LayoutGrid, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { STAFF_NAV } from "@/app/nav";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/cn";
 import { Brand } from "./brand";
 import { LanguageToggle } from "./language-toggle";
+import { AwesomeBar, NotificationsBell, UserMenu } from "./header-tools";
 import { ThemeCustomizer } from "./theme-provider";
 
 const link = ({ isActive }: { isActive: boolean }) => cn(
@@ -46,11 +46,10 @@ function Sidebar() {
 }
 
 export function StaffShell() {
-  const { me, logout } = useAuth();
+  const { me } = useAuth();
   const [open, setOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
-  useEffect(() => setOpen(false), [location.pathname]);
+  useEffect(() => { setOpen(false); }, [location.pathname]);
   const role = (me?.roles ?? []).find((r) => ["Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver",
     "Filing Officer", "Field Officer", "System Manager"].includes(r));
   return (
@@ -70,16 +69,13 @@ export function StaffShell() {
         <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b bg-background/80 px-4 backdrop-blur sm:px-6">
           <button className="rounded-lg p-2 text-muted-foreground hover:bg-accent lg:hidden" onClick={() => setOpen(true)}
             aria-label="Open menu"><Menu className="h-5 w-5" /></button>
+          <AwesomeBar staff />
           <div className="ms-auto flex items-center gap-1">
-            <div className="me-2 hidden text-end sm:block">
-              <p className="text-sm font-medium leading-tight">{me?.full_name}</p>
-              {role && <Badge variant="brand">{role}</Badge>}
-            </div>
+            {role && <Badge variant="brand" className="me-1 hidden xl:inline-flex">{role}</Badge>}
             <LanguageToggle />
             <ThemeCustomizer />
-            <Button variant="ghost" size="sm" onClick={() => void logout().then(() => navigate("/login"))}>
-              <LogOut className="h-4 w-4" /> <span className="hidden sm:inline">Sign out</span>
-            </Button>
+            <NotificationsBell />
+            <UserMenu staff />
           </div>
         </header>
         <main className="flex-1"><Outlet /></main>

@@ -1,0 +1,17 @@
+{%- set f = ptc_firm() -%}
+<table style="width:100%;border-collapse:collapse;font-family:Helvetica,Arial,sans-serif;">
+  <tr>
+    <td style="width:58px;vertical-align:middle;"><img src="{{ ptc_logo() }}" style="width:50px;height:50px;" alt=""></td>
+    <td style="vertical-align:middle;padding-left:10px;white-space:nowrap;">
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:bold;color:#141416;letter-spacing:.3px;">{{ f.firm_name or "VVS Consultants" }}</div>
+      <div style="font-size:9.5px;letter-spacing:2.2px;text-transform:uppercase;color:#8a6914;margin-top:2px;">{{ f.tagline or "Audit & Taxation" }}</div>
+    </td>
+    <td style="vertical-align:middle;text-align:right;font-size:9.5px;line-height:1.55;color:#4b5563;width:46%;">
+      {% if f.address %}{{ f.address | replace("\n", ", ") }}<br>{% endif %}
+      {% if f.phone %}{{ f.phone }}{% if f.phone_2 %} · {{ f.phone_2 }}{% endif %}<br>{% endif %}
+      {% if f.email %}{{ f.email }}{% endif %}
+    </td>
+  </tr>
+</table>
+<div style="height:3px;margin-top:10px;background:#d4af37;"></div>
+<div style="height:1px;margin-top:2px;background:#141416;"></div>

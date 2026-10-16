@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, CalendarClock, ClipboardEdit, Download, FileText, FileUp, MessageCircle, MessageSquare, UserCheck, Wallet } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarClock, ShieldCheck, ClipboardEdit, Download, FileText, FileUp, MessageCircle, MessageSquare, UserCheck, Wallet } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { ProgressTracker } from "@/components/common/progress-tracker";
@@ -130,6 +130,7 @@ function clientActions(data: ClientDashboard, t: (k: string) => string, wa: stri
     !next || next.to !== "/documents" ? { label: t("Upload documents"), hint: t("PDF or photo"), icon: FileUp, to: "/documents", tone: "sky" } : null,
     unpaid ? { label: t("Pay fee"), hint: `Rs ${Math.round(unpaid.outstanding).toLocaleString()}`, icon: Wallet, to: "/payments", tone: "emerald" } : null,
     { label: t("Message consultant"), hint: data.client.consultant ?? "", icon: MessageSquare, to: "/messages", tone: "violet", badge: data.unread_messages || null },
+    { label: t("Document vault"), hint: t("All files · letters"), icon: ShieldCheck, to: "/vault", tone: "amber" },
     wa ? { label: t("WhatsApp us"), hint: t("Chat now"), icon: MessageCircle, href: wa, tone: "whatsapp" } : null,
     r?.has_receipt ? { label: t("Acknowledgment"), hint: `TY${r.tax_year}`, icon: Download, to: `/returns/${r.name}`, tone: "slate" } : null,
   ];

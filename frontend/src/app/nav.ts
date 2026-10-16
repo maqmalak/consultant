@@ -1,6 +1,6 @@
 import {
   BadgeCheck, BarChart3, BookOpen, MessageCircle, UserCog, ClipboardCheck, FileCheck2, FileText, FileUp, Home, LayoutDashboard, MapPin, MessageSquare,
-  PhoneCall, Send, Settings2, ShieldAlert, Upload, User, Users, Wallet, type LucideIcon,
+  PhoneCall, Send, Settings2, ShieldAlert, ShieldCheck, Upload, User, Users, Wallet, type LucideIcon,
 } from "lucide-react";
 
 export const ROLES = {
@@ -60,6 +60,7 @@ export const STAFF_NAV: NavGroup[] = [
     title: "Front Office",
     items: [
       { path: "/staff/inbox", label: "WhatsApp Inbox", hint: "Team chats with clients", icon: MessageCircle, roles: [SM, ADMIN, CONSULTANT, REVIEWER, FIELD], hue: "green" },
+      { path: "/staff/vault", label: "Document Vault", hint: "Files · Generate letters", icon: ShieldCheck, roles: STAFF, hue: "amber" },
       { path: "/staff/payments", label: "Payments to Verify", hint: "Proofs → invoice", icon: Wallet, roles: [SM, ADMIN], hue: "lime" },
       { path: "/staff/consultations", label: "Consultations", hint: "Website bookings", icon: PhoneCall, roles: [SM, ADMIN, CONSULTANT], hue: "purple" },
       { path: "/staff/reports", label: "Reports", hint: "Excel · CSV", icon: BarChart3, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER], hue: "rose" },
@@ -73,6 +74,7 @@ export const STAFF_NAV: NavGroup[] = [
 export const CLIENT_NAV = [
   { path: "/", label: "Home", icon: Home },
   { path: "/documents", label: "Documents", icon: FileUp },
+  { path: "/vault", label: "Vault", icon: ShieldCheck },
   { path: "/messages", label: "Messages", icon: MessageSquare },
   { path: "/payments", label: "Payments", icon: Wallet },
   { path: "/profile", label: "Profile", icon: User },

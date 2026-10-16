@@ -1,0 +1,31 @@
+{%- set f = ptc_firm() -%}
+<div class="ptc">
+  <p class="eyebrow">{{ _("Authority letter") }}</p>
+  <h1>{{ _("Authority to prepare and file my income tax return") }}</h1>
+  <p class="muted">{{ _("Date") }}: {{ ptc_date() }}</p>
+
+  <table class="meta"><tr>
+    <td><span class="k">{{ _("Taxpayer") }}</span>{{ doc.client_name }}</td>
+    <td><span class="k">{{ _("CNIC") }}</span>{{ doc.cnic or doc.cnic_masked or "______________________" }}</td>
+    <td><span class="k">{{ _("NTN") }}</span>{{ doc.ntn or _("Not registered yet") }}</td>
+  </tr><tr>
+    <td colspan="2"><span class="k">{{ _("Address") }}</span>{{ doc.residential_address or doc.business_address or doc.city or "____________________________________________" }}</td>
+    <td><span class="k">{{ _("Mobile") }}</span>{{ doc.mobile or "" }}</td>
+  </tr></table>
+
+  <p style="margin-top:16px;">{{ _("To") }}: <b>{{ f.firm_name or "VVS Consultants" }}</b>{% if f.address %}, {{ f.address | replace("\n", ", ") }}{% endif %}</p>
+  <p>{{ _("I, {0}, authorise {1}{2} to:").format(doc.client_name, f.firm_name or "VVS Consultants", (", " ~ f.partner_name ~ (" (" ~ f.partner_title ~ ")" if f.partner_title else "")) if f.partner_name else "") }}</p>
+  <ol>
+    <li>{{ _("prepare my income tax return and wealth statement from the information and documents I provide;") }}</li>
+    <li>{{ _("file them on FBR IRIS on my behalf — only after I have checked and confirmed the final summary;") }}</li>
+    <li>{{ _("register me on IRIS or update my profile where needed, and deal with routine FBR correspondence about these returns after discussing it with me.") }}</li>
+  </ol>
+  <p>{{ _("I confirm that the information I give will be true and complete to the best of my knowledge. I understand that I remain responsible for the contents of my return, and that I may withdraw this authority at any time in writing.") }}</p>
+
+  <table class="sign"><tr>
+    <td><div class="line">{{ _("Signature of taxpayer") }}<br><span class="muted">{{ doc.client_name }} · {{ _("CNIC") }} {{ doc.cnic_masked or doc.cnic or "" }}</span></div></td>
+    <td><div class="line">{{ _("Accepted for") }} {{ f.firm_name or "VVS Consultants" }}<br><span class="muted">{{ f.partner_name or "" }}{% if f.partner_title %}, {{ f.partner_title }}{% endif %}</span></div></td>
+  </tr></table>
+
+  <div class="note">{{ _("Next step: print, sign and upload this letter in your client portal (Documents), or send a clear photo on WhatsApp. Your login details for IRIS are never needed on paper — share them only through the portal.") }}</div>
+</div>

@@ -48,7 +48,7 @@ function Thread({ conv, agents, onChanged }: { conv: Conversation; agents: { nam
   const bottom = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   useEffect(() => { if (conv.unread_count) void apiCall(`${W}.mark_read`, { conversation: conv.name }).then(onChanged); }, [conv.name, conv.unread_count]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => bottom.current?.scrollIntoView({ block: "end" }), [msgs?.length, conv.name]);
+  useEffect(() => { bottom.current?.scrollIntoView({ block: "end" }); }, [msgs?.length, conv.name]);
   const refresh = () => { void mutate(); onChanged(); };
   const run = async (fn: () => Promise<unknown>) => {
     setBusy(true);

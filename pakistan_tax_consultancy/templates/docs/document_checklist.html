@@ -1,0 +1,29 @@
+{%- set docs = frappe.get_all("Tax Document", filters={"tax_return": doc.name}, fields=["document_type", "document_name", "status", "is_required", "upload_date"], order_by="is_required desc, document_type asc") -%}
+{%- set done = docs | selectattr("status", "equalto", "Verified") | list | length -%}
+{%- set missing = docs | selectattr("status", "in", ["Requested", "Rejected"]) | list -%}
+<div class="ptc">
+  <p class="eyebrow">{{ _("Document checklist") }} · {{ _("Tax Year") }} {{ doc.tax_year }}</p>
+  <h1>{{ doc.client_name }}</h1>
+  <p class="muted">{{ _("As of") }} {{ ptc_date() }} · {{ _(doc.taxpayer_type or "") }}</p>
+
+  <table class="meta"><tr>
+    <td><span class="k">{{ _("Documents") }}</span>{{ docs | length }}</td>
+    <td><span class="k">{{ _("Verified") }}</span>{{ done }}</td>
+    <td><span class="k">{{ _("Still needed") }}</span>{{ missing | length }}</td>
+  </tr></table>
+
+  <table class="grid" style="margin-top:12px;">
+    <tr><th style="width:24px;"></th><th>{{ _("Document") }}</th><th>{{ _("Status") }}</th><th class="num">{{ _("Received") }}</th></tr>
+    {% for d in docs %}
+    <tr>
+      <td>{% if d.status == "Verified" %}<span class="tick">&#10003;</span>{% elif d.status in ("Requested", "Rejected") %}<span class="cross">&#9744;</span>{% else %}&#8226;{% endif %}</td>
+      <td>{{ d.document_name or d.document_type }}{% if not d.is_required %} <span class="muted">({{ _("optional") }})</span>{% endif %}</td>
+      <td>{{ _({"Requested": "Please upload", "Pending": "Received — checking", "Verified": "Verified", "Rejected": "Please upload again"}.get(d.status, d.status)) }}</td>
+      <td class="num">{{ ptc_date(d.upload_date) if d.upload_date else "—" }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4" class="muted">{{ _("No documents requested yet.") }}</td></tr>
+    {% endfor %}
+  </table>
+  <div class="note">{{ _("Upload in your client portal under Documents — a clear phone photo or PDF is fine. Each file is private to you and your consultant.") }}</div>
+</div>

@@ -1,6 +1,7 @@
 """Shared context for the public www pages (firm details, footer services, language) and small page helpers."""
 
 import frappe
+from frappe.utils import getdate
 
 CACHE_SECONDS = 300
 
@@ -68,6 +69,14 @@ def update_website_context(context):
 	context.firm = firm()
 	context.footer_services = footer_services()
 	context.brand_hsl = hex_to_hsl(frappe.db.get_single_value("Firm Website Settings", "brand_color"))
+	expiry = context.firm.get("announcement_expiry")
+	context.announcement_days = (getdate(expiry) - getdate()).days if expiry else None
+	# signed-in visitors get "My portal" / "Sign out" (Frappe only caches pages for guests)
+	# only on real page renders: get_csrf_token may save the session, which must not happen inside API calls (PDFs)
+	user = frappe.session.user if getattr(frappe.local, "session", None) else "Guest"
+	page = path and not path.startswith(("/api", "/printview"))
+	context.ptc_user = frappe._dict(name=user, full_name=frappe.utils.get_fullname(user),
+		csrf=frappe.sessions.get_csrf_token()) if user != "Guest" and page else None
 
 
 def page(context, title, description, sitemap=True):

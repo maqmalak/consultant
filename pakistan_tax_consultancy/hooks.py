@@ -41,11 +41,15 @@ home_page = "home"
 
 # Permissions
 # -----------
+jinja = {"methods": ["pakistan_tax_consultancy.services.documents.ptc_firm",
+	"pakistan_tax_consultancy.services.documents.ptc_logo", "pakistan_tax_consultancy.services.documents.ptc_money",
+	"pakistan_tax_consultancy.services.documents.ptc_date"]}
+
 # Record-level isolation: hooks can only deny, never grant (DocPerm decides the kind of
 # access; these functions decide which records).
 
 _CLIENT_LINKED = ("Tax Engagement", "Tax Document", "Tax Return", "Tax Calculation", "Tax Review", "Tax Approval",
-	"Filing Record", "Review Comment", "Payment Proof", "Client Message")
+	"Filing Record", "Review Comment", "Payment Proof", "Client Message", "Generated Document")
 
 permission_query_conditions = {
 	"Tax Client": "pakistan_tax_consultancy.permissions.tax_client_query",

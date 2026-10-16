@@ -1,0 +1,32 @@
+{%- set filed = doc.workflow_state in ("Acknowledged", "Closed") and doc.iris_acknowledgment_no -%}
+<div class="ptc">
+  {% if filed %}<p class="draft" style="background:#ecfdf5;border-color:#10b981;color:#065f46;">{{ _("FILED ON FBR IRIS · ACKNOWLEDGMENT") }} {{ doc.iris_acknowledgment_no }}</p>
+  {% else %}<p class="draft">{{ _("DRAFT FOR CLIENT REVIEW — NOT YET FILED") }}</p>{% endif %}
+  <p class="eyebrow">{{ _("Wealth statement summary") }} · {{ _("as at 30 June") }} {{ doc.tax_year }}</p>
+  <h1>{{ doc.client_name }}</h1>
+  <p class="muted">{{ _("prepared") }} {{ ptc_date() }}</p>
+
+  <h2>{{ _("Assets") }}</h2>
+  <table class="grid">
+    <tr><th>{{ _("Asset") }}</th><th>{{ _("Description") }}</th><th class="num">{{ _("Cost / value") }}</th></tr>
+    {% for a in doc.asset_lines %}<tr><td>{{ _(a.asset_type) }}</td><td>{{ a.description or "" }}</td><td class="num">{{ ptc_money(a.cost_value) }}</td></tr>
+    {% else %}<tr><td colspan="3" class="muted">{{ _("No assets entered.") }}</td></tr>{% endfor %}
+    <tr class="total"><td colspan="2">{{ _("Total assets") }}</td><td class="num">{{ ptc_money(doc.total_assets) }}</td></tr>
+  </table>
+
+  <h2>{{ _("Liabilities") }}</h2>
+  <table class="grid">
+    <tr><th>{{ _("Liability") }}</th><th>{{ _("Owed to") }}</th><th class="num">{{ _("Amount") }}</th></tr>
+    {% for l in doc.liability_lines %}<tr><td>{{ _(l.liability_type) }}</td><td>{{ l.creditor or l.description or "" }}</td><td class="num">{{ ptc_money(l.amount) }}</td></tr>
+    {% else %}<tr><td colspan="3" class="muted">{{ _("No liabilities entered.") }}</td></tr>{% endfor %}
+    <tr class="total"><td colspan="2">{{ _("Total liabilities") }}</td><td class="num">{{ ptc_money(doc.total_liabilities) }}</td></tr>
+  </table>
+
+  <table class="meta" style="margin-top:16px;"><tr>
+    <td><span class="k">{{ _("Net wealth this year") }}</span><b style="font-size:14px;">{{ ptc_money(doc.net_wealth) }}</b></td>
+    <td><span class="k">{{ _("Net wealth last year") }}</span>{{ ptc_money(doc.net_wealth_previous_year) }}</td>
+    <td><span class="k">{{ _("Change") }}</span>{{ ptc_money((doc.net_wealth or 0) - (doc.net_wealth_previous_year or 0)) }}</td>
+    {% if doc.total_personal_expenses %}<td><span class="k">{{ _("Personal expenses") }}</span>{{ ptc_money(doc.total_personal_expenses) }}</td>{% endif %}
+  </tr></table>
+  <div class="note">{{ _("The increase in net wealth should be explained by your income for the year less personal expenses. Your consultant checks this reconciliation before filing.") }}</div>
+</div>

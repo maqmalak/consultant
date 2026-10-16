@@ -17,7 +17,7 @@ export function MessagesPage() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<unknown>(null);
   const end = useRef<HTMLDivElement>(null);
-  useEffect(() => end.current?.scrollIntoView({ block: "end" }), [data?.length]);
+  useEffect(() => { end.current?.scrollIntoView({ block: "end" }); }, [data?.length]);
   if (isLoading) return <Loading />;
   if (error) return <ErrorState error={error} onRetry={() => void mutate()} />;
   const wa = whatsappLink(site?.whatsapp, site?.whatsapp_message);

@@ -1,0 +1,27 @@
+{%- set c = frappe.get_doc("Tax Client", doc.tax_client) -%}
+{%- set ty = frappe.db.get_value("Tax Year", doc.tax_year, ["start_date", "end_date"], as_dict=True) -%}
+<div class="ptc">
+  <p class="muted">{{ _("Date") }}: {{ ptc_date() }}</p>
+  <p style="margin-top:14px;">{{ _("To") }}:<br>{{ _("The Manager — HR / Payroll / Branch Operations") }}<br>________________________________________<br>________________________________________</p>
+  <p style="margin-top:14px;"><b>{{ _("Subject: Request for certificate of income tax deducted — Tax Year {0}").format(doc.tax_year) }}</b>{% if ty %} ({{ ptc_date(ty.start_date) }} – {{ ptc_date(ty.end_date) }}){% endif %}</p>
+  <p>{{ _("Dear Sir / Madam,") }}</p>
+  <p>{{ _("I am filing my income tax return for Tax Year {0}. Please issue me a certificate of the income tax deducted or collected from my salary, profit or other payments for the period above, as required under the Income Tax Ordinance, 2001.").format(doc.tax_year) }}</p>
+  <p>{{ _("Please show on the certificate:") }}</p>
+  <ul>
+    <li>{{ _("my name, CNIC and NTN (if any)") }}</li>
+    <li>{{ _("the gross amount paid and the tax deducted, month by month or in total") }}</li>
+    <li>{{ _("the section of the law under which tax was deducted") }}</li>
+    <li>{{ _("the CPR / challan numbers of the deposits") }}</li>
+  </ul>
+  <table class="meta" style="margin-top:14px;"><tr>
+    <td><span class="k">{{ _("Name") }}</span>{{ c.client_name }}</td>
+    <td><span class="k">{{ _("CNIC") }}</span>{{ c.cnic or c.cnic_masked or "" }}</td>
+    <td><span class="k">{{ _("NTN") }}</span>{{ c.ntn or "—" }}</td>
+    <td><span class="k">{{ _("Employee / account no.") }}</span>________________</td>
+  </tr></table>
+  {% if doc.withholding_lines %}
+  <p class="muted" style="margin-top:10px;font-size:10px;">{{ _("Deductions on record so far:") }} {% for w in doc.withholding_lines %}{{ w.payer or w.section }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+  {% endif %}
+  <p style="margin-top:12px;">{{ _("Thank you for your help.") }}</p>
+  <table class="sign"><tr><td><div class="line">{{ c.client_name }}<br><span class="muted">{{ c.mobile or "" }}</span></div></td><td></td></tr></table>
+</div>

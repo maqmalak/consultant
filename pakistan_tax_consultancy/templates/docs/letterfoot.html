@@ -1,0 +1,5 @@
+{%- set f = ptc_firm() -%}
+<div style="border-top:1px solid #e5e7eb;padding-top:6px;font-family:Helvetica,Arial,sans-serif;font-size:8.5px;color:#6b7280;text-align:center;">
+  {{ f.firm_name or "VVS Consultants" }}{% if f.partner_name %} · {{ f.partner_name }}{% if f.partner_title %}, {{ f.partner_title }}{% endif %}{% endif %}
+  · {{ _("Prepared by the firm for the client's records — not an FBR document unless it carries an IRIS acknowledgment number.") }}
+</div>

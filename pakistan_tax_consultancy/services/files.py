@@ -82,6 +82,7 @@ FILE_FIELDS = {
 	"Tax Return": ("fbr_receipt",),
 	"Filing Record": ("evidence",),
 	"Payment Proof": ("proof_file",),
+	"Generated Document": ("file",),
 }
 
 

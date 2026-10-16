@@ -1,0 +1,51 @@
+{%- set filed = doc.workflow_state in ("Acknowledged", "Closed") and doc.iris_acknowledgment_no -%}
+{%- set demo = frappe.db.get_value("Tax Calculation", doc.latest_calculation, "rules_are_demo") if doc.latest_calculation else 0 -%}
+{%- set ns = namespace(cats={}) -%}
+{%- for r in doc.income_sources -%}{%- set _ = ns.cats.update({r.income_category: (ns.cats.get(r.income_category) or 0) + (r.gross_amount or 0)}) -%}{%- endfor -%}
+<div class="ptc">
+  {% if filed %}<p class="draft" style="background:#ecfdf5;border-color:#10b981;color:#065f46;">{{ _("FILED ON FBR IRIS · ACKNOWLEDGMENT") }} {{ doc.iris_acknowledgment_no }}</p>
+  {% else %}<p class="draft">{{ _("DRAFT FOR CLIENT REVIEW — NOT YET FILED") }}</p>{% endif %}
+  <p class="eyebrow">{{ _("Tax computation summary") }} · {{ _("Tax Year") }} {{ doc.tax_year }}</p>
+  <h1>{{ doc.client_name }}</h1>
+  <p class="muted">{{ _(doc.taxpayer_type or "") }} · {{ _(doc.return_type or "") }} · {{ _("prepared") }} {{ ptc_date() }}</p>
+
+  <h2>{{ _("Income") }}</h2>
+  <table class="grid">
+    <tr><th>{{ _("Source") }}</th><th class="num">{{ _("Amount") }}</th></tr>
+    {% for k, v in ns.cats.items() %}<tr><td>{{ _(k) }}</td><td class="num">{{ ptc_money(v) }}</td></tr>{% endfor %}
+    <tr class="total"><td>{{ _("Total income") }}</td><td class="num">{{ ptc_money(doc.total_income) }}</td></tr>
+  </table>
+
+  <h2>{{ _("Tax") }}</h2>
+  <table class="grid">
+    <tr><td>{{ _("Deductible allowances") }}</td><td class="num">− {{ ptc_money(doc.total_deductions) }}</td></tr>
+    <tr><td><b>{{ _("Taxable income") }}</b></td><td class="num"><b>{{ ptc_money(doc.taxable_income) }}</b></td></tr>
+    <tr><td>{{ _("Tax on taxable income") }}</td><td class="num">{{ ptc_money(doc.tax_liability) }}</td></tr>
+    {% if doc.total_tax_credits %}<tr><td>{{ _("Tax credits") }}</td><td class="num">− {{ ptc_money(doc.total_tax_credits) }}</td></tr>{% endif %}
+    <tr><td>{{ _("Tax already deducted / withheld") }}</td><td class="num">− {{ ptc_money(doc.total_tax_withheld) }}</td></tr>
+    {% if doc.total_advance_tax %}<tr><td>{{ _("Advance tax paid") }}</td><td class="num">− {{ ptc_money(doc.total_advance_tax) }}</td></tr>{% endif %}
+  </table>
+
+  <div class="result">
+    {% if (doc.refund_due or 0) > 0 %}
+      <span class="k muted" style="font-size:9px;letter-spacing:1px;text-transform:uppercase;">{{ _("Refund due to you") }}</span><div class="big">{{ ptc_money(doc.refund_due) }}</div>
+    {% elif (doc.net_tax_payable or 0) > 0 %}
+      <span class="k muted" style="font-size:9px;letter-spacing:1px;text-transform:uppercase;">{{ _("Tax still payable") }}</span><div class="big">{{ ptc_money(doc.net_tax_payable) }}</div>
+    {% else %}
+      <span class="k muted" style="font-size:9px;letter-spacing:1px;text-transform:uppercase;">{{ _("Balance") }}</span><div class="big">{{ _("Nothing payable") }}</div>
+    {% endif %}
+  </div>
+
+  {% if doc.withholding_lines %}
+  <h2>{{ _("Tax deducted at source") }}</h2>
+  <table class="grid">
+    <tr><th>{{ _("Section") }}</th><th>{{ _("Deducted by") }}</th><th class="num">{{ _("Amount") }}</th></tr>
+    {% for w in doc.withholding_lines %}<tr><td>{{ w.section or "—" }}</td><td>{{ w.payer or "" }}</td><td class="num">{{ ptc_money(w.amount) }}</td></tr>{% endfor %}
+  </table>
+  {% endif %}
+
+  <div class="note">
+    {{ _("This summary is prepared by the firm from the information you provided. It is not an FBR document; the return filed on IRIS is final.") }}
+    {% if demo %}<br><b>{{ _("Calculated with demonstration tax rates — figures are an estimate until the firm verifies the current Finance Act rates.") }}</b>{% endif %}
+  </div>
+</div>
