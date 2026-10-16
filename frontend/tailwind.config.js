@@ -1,34 +1,93 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./index.html", "./src/**/*.{ts,tsx}"],
+  darkMode: ["class"],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
+    container: {
+      center: true,
+      padding: "1rem",
+      screens: { "2xl": "1440px" },
+    },
     extend: {
+      spacing: {
+        13: "3.25rem",
+        15: "3.75rem",
+      },
       colors: {
-        // Pakistan-green inspired brand palette + neutral scale for the shell.
-        brand: {
-          50: "#f0f9f2",
-          100: "#dcf0e0",
-          200: "#bbe1c5",
-          300: "#8dcaa1",
-          400: "#57ab77",
-          500: "#36905a",
-          600: "#267448",
-          700: "#1f5c3b",
-          800: "#1c4a32",
-          900: "#183d2b",
-          950: "#0c2318",
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        "input-bg": "hsl(var(--input-bg))",
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        // Legacy brand-* classes follow the theme's primary colour (Appearance menu presets).
+        brand: {
+          50: "hsl(var(--primary) / 0.08)", 100: "hsl(var(--primary) / 0.15)", 200: "hsl(var(--primary) / 0.3)",
+          300: "hsl(var(--primary) / 0.5)", 400: "hsl(var(--primary) / 0.75)", 500: "hsl(var(--primary))",
+          600: "hsl(var(--primary))", 700: "hsl(var(--primary))", 800: "hsl(var(--primary))",
+          900: "hsl(var(--primary))", 950: "hsl(var(--primary))",
+        },
+        sidebar: "hsl(var(--sidebar))",
+        "sidebar-foreground": "hsl(var(--sidebar-foreground))",
+        "sidebar-muted": "hsl(var(--sidebar-muted))",
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: [
-          "Inter",
-          "ui-sans-serif",
-          "system-ui",
-          "-apple-system",
-          "Segoe UI",
-          "Roboto",
-          "sans-serif",
-        ],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+      },
+      keyframes: {
+        "fade-in": {
+          from: { opacity: "0", transform: "translateY(4px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "slide-in-right": {
+          from: { opacity: "0", transform: "translateX(100%)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
+        "card-sheen": {
+          from: { transform: "translateX(-150%) skewX(-12deg)" },
+          to: { transform: "translateX(250%) skewX(-12deg)" },
+        },
+      },
+      animation: {
+        "fade-in": "fade-in 0.2s ease-out",
+        "slide-in-right": "slide-in-right 0.25s ease-out",
+        "card-sheen": "card-sheen 900ms ease",
       },
     },
   },

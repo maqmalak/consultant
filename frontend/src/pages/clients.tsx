@@ -1,3 +1,4 @@
+import { Users as UsersIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useFrappeGetCall } from "frappe-react-sdk";
 import { Search } from "lucide-react";
@@ -70,14 +71,15 @@ export function ClientsPage() {
   return (
     <div className="page-container">
       <PageHeader
+        icon={<UsersIcon className="h-5 w-5" />}
         title="Clients"
         subtitle="Manage your tax clients and their contact details"
         actions={
           <div className="flex items-center gap-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <input
-                className="w-64 rounded-lg border border-slate-300 bg-white pl-9 pr-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:outline-none"
+                className="w-64 rounded-lg border border-input bg-card pl-9 pr-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
                 placeholder="Search client..."
                 value={query}
                 onChange={(e) => {
@@ -86,7 +88,7 @@ export function ClientsPage() {
                 }}
               />
             </div>
-            <button className="rounded-lg border border-brand-600 bg-brand-600 px-3 py-2 text-sm font-medium text-white hover:bg-brand-700">
+            <button className="rounded-lg border border-primary bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary/90">
               Add client
             </button>
           </div>
@@ -123,7 +125,7 @@ export function ClientsPage() {
                       .slice(start, start + LIMIT)
                       .map((c) => (
                         <TR key={c.name}>
-                          <TD className="font-medium text-slate-900">{c.client_name}</TD>
+                          <TD className="font-medium text-foreground">{c.client_name}</TD>
                           <TD>
                             <Badge variant="outline">{TYPE_LABEL[toClientType(c.client_type)]}</Badge>
                           </TD>

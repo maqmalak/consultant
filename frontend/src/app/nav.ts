@@ -114,7 +114,7 @@ export function homeForRoles(roles: string[]): string {
   if (has(ROLES.APPROVER)) return "/queue/approval";
   if (has(ROLES.FILING_OFFICER)) return "/queue/filing";
   if (has(ROLES.CONSULTANT) || has(ROLES.CONSULTANT_ADMIN) || has(ROLES.SYSTEM_MANAGER)) {
-    return "/dashboard";
+    return "/home";
   }
   return "/dashboard";
 }

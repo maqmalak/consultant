@@ -68,7 +68,7 @@ export function PortalHomePage() {
       <div className="page-container">
         <PageHeader title="Client Portal" />
         <div className="flex justify-center py-16">
-          <Spinner className="h-8 w-8 text-brand-600" />
+          <Spinner className="h-8 w-8 text-primary" />
         </div>
       </div>
     );
@@ -87,8 +87,8 @@ export function PortalHomePage() {
             <CardTitle className="text-sm">Clients</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold text-slate-900">{totalClients}</div>
-            <p className="text-xs text-slate-500">Tax Client records linked to your profile</p>
+            <div className="text-2xl font-semibold text-foreground">{totalClients}</div>
+            <p className="text-xs text-muted-foreground">Tax Client records linked to your profile</p>
           </CardContent>
         </Card>
         <Card>
@@ -96,8 +96,8 @@ export function PortalHomePage() {
             <CardTitle className="text-sm">Returns</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold text-slate-900">{totalReturns}</div>
-            <p className="text-xs text-slate-500">Returns for your linked clients</p>
+            <div className="text-2xl font-semibold text-foreground">{totalReturns}</div>
+            <p className="text-xs text-muted-foreground">Returns for your linked clients</p>
           </CardContent>
         </Card>
         <Card>
@@ -105,7 +105,7 @@ export function PortalHomePage() {
             <CardTitle className="text-sm">Status</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-slate-500">Ready to review your files before each filing</p>
+            <p className="text-xs text-muted-foreground">Ready to review your files before each filing</p>
             <div className="mt-2 flex gap-2">
               <Badge variant="default">Document checklist active</Badge>
               <Badge variant="outline">Filing calendar linked</Badge>
@@ -117,13 +117,13 @@ export function PortalHomePage() {
       {myReturns.length === 0 ? (
         <Card className="mt-4">
           <CardContent className="py-12 text-center">
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-muted-foreground">
               {myClients.length === 0
                 ? "No Tax Client records are linked to your account yet. Ask your consultant to attach you as a portal user."
                 : "You have no returns linked to your clients yet."}
             </p>
             {myClients.length === 0 ? (
-              <Link to="/app" className="mt-4 text-sm font-medium text-brand-700 hover:underline">
+              <Link to="/app" className="mt-4 text-sm font-medium text-primary hover:underline">
                 Back to the workspace
               </Link>
             ) : null}

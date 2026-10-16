@@ -27,20 +27,20 @@ export function QueueTabBar({ queue, onQueueChange }: QueueTabBarProps) {
       {QUEUES.map((q, i) => (
         <Card
           key={q.title}
-          className={`cursor-pointer transition hover:shadow-md ${i === queue ? "ring-2 ring-brand-500" : ""}`}
+          className={`cursor-pointer transition hover:shadow-md ${i === queue ? "ring-2 ring-primary" : ""}`}
           onClick={() => onQueueChange(i)}
         >
           <CardContent className="p-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                 <q.icon className="h-5 w-5" aria-hidden="true" />
               </div>
               <div className="min-w-0">
-                <h3 className="font-semibold text-slate-900">{q.title}</h3>
-                <p className="truncate text-xs text-slate-500">{q.subtitle}</p>
+                <h3 className="font-semibold text-foreground">{q.title}</h3>
+                <p className="truncate text-xs text-muted-foreground">{q.subtitle}</p>
               </div>
             </div>
-            <p className="mt-2 text-xs text-slate-400">{q.description}</p>
+            <p className="mt-2 text-xs text-muted-foreground">{q.description}</p>
             <div className="mt-3 flex gap-2">
               <Badge variant="outline" className="flex-1">
                 {q.states.map((s) => s.toLowerCase()).join(" / ")}

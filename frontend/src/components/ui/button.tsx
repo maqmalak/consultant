@@ -1,21 +1,27 @@
 import * as React from "react";
 import { cn } from "@/lib/cn";
 
-type Variant = "primary" | "outline" | "ghost" | "danger";
-type Size = "sm" | "md";
+type Variant = "primary" | "default" | "secondary" | "outline" | "ghost" | "danger" | "destructive" | "success" | "link";
+type Size = "sm" | "md" | "default" | "lg" | "icon";
 
 const variants: Record<Variant, string> = {
-  primary:
-    "bg-brand-600 text-white hover:bg-brand-700 focus-visible:outline-brand-600 disabled:bg-brand-300",
-  outline:
-    "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus-visible:outline-slate-400",
-  ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-slate-400",
-  danger: "bg-red-600 text-white hover:bg-red-700 focus-visible:outline-red-600 disabled:bg-red-300",
+  primary: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+  default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+  secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+  outline: "border-[1.5px] border-input bg-input-bg text-foreground hover:bg-accent hover:text-accent-foreground",
+  ghost: "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+  danger: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+  success: "bg-success text-white hover:bg-success/90",
+  link: "text-primary underline-offset-4 hover:underline",
 };
 
 const sizes: Record<Size, string> = {
   sm: "h-8 px-3 text-xs",
   md: "h-10 px-4 text-sm",
+  default: "h-9 px-4 text-sm",
+  lg: "h-11 px-6 text-sm",
+  icon: "h-9 w-9",
 };
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -30,9 +36,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       disabled={disabled || loading}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors",
-        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
-        "disabled:cursor-not-allowed disabled:opacity-70",
+        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors",
+        "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40",
+        "disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0",
         variants[variant],
         sizes[size],
         className,

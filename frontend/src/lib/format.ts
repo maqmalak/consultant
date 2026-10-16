@@ -24,3 +24,19 @@ export function unwrap<T>(data: unknown): T | undefined {
   }
   return data as T;
 }
+
+const pkr = new Intl.NumberFormat("en-PK", { maximumFractionDigits: 0 });
+
+/** "Rs 1,250,000", or "Rs 12.5 Lac" / "Rs 1.25 Cr" when compact. */
+export function money(value: number | null | undefined, opts: { compact?: boolean } = {}): string {
+  const v = value ?? 0;
+  if (opts.compact) {
+    if (Math.abs(v) >= 1e7) return `Rs ${(v / 1e7).toFixed(2)} Cr`;
+    if (Math.abs(v) >= 1e5) return `Rs ${(v / 1e5).toFixed(1)} Lac`;
+  }
+  return `Rs ${pkr.format(v)}`;
+}
+
+export function num(value: number | null | undefined): string {
+  return pkr.format(value ?? 0);
+}

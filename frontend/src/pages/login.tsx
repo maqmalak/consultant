@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { homeForRoles } from "@/app/nav";
 import { apiGet, humanizeError } from "@/services/frappe";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/layout/theme-provider";
 import { Input } from "@/components/ui/input";
 
 const schema = z.object({
@@ -68,36 +69,39 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen">
       {/* Brand panel (desktop) */}
-      <div className="hidden w-1/2 flex-col justify-between bg-brand-800 p-10 text-white lg:flex">
+      <div className="hidden w-1/2 flex-col justify-between bg-gradient-to-br from-primary to-primary/70 p-10 text-white lg:flex">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 ring-1 ring-inset ring-white/25">
             <ShieldCheck className="h-6 w-6" />
           </div>
           <div>
             <p className="text-lg font-semibold">Pakistan Tax Consultancy</p>
-            <p className="text-sm text-brand-200">Income tax returns · FBR filing · Compliance</p>
+            <p className="text-sm text-white/75">Income tax returns · FBR filing · Compliance</p>
           </div>
         </div>
         <div>
           <h1 className="max-w-md text-3xl font-semibold leading-snug">
             Prepare, review, approve and file — with a full audit trail.
           </h1>
-          <p className="mt-4 max-w-md text-sm text-brand-100">
+          <p className="mt-4 max-w-md text-sm text-white/90">
             Secure document collection, configurable tax-year calculations, controlled workflow
             transitions and FBR acknowledgment tracking for your entire consultancy.
           </p>
         </div>
-        <p className="text-xs text-brand-300">
+        <p className="text-xs text-white/70">
           Client data is protected with role-based access control and private file storage.
         </p>
       </div>
 
       {/* Form panel */}
-      <div className="flex w-full items-center justify-center px-4 lg:w-1/2">
+      <div className="relative flex w-full items-center justify-center px-4 lg:w-1/2">
+        <div className="absolute right-4 top-4">
+          <ThemeToggle />
+        </div>
         <div className="w-full max-w-sm">
           <div className="mb-8">
-            <h2 className="text-2xl font-semibold text-slate-900">Sign in</h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <h2 className="text-2xl font-semibold text-foreground">Sign in</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
               Use your consultancy account credentials.
             </p>
           </div>
@@ -128,10 +132,10 @@ export function LoginPage() {
             </Button>
 
             <div className="flex items-center justify-between text-sm">
-              <a href="/forgot-password" className="text-brand-700 hover:underline">
+              <a href="/forgot-password" className="text-primary hover:underline">
                 Forgot password?
               </a>
-              <a href="/app" className="text-slate-400 hover:text-slate-600">
+              <a href="/app" className="text-muted-foreground hover:text-muted-foreground">
                 Desk access
               </a>
             </div>

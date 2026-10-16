@@ -46,10 +46,10 @@ export function NumberInput({ field, label, emptyValue = 0, step = 0.01, min = 0
 
 export function SaveIndicator({ saving, message }: { saving: boolean; message: string }) {
   return (
-    <div className="flex items-center gap-2 text-xs text-slate-500">
+    <div className="flex items-center gap-2 text-xs text-muted-foreground">
       {saving ? (
         <>
-          <Spinner className="h-3.5 w-3.5 text-brand-500" />
+          <Spinner className="h-3.5 w-3.5 text-primary" />
           Saving {message}…
         </>
       ) : (

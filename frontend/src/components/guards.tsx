@@ -12,7 +12,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Spinner className="h-8 w-8 text-brand-600" />
+        <Spinner className="h-8 w-8 text-primary" />
       </div>
     );
   }
@@ -31,7 +31,7 @@ export function RequireRole({ roles, children }: { roles: string[]; children: Re
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Spinner className="h-8 w-8 text-brand-600" />
+        <Spinner className="h-8 w-8 text-primary" />
       </div>
     );
   }
@@ -47,7 +47,7 @@ export function RoleRedirect() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Spinner className="h-8 w-8 text-brand-600" />
+        <Spinner className="h-8 w-8 text-primary" />
       </div>
     );
   }

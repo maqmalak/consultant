@@ -45,7 +45,7 @@ export function QueueTable({ queue, start, onStartChange }: QueueTableProps) {
         </div>
       ) : isLoading ? (
         <div className="flex justify-center py-16">
-          <Spinner className="h-8 w-8 text-brand-600" />
+          <Spinner className="h-8 w-8 text-primary" />
         </div>
       ) : (
         <>
@@ -82,8 +82,8 @@ export function QueueTable({ queue, start, onStartChange }: QueueTableProps) {
                       .slice(start, start + 20)
                       .map((r) => (
                         <TR key={r.name}>
-                          <TD className="font-mono text-xs text-slate-500">{r.name}</TD>
-                          <TD className="font-medium text-slate-900">{r.client_name || r.tax_client}</TD>
+                          <TD className="font-mono text-xs text-muted-foreground">{r.name}</TD>
+                          <TD className="font-medium text-foreground">{r.client_name || r.tax_client}</TD>
                           <TD>{r.tax_year || "—"}</TD>
                           <TD>
                             <Badge variant={stateVariant(r.workflow_state)}>

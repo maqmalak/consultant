@@ -2,9 +2,10 @@ import { Route, Routes } from "react-router-dom";
 import { AppProviders } from "./providers";
 import { RequireAuth, RequireRole, RoleRedirect } from "@/components/guards";
 import { AppShell } from "@/components/layout/app-shell";
-import { ROLES } from "@/app/nav";
+import { ROLES, STAFF_ROLES } from "@/app/nav";
 import { LoginPage } from "@/pages/login";
 import { DashboardPage } from "@/pages/dashboard";
+import { HomePage } from "@/pages/home";
 import { ClientsPage } from "@/pages/clients";
 import { ReturnsPage } from "@/pages/returns";
 import { VisitsPage } from "@/pages/visits";
@@ -30,6 +31,7 @@ export default function App() {
           }
         >
           <Route path="/" element={<RoleRedirect />} />
+          <Route path="/home" element={<RequireRole roles={STAFF_ROLES}><HomePage /></RequireRole>} />
           <Route path="/dashboard" element={<RequireRole roles={ALL}><DashboardPage /></RequireRole>} />
           <Route
             path="/clients"

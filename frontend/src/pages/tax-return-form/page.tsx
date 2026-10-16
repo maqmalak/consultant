@@ -140,14 +140,14 @@ export function TaxReturnForm() {
 
   return (
     <div className="page-container">
-      <Card className="border border-brand-500/20 bg-brand-50/50">
+      <Card className="border border-primary/20 bg-primary/10/50">
         <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
           <div>
-            <p className="text-sm font-semibold text-slate-800">
+            <p className="text-sm font-semibold text-foreground">
               {mode === "create" ? "New return" : doc?.client_name || "Return"}
             </p>
-            <p className="text-xs text-slate-500">
-              Workflow: <span className="font-mono text-slate-600">{mode === "edit" ? stateLabel(doc.workflow_state) : "Draft"}</span>
+            <p className="text-xs text-muted-foreground">
+              Workflow: <span className="font-mono text-muted-foreground">{mode === "edit" ? stateLabel(doc.workflow_state) : "Draft"}</span>
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -185,7 +185,7 @@ export function TaxReturnForm() {
         <Button variant="outline" size="sm" onClick={() => setActiveStep((p) => Math.max(0, p - 1))} disabled={activeStep === 0}>
           Back
         </Button>
-        <div className="text-sm text-slate-500">
+        <div className="text-sm text-muted-foreground">
           {activeStep + 1} of {STEPS.length}
         </div>
         <Button

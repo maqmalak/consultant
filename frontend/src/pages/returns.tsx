@@ -1,3 +1,4 @@
+import { FileText as FileTextIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useFrappeGetCall } from "frappe-react-sdk";
 import { Search } from "lucide-react";
@@ -66,6 +67,7 @@ export function ReturnsPage() {
   return (
     <div className="page-container">
       <PageHeader
+        icon={<FileTextIcon className="h-5 w-5" />}
         title="Returns"
         subtitle="Track every income tax return across your clients"
         actions={
@@ -79,8 +81,8 @@ export function ReturnsPage() {
                 }}
                 className={`rounded-full px-3 py-1.5 text-sm font-medium ${
                   state === c.value
-                    ? "bg-brand-600 text-white"
-                    : "border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+                    ? "bg-primary text-white"
+                    : "border border-input bg-card text-muted-foreground hover:bg-muted"
                 }`}
               >
                 {c.label}
@@ -125,8 +127,8 @@ export function ReturnsPage() {
                       .slice(start, start + LIMIT)
                       .map((r) => (
                         <TR key={r.name}>
-                          <TD className="font-mono text-xs text-slate-500">{r.name}</TD>
-                          <TD className="font-medium text-slate-900">{r.client_name || r.tax_client}</TD>
+                          <TD className="font-mono text-xs text-muted-foreground">{r.name}</TD>
+                          <TD className="font-medium text-foreground">{r.client_name || r.tax_client}</TD>
                           <TD>{r.tax_year || "—"}</TD>
                           <TD>{r.return_type || "—"}</TD>
                           <TD>{r.tax_regime || "—"}</TD>

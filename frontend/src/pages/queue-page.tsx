@@ -1,3 +1,4 @@
+import { ClipboardCheck as ClipboardCheckIcon } from "lucide-react";
 import { useState } from "react";
 import { QueueTabBar } from "./queue-tabs";
 import { QueueTable } from "./queue-table";
@@ -13,6 +14,7 @@ export function QueuePage() {
   return (
     <div className="page-container">
       <PageHeader
+        icon={<ClipboardCheckIcon className="h-5 w-5" />}
         title="Filing Queue"
         subtitle="Every transition is recorded — workflows are audited end-to-end"
         actions={
