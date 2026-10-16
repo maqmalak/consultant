@@ -57,7 +57,7 @@ fixtures = [
 # webform_include_css = {"doctype": "public/css/doctype.css"}
 
 # include js in page
-# page_js = {"page" : "public/js/file.js"}
+page_js = {"tax-dashboard": "pakistan_income_tax_consultancy/page/tax_dashboard/tax_dashboard.js"}
 
 # include js in doctype views
 doctype_js = {
