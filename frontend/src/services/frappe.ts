@@ -7,7 +7,7 @@ import axios, { type AxiosInstance } from "axios";
  *   same-origin when the SPA is served by the site itself in production).
  * - CSRF: Frappe injects `window.csrf_token` only into pages it renders. The
  *   SPA fetches its own token via
- *   `incometax.api.session.get_csrf_token_for_session` (guest-accessible,
+ *   `pakistan_tax_consultancy.api.session.get_csrf_token_for_session` (guest-accessible,
  *   returns only the caller's own token) and attaches it to every write
  *   request; stale tokens auto-recover.
  */
@@ -45,7 +45,7 @@ http.interceptors.request.use((config) => {
  */
 export async function refreshCSRFToken(): Promise<void> {
   try {
-    const res = await fetch("/api/method/incometax.api.session.get_csrf_token_for_session", {
+    const res = await fetch("/api/method/pakistan_tax_consultancy.api.session.get_csrf_token_for_session", {
       credentials: "include",
     });
     if (!res.ok) return;

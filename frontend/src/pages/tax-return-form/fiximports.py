@@ -1,4 +1,4 @@
-p = '/home/maqmalak/erpnext-react/apps/incometax/frontend/src/pages/tax-return-form/page.tsx'
+p = '/home/maqmalak/erpnext-react/apps/pakistan_tax_consultancy/frontend/src/pages/tax-return-form/page.tsx'
 s = open(p).read()
 reps = [
  ("import { useCallback, useEffect, useMemo, useRef, useState } from \"react\";", "import { useCallback, useEffect, useState } from \"react\";"),

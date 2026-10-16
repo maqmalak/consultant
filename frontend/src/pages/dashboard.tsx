@@ -11,7 +11,7 @@ import { EmptyRow, Table, TD, TH, TR } from "@/components/ui/table";
 import { humanizeError } from "@/services/frappe";
 
 const SUMMARY_METHOD =
-  "incometax.pakistan_income_tax_consultancy.page.tax_dashboard.tax_dashboard.get_dashboard_summary";
+  "pakistan_tax_consultancy.pakistan_income_tax_consultancy.page.tax_dashboard.tax_dashboard.get_dashboard_summary";
 
 interface Stat {
   label: string;

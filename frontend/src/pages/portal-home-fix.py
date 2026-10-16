@@ -1,4 +1,4 @@
-p = '/home/maqmalak/erpnext-react/apps/incometax/frontend/src/pages/portal-home.tsx'
+p = '/home/maqmalak/erpnext-react/apps/pakistan_tax_consultancy/frontend/src/pages/portal-home.tsx'
 lines = open(p).read().split('\n')
 # Replace from line 132 (') : (') through line 184 ('</>') inclusive with a clean block.
 start = 131  # 0-based for line 132

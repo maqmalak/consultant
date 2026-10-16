@@ -1,5 +1,5 @@
 /**
- * Mirror of the server-side workflow map (`incometax/api/workflow.py`).
+ * Mirror of the server-side workflow map (`pakistan_tax_consultancy/api/workflow.py`).
  *
  * UI-only: the server independently validates every transition and role, so
  * hiding buttons is never a security control. Kept here so buttons appear
@@ -54,4 +54,4 @@ export function actionsFor(state: string | undefined, roles: string[]): Transiti
 }
 
 /** Method path for the whitelisted transition API. */
-export const TRANSITION_METHOD = "incometax.api.workflow.transition_tax_return";
+export const TRANSITION_METHOD = "pakistan_tax_consultancy.api.workflow.transition_tax_return";
