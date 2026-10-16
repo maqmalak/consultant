@@ -25,7 +25,7 @@
   "approver",
   "filing_officer",
   "sb_income",
-  "income_lines",
+  "income_sources",
   "total_income",
   "sb_ded",
   "deduction_lines",
@@ -67,11 +67,11 @@
   "content_hash",
   "sb_filing",
   "fbr_submission_status",
-  "fbr_acknowledgment_number",
+  "iris_acknowledgment_no",
   "submission_timestamp",
   "cb7",
   "fbr_receipt",
-  "filing_error_details"
+  "filing_error_notes"
  ],
  "fields": [
   {
@@ -203,10 +203,10 @@
    "label": "Income"
   },
   {
-   "fieldname": "income_lines",
+   "fieldname": "income_sources",
    "fieldtype": "Table",
    "label": "Income Sources",
-   "options": "Tax Return Income"
+   "options": "Tax Return Income Source"
   },
   {
    "fieldname": "total_income",
@@ -463,9 +463,9 @@
    "read_only": 1
   },
   {
-   "fieldname": "fbr_acknowledgment_number",
+   "fieldname": "iris_acknowledgment_no",
    "fieldtype": "Data",
-   "label": "FBR Acknowledgment / Reference No.",
+   "label": "IRIS Acknowledgment No.",
    "permlevel": 1,
    "read_only": 1
   },
@@ -488,9 +488,9 @@
    "read_only": 1
   },
   {
-   "fieldname": "filing_error_details",
+   "fieldname": "filing_error_notes",
    "fieldtype": "Text",
-   "label": "Rejection / Error Details",
+   "label": "Filing Error Notes",
    "permlevel": 1,
    "read_only": 1
   }
@@ -536,20 +536,20 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Tax Consultant Admin",
+   "role": "Tax Admin",
    "share": 1,
    "write": 1
   },
   {
    "permlevel": 1,
    "read": 1,
-   "role": "Tax Consultant Admin",
+   "role": "Tax Admin",
    "write": 1
   },
   {
    "permlevel": 2,
    "read": 1,
-   "role": "Tax Consultant Admin",
+   "role": "Tax Admin",
    "write": 1
   },
   {
@@ -643,12 +643,12 @@
    "permlevel": 0,
    "read": 1,
    "report": 1,
-   "role": "Tax Client User"
+   "role": "Client"
   },
   {
    "permlevel": 1,
    "read": 1,
-   "role": "Tax Client User"
+   "role": "Client"
   }
  ],
  "row_format": "Dynamic",

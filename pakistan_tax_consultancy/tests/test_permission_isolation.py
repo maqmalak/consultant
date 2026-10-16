@@ -5,11 +5,11 @@
 Verifies that each role can (or cannot) access Tax Client and client-linked records
 according to the Phase 0 permission matrix:
 
-  all             -> System Manager, Tax Consultant Admin, Tax Reviewer,
+  all             -> System Manager, Tax Admin, Tax Reviewer,
                      Tax Approver, Filing Officer
   consultant      -> Tax Consultant  (own/assigned clients only)
   field           -> Field Officer   (own registered clients only)
-  client          -> Tax Client User (own portal client only)
+  client          -> Client (own portal client only)
   none            -> any other role  (no rows)
 """
 
@@ -56,7 +56,7 @@ class TestPermissionIsolation(IntegrationTestCase):
 		cls.consultant_a = make_user("consultant.a@example.com", ["Tax Consultant"], "Consultant A")
 		cls.consultant_b = make_user("consultant.b@example.com", ["Tax Consultant"], "Consultant B")
 		cls.field_officer = make_user("field.officer@example.com", ["Field Officer"], "Field Officer")
-		cls.client_user = make_user("client.one@example.com", ["Tax Client User"], "Client One")
+		cls.client_user = make_user("client.one@example.com", ["Client"], "Client One")
 		cls.reviewer = make_user("reviewer@example.com", ["Tax Reviewer"], "Reviewer")
 		cls.approver = make_user("tax.approver@example.com", ["Tax Approver"], "Approver")
 		cls.filing_officer = make_user("filing@example.com", ["Filing Officer"], "Filing Officer")
@@ -81,6 +81,8 @@ class TestPermissionIsolation(IntegrationTestCase):
 		]
 		# Only remove clients created by make_client (they are named "Test Client ...").
 		frappe.db.delete("Tax Client", {"client_name": ["like", "Test Client%"]})
+		# Raw deletes skip child tables, so clear the users' role rows too (left behind, they break saving those roles).
+		frappe.db.delete("Has Role", {"parenttype": "User", "parent": ("in", test_users)})
 		frappe.db.delete("User", {"name": ("in", test_users)})
 		frappe.db.commit()
 
@@ -117,7 +119,7 @@ class TestPermissionIsolation(IntegrationTestCase):
 		)
 
 	def test_client_user_sees_only_own_portal_client(self):
-		"""A Tax Client User sees only the Tax Client linked to their portal user."""
+		"""A Client sees only the Tax Client linked to their portal user."""
 		self.set_user(self.client_user)
 		names = {d.name for d in frappe.get_list("Tax Client")}
 		self.assertIn(self.client_portal.name, names)
@@ -134,7 +136,7 @@ class TestPermissionIsolation(IntegrationTestCase):
 			}).insert()
 
 	def test_client_can_update_own_portal_client(self):
-		"""A Tax Client User can write to their own portal client (permlevel 0)."""
+		"""A Client can write to their own portal client (permlevel 0)."""
 		self.set_user(self.client_user)
 		doc = frappe.get_doc("Tax Client", self.client_portal.name)
 		doc.mobile = "+92 300 9999999"
@@ -179,7 +181,7 @@ class TestPermissionIsolation(IntegrationTestCase):
 				self.assertIn(c.name, names, f"{user.first_name} could not see {c.client_name}")
 
 	def test_client_user_sees_only_own_portal_client(self):
-		"""A Tax Client User sees only the Tax Client linked to their portal user."""
+		"""A Client sees only the Tax Client linked to their portal user."""
 		self.set_user(self.client_user)
 		names = {d.name for d in frappe.get_list("Tax Client")}
 		self.assertIn(self.client_portal.name, names)

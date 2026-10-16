@@ -21,7 +21,7 @@
   "total_deductions",
   "taxable_income",
   "cb2",
-  "slab_rule",
+  "slab_setting",
   "applied_slab_from",
   "applied_slab_to",
   "fixed_tax",
@@ -150,10 +150,10 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "slab_rule",
+   "fieldname": "slab_setting",
    "fieldtype": "Link",
-   "label": "Slab Rule",
-   "options": "Tax Slab Rule",
+   "label": "Tax Slab Setting",
+   "options": "Tax Slab Setting",
    "read_only": 1
   },
   {
@@ -302,7 +302,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Tax Consultant Admin",
+   "role": "Tax Admin",
    "share": 1
   },
   {
@@ -345,7 +345,7 @@
    "permlevel": 0,
    "read": 1,
    "report": 1,
-   "role": "Tax Client User"
+   "role": "Client"
   }
  ],
  "row_format": "Dynamic",

@@ -18,7 +18,7 @@ def get_dashboard_summary():
 
     # Build filters based on user scope
     filters = {}
-    if "Tax Consultant Admin" not in roles and "System Manager" not in roles:
+    if "Tax Admin" not in roles and "System Manager" not in roles:
         # Consultant/reviewer/etc - need client-based filtering
         pass
 

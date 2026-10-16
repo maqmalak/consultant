@@ -1,0 +1,20 @@
+[
+  {
+    "doctype": "Service",
+    "name": "Income Tax Return Filing",
+    "title": "Income Tax Return Filing",
+    "is_active": 1,
+    "price_from": 10000,
+    "applies_to_client_types": "Individual\nSole Proprietor\nAOP/Partnership\nCompany",
+    "description": "Preparation and filing of annual income tax return."
+  },
+  {
+    "doctype": "Service",
+    "name": "Tax Consultation",
+    "title": "Tax Consultation",
+    "is_active": 1,
+    "price_from": 5000,
+    "applies_to_client_types": "Individual\nSole Proprietor\nCompany",
+    "description": "One-off tax consultation session."
+  }
+]

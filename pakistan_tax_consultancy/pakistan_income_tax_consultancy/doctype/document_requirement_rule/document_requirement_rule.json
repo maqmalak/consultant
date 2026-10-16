@@ -5,13 +5,13 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "document_category",
+  "document_type",
   "is_mandatory",
   "is_active",
   "cb1",
   "client_type",
   "taxpayer_type",
-  "service_type",
+  "service",
   "tax_regime",
   "tax_year",
   "sb_desc",
@@ -19,12 +19,12 @@
  ],
  "fields": [
   {
-   "fieldname": "document_category",
+   "fieldname": "document_type",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Document Category",
-   "options": "Tax Document Category",
+   "label": "Document Type",
+   "options": "Document Type",
    "reqd": 1
   },
   {
@@ -62,11 +62,11 @@
   },
   {
    "description": "Blank = any service",
-   "fieldname": "service_type",
+   "fieldname": "service",
    "fieldtype": "Link",
    "in_standard_filter": 1,
-   "label": "Service Type",
-   "options": "Tax Service Type"
+   "label": "Service",
+   "options": "Service"
   },
   {
    "description": "Blank = any regime",
@@ -121,7 +121,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Tax Consultant Admin",
+   "role": "Tax Admin",
    "share": 1,
    "write": 1
   },
@@ -160,5 +160,5 @@
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
- "title_field": "document_category"
+ "title_field": "document_type"
 }

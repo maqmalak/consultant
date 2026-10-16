@@ -38,7 +38,7 @@ export function ReturnsPage() {
     RETURNS_METHOD,
     {
       doctype: "Tax Return",
-      fields: JSON.stringify(["name", "tax_client", "client_name", "tax_year", "return_type", "tax_regime", "workflow_state", "net_tax_payable", "fbr_submission_status", "fbr_acknowledgment_number", "approval_status", "creation", "modified"]),
+      fields: JSON.stringify(["name", "tax_client", "client_name", "tax_year", "return_type", "tax_regime", "workflow_state", "net_tax_payable", "fbr_submission_status", "iris_acknowledgment_no", "approval_status", "creation", "modified"]),
       limit_page_length: LIMIT,
       start,
       order_by: "modified desc",
@@ -143,8 +143,8 @@ export function ReturnsPage() {
                               ? "Submitted"
                               : r.fbr_submission_status === "Filed"
                               ? "Filed"
-                              : r.fbr_acknowledgment_number
-                              ? <Badge variant="default">{r.fbr_acknowledgment_number}</Badge>
+                              : r.iris_acknowledgment_no
+                              ? <Badge variant="default">{r.iris_acknowledgment_no}</Badge>
                               : "—"}
                           </TD>
                           <TD>{formatDate(r.modified)}</TD>

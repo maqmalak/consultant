@@ -13,9 +13,9 @@ frappe.ui.form.on("Tax Return", {
 		// FBR filing fields are read-only; set by server-side filing flow
 		const fbrFields = [
 			"fbr_submission_status",
-			"fbr_acknowledgment_number",
+			"iris_acknowledgment_no",
 			"submission_timestamp",
-			"filing_error_details",
+			"filing_error_notes",
 		];
 		fbrFields.forEach((f) => {
 			frm.set_df_property(f, "read_only", 1);
@@ -38,7 +38,7 @@ function setup_action_buttons(frm) {
 	const state = frm.doc.workflow_state || "Draft";
 	const userRoles = frappe.user_roles || [];
 	const isAdmin = userRoles.includes("System Manager") ||
-		userRoles.includes("Tax Consultant Admin");
+		userRoles.includes("Tax Admin");
 	const isConsultant = userRoles.includes("Tax Consultant");
 	const isReviewer = userRoles.includes("Tax Reviewer") ||
 		userRoles.includes("Tax Approver");
@@ -186,7 +186,7 @@ function format_currency(value) {
 
 function setup_fbr_status(frm) {
 	const status = frm.doc.fbr_submission_status;
-	const ack = frm.doc.fbr_acknowledgment_number;
+	const ack = frm.doc.iris_acknowledgment_no;
 	if (!status) return;
 
 	let color = "blue";
@@ -216,7 +216,7 @@ function file_to_fbr(frm) {
 					if (!r.exc && r.message) {
 						const m = r.message;
 						frm.set_value("fbr_submission_status", m.status);
-						frm.set_value("fbr_acknowledgment_number", m.acknowledgment_number);
+						frm.set_value("iris_acknowledgment_no", m.acknowledgment_number);
 						frm.set_value("submission_timestamp", m.received_at);
 						frm.set_value("workflow_state", "Filed");
 						setup_fbr_status(frm);
@@ -243,7 +243,7 @@ function check_filing_status(frm) {
 				const m = r.message;
 				frm.set_value("fbr_submission_status", m.status);
 				if (m.acknowledgment_number) {
-					frm.set_value("fbr_acknowledgment_number", m.acknowledgment_number);
+					frm.set_value("iris_acknowledgment_no", m.acknowledgment_number);
 				}
 				if (m.filed_at) {
 					frm.set_value("submission_timestamp", m.filed_at);

@@ -14,14 +14,14 @@ class TaxEngagementDocument(Document):
 	"""Document requirement linked to a tax engagement."""
 
 	def validate(self):
-		if not self.document_category:
+		if not self.document_type:
 			frappe.throw(_("Document Category is required"))
 
-		if self.document_category and not frappe.db.exists(
-			"Tax Document Category", self.document_category
+		if self.document_type and not frappe.db.exists(
+			"Document Type", self.document_type
 		):
 			frappe.throw(
-				_("Tax Document Category {0} does not exist.").format(self.document_category)
+				_("Document Type {0} does not exist.").format(self.document_type)
 			)
 
 		if self.tax_document and not frappe.db.exists("Tax Document", self.tax_document):

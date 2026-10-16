@@ -1,0 +1,282 @@
+{
+ "actions": [],
+ "autoname": "VISIT-.YYYY.-.#####",
+ "creation": "2026-10-16 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "visit_type",
+  "tax_client",
+  "full_name",
+  "mobile",
+  "mobile_e164",
+  "email",
+  "cb1",
+  "client_type",
+  "cnic_or_ntn",
+  "status",
+  "sb_visit",
+  "visit_date",
+  "purpose",
+  "cb2",
+  "city",
+  "location_description",
+  "sb_team",
+  "field_officer",
+  "assigned_consultant",
+  "cb3",
+  "follow_up_date",
+  "sb_services",
+  "services_needed",
+  "documents_handed_over",
+  "sb_notes",
+  "notes",
+  "sb_conv",
+  "converted_client",
+  "cb4",
+  "conversion_date"
+ ],
+ "fields": [
+  {
+   "default": "Prospect",
+   "fieldname": "visit_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Visit Type",
+   "options": "Prospect\nExisting Client",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.visit_type=='Existing Client' || doc.converted_client",
+   "fieldname": "tax_client",
+   "fieldtype": "Link",
+   "label": "Client",
+   "options": "Tax Client",
+   "search_index": 1
+  },
+  {
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Full Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "mobile",
+   "fieldtype": "Data",
+   "label": "Mobile"
+  },
+  {
+   "fieldname": "mobile_e164",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Mobile E164",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Individual",
+   "fieldname": "client_type",
+   "fieldtype": "Select",
+   "label": "Client Type",
+   "options": "Individual\nSole Proprietor\nAOP/Partnership\nCompany\nOther"
+  },
+  {
+   "fieldname": "cnic_or_ntn",
+   "fieldtype": "Data",
+   "label": "CNIC / NTN (if available)"
+  },
+  {
+   "default": "New",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "New\nContacted\nQualified\nConverted\nNot Interested"
+  },
+  {
+   "fieldname": "sb_visit",
+   "fieldtype": "Section Break",
+   "label": "Visit"
+  },
+  {
+   "default": "Today",
+   "fieldname": "visit_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Visit Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Small Text",
+   "label": "Purpose"
+  },
+  {
+   "fieldname": "cb2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City"
+  },
+  {
+   "fieldname": "location_description",
+   "fieldtype": "Small Text",
+   "label": "Location Description"
+  },
+  {
+   "fieldname": "sb_team",
+   "fieldtype": "Section Break",
+   "label": "Team & Follow-up"
+  },
+  {
+   "default": "__user",
+   "fieldname": "field_officer",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Field Officer",
+   "options": "User",
+   "search_index": 1
+  },
+  {
+   "fieldname": "assigned_consultant",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Assigned Consultant",
+   "options": "User"
+  },
+  {
+   "fieldname": "cb3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "follow_up_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Follow-up Date"
+  },
+  {
+   "fieldname": "sb_services",
+   "fieldtype": "Section Break",
+   "label": "Services & Documents"
+  },
+  {
+   "fieldname": "services_needed",
+   "fieldtype": "Table MultiSelect",
+   "label": "Services Needed",
+   "options": "Site Visit Service"
+  },
+  {
+   "fieldname": "documents_handed_over",
+   "fieldtype": "Table",
+   "label": "Documents Checklist Handed Over",
+   "options": "Site Visit Document"
+  },
+  {
+   "fieldname": "sb_notes",
+   "fieldtype": "Section Break",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text",
+   "label": "Notes"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sb_conv",
+   "fieldtype": "Section Break",
+   "label": "Conversion"
+  },
+  {
+   "fieldname": "converted_client",
+   "fieldtype": "Link",
+   "label": "Converted Client",
+   "options": "Tax Client",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "conversion_date",
+   "fieldtype": "Datetime",
+   "label": "Conversion Date",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-16 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Site Visit",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tax Consultant",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "role": "Field Officer",
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "show_title_field_in_link": 1,
+ "sort_field": "visit_date",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "full_name",
+ "track_changes": 1
+}

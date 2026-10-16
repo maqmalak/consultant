@@ -12,7 +12,7 @@ interface ChildTableEditorProps {
 
 export function ChildTableEditor({ name, control, label, flex = 1 }: ChildTableEditorProps) {
   const { fields, append, remove } = useFieldArray({ control, name });
-  const config = configFor(name) ?? configFor("Tax Return Income");
+  const config = configFor(name) ?? configFor("Tax Return Income Source");
 
   return (
     <div className={`rounded-b-xl border border-border bg-muted/40 ${flex > 1 ? "lg:col-span-2" : ""}`}>

@@ -214,10 +214,10 @@ def file_return_to_fbr(tax_return):
     result = client.submit(return_data)
 
     doc.fbr_submission_status = result["status"]
-    doc.fbr_acknowledgment_number = result.get("acknowledgment_number")
+    doc.iris_acknowledgment_no = result.get("acknowledgment_number")
     doc.submission_timestamp = result.get("received_at") or now()
     if result.get("raw_response"):
-        doc.filing_error_details = ""
+        doc.filing_error_notes = ""
     doc.save(ignore_permissions=True)
     frappe.db.commit()
 
@@ -234,18 +234,18 @@ def check_filing_status(tax_return):
     """Poll FBR for the latest filing status of a Tax Return."""
     doc = frappe.get_doc("Tax Return", tax_return)
 
-    if not doc.fbr_acknowledgment_number and not doc.fbr_submission_status:
+    if not doc.iris_acknowledgment_no and not doc.fbr_submission_status:
         frappe.throw(_("This return has not been filed to FBR yet."))
 
     settings = _require_fbr_configured()
     client = FBRFilingClient(settings)
 
-    submission_id = doc.fbr_acknowledgment_number or doc.fbr_submission_status
+    submission_id = doc.iris_acknowledgment_no or doc.fbr_submission_status
     result = client.check_status(submission_id)
 
     doc.fbr_submission_status = result["status"]
     if result.get("acknowledgment_number"):
-        doc.fbr_acknowledgment_number = result["acknowledgment_number"]
+        doc.iris_acknowledgment_no = result["acknowledgment_number"]
     if result.get("filed_at"):
         doc.submission_timestamp = result["filed_at"]
     doc.save(ignore_permissions=True)

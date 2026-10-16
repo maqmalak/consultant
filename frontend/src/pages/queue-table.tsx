@@ -93,9 +93,9 @@ export function QueueTable({ queue, start, onStartChange }: QueueTableProps) {
                           <TD className="text-right">{r.net_tax_payable ? `PKR ${r.net_tax_payable.toLocaleString("en-PK")}` : "—"}</TD>
                           <TD>
                             {r.fbr_submission_status === "Filed"
-                              ? <Badge variant="default">{r.fbr_acknowledgment_number || "Filed"}</Badge>
-                              : r.fbr_acknowledgment_number
-                              ? <Badge variant="default">{r.fbr_acknowledgment_number}</Badge>
+                              ? <Badge variant="default">{r.iris_acknowledgment_no || "Filed"}</Badge>
+                              : r.iris_acknowledgment_no
+                              ? <Badge variant="default">{r.iris_acknowledgment_no}</Badge>
                               : "—"}
                           </TD>
                           <TD>{formatDate(r.creation)}</TD>

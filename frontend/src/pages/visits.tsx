@@ -2,7 +2,7 @@ import { MapPin as MapPinIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useFrappeGetCall } from "frappe-react-sdk";
 import { Search } from "lucide-react";
-import type { ClientVisit } from "@/types";
+import type { SiteVisit } from "@/types";
 import { formatDate } from "@/lib/format";
 import { Badge, stateVariant } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,16 +28,16 @@ export function VisitsPage() {
   const [start, setStart] = useState(0);
   const [total, setTotal] = useState<number | undefined>(undefined);
 
-  const { data, error, isLoading, mutate } = useFrappeGetCall<{ message?: ClientVisit[]; total_count?: number }>(
+  const { data, error, isLoading, mutate } = useFrappeGetCall<{ message?: SiteVisit[]; total_count?: number }>(
     VISITS_METHOD,
     {
-      doctype: "Client Visit",
-      fields: JSON.stringify(["name", "visit_type", "tax_client", "contact_person", "mobile", "lead_status", "visit_date", "purpose", "city", "field_officer", "assigned_consultant", "next_follow_up_date", "creation"]),
+      doctype: "Site Visit",
+      fields: JSON.stringify(["name", "visit_type", "tax_client", "full_name", "mobile", "status", "visit_date", "purpose", "city", "field_officer", "assigned_consultant", "follow_up_date", "creation"]),
       limit_page_length: LIMIT,
       start,
       order_by: "visit_date desc",
     },
-    "itax.client_visits.list",
+    "itax.site_visits.list",
   );
 
   const rows = Array.isArray(data?.message) ? data.message : [];
@@ -48,7 +48,7 @@ export function VisitsPage() {
     if (!q) return rows;
     return rows.filter(
       (r) =>
-        [r.contact_person, r.mobile, r.lead_status, r.purpose, r.city, r.field_officer]
+        [r.full_name, r.mobile, r.status, r.purpose, r.city, r.field_officer]
           .filter(Boolean)
           .some((f) => String(f).toLowerCase().includes(q)),
     );
@@ -60,7 +60,7 @@ export function VisitsPage() {
     <div className="page-container">
       <PageHeader
         icon={<MapPinIcon className="h-5 w-5" />}
-        title="Client Visits"
+        title="Site Visits"
         subtitle="Track outreach, meetings and follow-ups"
         actions={
           <div className="flex items-center gap-2">
@@ -114,14 +114,14 @@ export function VisitsPage() {
                         <TR key={v.name}>
                           <TD className="font-mono text-xs text-muted-foreground">{v.name}</TD>
                           <TD>{v.tax_client || "—"}</TD>
-                          <TD className="font-medium text-foreground">{v.contact_person || "—"}</TD>
+                          <TD className="font-medium text-foreground">{v.full_name || "—"}</TD>
                           <TD>{formatDate(v.visit_date)}</TD>
                           <TD>
-                            <Badge variant={stateVariant(v.lead_status)}>{STATUS_LABEL[v.lead_status]}</Badge>
+                            <Badge variant={stateVariant(v.status)}>{STATUS_LABEL[v.status]}</Badge>
                           </TD>
                           <TD className="max-w-xs truncate text-muted-foreground">{v.purpose || "—"}</TD>
                           <TD>{v.field_officer || "—"}</TD>
-                          <TD>{formatDate(v.next_follow_up_date)}</TD>
+                          <TD>{formatDate(v.follow_up_date)}</TD>
                         </TR>
                       ))
                   )}

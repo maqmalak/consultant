@@ -12,13 +12,13 @@ import {
 /** The 8 custom roles defined by the backend (spec §3). */
 export const ROLES = {
   SYSTEM_MANAGER: "System Manager",
-  CONSULTANT_ADMIN: "Tax Consultant Admin",
+  CONSULTANT_ADMIN: "Tax Admin",
   CONSULTANT: "Tax Consultant",
   REVIEWER: "Tax Reviewer",
   APPROVER: "Tax Approver",
   FILING_OFFICER: "Filing Officer",
   FIELD_OFFICER: "Field Officer",
-  CLIENT: "Tax Client User",
+  CLIENT: "Client",
 } as const;
 
 /** Every role that works inside the consultant workspace (non-client). */

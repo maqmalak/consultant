@@ -5,18 +5,18 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "document_category",
+  "document_type",
   "is_mandatory",
   "status",
   "tax_document"
  ],
  "fields": [
   {
-   "fieldname": "document_category",
+   "fieldname": "document_type",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Document Category",
-   "options": "Tax Document Category",
+   "label": "Document Type",
+   "options": "Document Type",
    "reqd": 1
   },
   {

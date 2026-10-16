@@ -1,0 +1,83 @@
+{
+ "actions": [],
+ "creation": "2026-10-16 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "income_category",
+  "description",
+  "payer_or_employer",
+  "tax_treatment",
+  "gross_amount",
+  "exempt_amount",
+  "taxable_amount",
+  "supporting_document"
+ ],
+ "fields": [
+  {
+   "fieldname": "income_category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Income Category",
+   "options": "Salary\nBusiness\nProperty (Rent)\nCapital Gains\nProfit on Debt\nDividend\nForeign Income\nAgricultural Income\nOther Sources",
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Description"
+  },
+  {
+   "fieldname": "payer_or_employer",
+   "fieldtype": "Data",
+   "label": "Payer Or Employer"
+  },
+  {
+   "default": "Normal",
+   "fieldname": "tax_treatment",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tax Treatment",
+   "options": "Normal\nFinal / Fixed\nSeparate Block\nExempt"
+  },
+  {
+   "fieldname": "gross_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Gross Amount",
+   "reqd": 1
+  },
+  {
+   "fieldname": "exempt_amount",
+   "fieldtype": "Currency",
+   "label": "Exempt Amount"
+  },
+  {
+   "fieldname": "taxable_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Taxable Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "supporting_document",
+   "fieldtype": "Link",
+   "label": "Supporting Document",
+   "options": "Tax Document"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-16 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Tax Return Income Source",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -16,12 +16,12 @@ export const VALID_TRANSITIONS: Record<string, string[]> = {
 };
 
 export const TRANSITION_ROLES: Record<string, string[]> = {
-  "Draft -> Submitted": ["Tax Consultant", "Tax Consultant Admin"],
-  "Submitted -> Under Review": ["Tax Consultant", "Tax Consultant Admin"],
-  "Under Review -> Approved": ["Tax Reviewer", "Tax Consultant Admin"],
-  "Under Review -> Rejected": ["Tax Reviewer", "Tax Consultant Admin"],
-  "Rejected -> Draft": ["Tax Consultant", "Tax Consultant Admin"],
-  "Approved -> Filed": ["Filing Officer", "Tax Consultant Admin"],
+  "Draft -> Submitted": ["Tax Consultant", "Tax Admin"],
+  "Submitted -> Under Review": ["Tax Consultant", "Tax Admin"],
+  "Under Review -> Approved": ["Tax Reviewer", "Tax Admin"],
+  "Under Review -> Rejected": ["Tax Reviewer", "Tax Admin"],
+  "Rejected -> Draft": ["Tax Consultant", "Tax Admin"],
+  "Approved -> Filed": ["Filing Officer", "Tax Admin"],
 };
 
 export interface TransitionAction {

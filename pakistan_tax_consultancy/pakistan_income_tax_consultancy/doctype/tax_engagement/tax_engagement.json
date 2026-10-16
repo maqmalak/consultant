@@ -7,10 +7,10 @@
  "field_order": [
   "tax_client",
   "client_name",
-  "service_type",
+  "service",
   "tax_year",
   "cb1",
-  "engagement_status",
+  "status",
   "engagement_date",
   "period_from",
   "period_to",
@@ -46,12 +46,12 @@
    "read_only": 1
   },
   {
-   "fieldname": "service_type",
+   "fieldname": "service",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Service Type",
-   "options": "Tax Service Type",
+   "label": "Service",
+   "options": "Service",
    "reqd": 1
   },
   {
@@ -68,11 +68,11 @@
   },
   {
    "default": "Draft",
-   "fieldname": "engagement_status",
+   "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Engagement Status",
+   "label": "Status",
    "options": "Draft\nActive\nOn Hold\nCompleted\nCancelled"
   },
   {
@@ -195,14 +195,14 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Tax Consultant Admin",
+   "role": "Tax Admin",
    "share": 1,
    "write": 1
   },
   {
    "permlevel": 2,
    "read": 1,
-   "role": "Tax Consultant Admin",
+   "role": "Tax Admin",
    "write": 1
   },
   {
@@ -274,7 +274,7 @@
    "permlevel": 0,
    "read": 1,
    "report": 1,
-   "role": "Tax Client User"
+   "role": "Client"
   }
  ],
  "row_format": "Dynamic",

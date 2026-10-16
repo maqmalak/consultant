@@ -1,8 +1,8 @@
 [
   {
     "doctype": "Role",
-    "name": "Tax Consultant Admin",
-    "role_name": "Tax Consultant Admin",
+    "name": "Tax Admin",
+    "role_name": "Tax Admin",
     "desk_access": 1
   },
   {
@@ -37,8 +37,8 @@
   },
   {
     "doctype": "Role",
-    "name": "Tax Client User",
-    "role_name": "Tax Client User",
+    "name": "Client",
+    "role_name": "Client",
     "desk_access": 0
   }
 ]

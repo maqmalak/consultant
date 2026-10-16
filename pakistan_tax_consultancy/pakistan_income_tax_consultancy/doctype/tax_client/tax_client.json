@@ -10,7 +10,7 @@
   "status",
   "cb1",
   "registration_source",
-  "taxpayer_registration_status",
+  "fbr_registration_status",
   "cnic_masked",
   "sb_ids",
   "cnic",
@@ -90,9 +90,9 @@
    "options": "Office\nSelf Registration\nField Visit\nImport"
   },
   {
-   "fieldname": "taxpayer_registration_status",
+   "fieldname": "fbr_registration_status",
    "fieldtype": "Select",
-   "label": "Taxpayer Registration Status",
+   "label": "FBR Registration Status",
    "options": "\nUnregistered\nRegistered - Not on ATL\nActive Taxpayer (ATL)\nInactive Taxpayer"
   },
   {
@@ -365,20 +365,20 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Tax Consultant Admin",
+   "role": "Tax Admin",
    "share": 1,
    "write": 1
   },
   {
    "permlevel": 1,
    "read": 1,
-   "role": "Tax Consultant Admin",
+   "role": "Tax Admin",
    "write": 1
   },
   {
    "permlevel": 2,
    "read": 1,
-   "role": "Tax Consultant Admin",
+   "role": "Tax Admin",
    "write": 1
   },
   {
@@ -479,13 +479,13 @@
    "permlevel": 0,
    "read": 1,
    "report": 1,
-   "role": "Tax Client User",
+   "role": "Client",
    "write": 1
   },
   {
    "permlevel": 1,
    "read": 1,
-   "role": "Tax Client User"
+   "role": "Client"
   }
  ],
  "row_format": "Dynamic",

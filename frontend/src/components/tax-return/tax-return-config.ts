@@ -64,7 +64,7 @@ export const LIABILITY_FIELDS: GridField[] = [
 ];
 
 export const CHILD_TABLES: ChildTableConfig[] = [
-  { doctype: "Tax Return Income", label: "Income", fields: INCOME_FIELDS, required: ["income_category", "gross_amount"] },
+  { doctype: "Tax Return Income Source", label: "Income", fields: INCOME_FIELDS, required: ["income_category", "gross_amount"] },
   { doctype: "Tax Return Deduction", label: "Deductions", fields: DEDUCTION_FIELDS, required: ["deduction_type", "amount"] },
   { doctype: "Tax Return Credit", label: "Credits", fields: CREDIT_FIELDS, required: ["credit_type", "amount"] },
   { doctype: "Tax Return Payment", label: "Payments", fields: PAYMENT_FIELDS, required: ["payment_type", "amount"] },

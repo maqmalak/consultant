@@ -5,19 +5,19 @@ Wired in hooks.py via ``permission_query_conditions`` (list/report queries) and
 has; these hooks decide *which records*. Hooks can only deny, never grant.
 
 Scopes (broadest wins when a user has several roles):
-  all        System Manager, Tax Consultant Admin, Tax Reviewer, Tax Approver, Filing Officer
+  all        System Manager, Tax Admin, Tax Reviewer, Tax Approver, Filing Officer
   consultant Tax Consultant  -> Assigned Consultant or assignee (_assign)
   field      Field Officer   -> records they registered (field_officer / owner)
-  client     Tax Client User -> Tax Client whose portal_user is them, plus linked records
+  client     Client -> Tax Client whose portal_user is them, plus linked records
   none       no rows
 """
 
 import frappe
 from frappe import _
 
-ALL_SCOPE_ROLES = {"System Manager", "Tax Consultant Admin", "Tax Reviewer", "Tax Approver", "Filing Officer"}
+ALL_SCOPE_ROLES = {"System Manager", "Tax Admin", "Tax Reviewer", "Tax Approver", "Filing Officer"}
 CLIENT_LINKED = ("Tax Engagement", "Tax Document", "Tax Return", "Tax Calculation", "Tax Review",
-	"Tax Approval", "Tax Filing Record")
+	"Tax Approval", "Filing Record")
 OWN_ASSIGNMENT = ("Tax Return", "Tax Engagement")
 
 
@@ -32,7 +32,7 @@ def get_scope(user=None):
 		return "consultant"
 	if "Field Officer" in roles:
 		return "field"
-	if "Tax Client User" in roles:
+	if "Client" in roles:
 		return "client"
 	return "none"
 
@@ -75,13 +75,13 @@ def client_linked_query(user=None, doctype=None):
 	return cond
 
 
-def client_visit_query(user=None, doctype=None):
+def site_visit_query(user=None, doctype=None):
 	user = user or frappe.session.user
 	scope = get_scope(user)
 	if scope == "all":
 		return ""
 	u = frappe.db.escape(user)
-	t = "`tabClient Visit`"
+	t = "`tabSite Visit`"
 	if scope == "consultant":
 		return f"({t}.assigned_consultant = {u} or {t}._assign like {_assign_like(user)})"
 	if scope == "field":
@@ -154,7 +154,7 @@ def client_linked_has_permission(doc, ptype=None, user=None, debug=False):
 	return can_access_client(doc.get("tax_client"), user)
 
 
-def client_visit_has_permission(doc, ptype=None, user=None, debug=False):
+def site_visit_has_permission(doc, ptype=None, user=None, debug=False):
 	user = user or frappe.session.user
 	scope = get_scope(user)
 	if scope == "all":

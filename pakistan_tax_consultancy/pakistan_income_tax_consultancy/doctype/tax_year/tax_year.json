@@ -10,7 +10,7 @@
   "cb1",
   "start_date",
   "end_date",
-  "filing_due_date",
+  "return_due_date",
   "sb_notes",
   "notes"
  ],
@@ -51,9 +51,9 @@
   },
   {
    "description": "Statutory due date as notified by FBR (verify each year)",
-   "fieldname": "filing_due_date",
+   "fieldname": "return_due_date",
    "fieldtype": "Date",
-   "label": "Filing Due Date"
+   "label": "Return Due Date"
   },
   {
    "fieldname": "sb_notes",
@@ -95,7 +95,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Tax Consultant Admin",
+   "role": "Tax Admin",
    "share": 1,
    "write": 1
   },

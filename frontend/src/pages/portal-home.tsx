@@ -51,7 +51,7 @@ export function PortalHomePage() {
     RETURNS_METHOD,
     {
       doctype: "Tax Return",
-      fields: json(["name", "tax_client", "client_name", "tax_year", "workflow_state", "net_tax_payable", "fbr_acknowledgment_number", "fbr_submission_status", "creation"]),
+      fields: json(["name", "tax_client", "client_name", "tax_year", "workflow_state", "net_tax_payable", "iris_acknowledgment_no", "fbr_submission_status", "creation"]),
       filters: json({ tax_client: { "in": myClients.map((c) => c.name) } }),
       limit_page_length: LIMIT,
       start,

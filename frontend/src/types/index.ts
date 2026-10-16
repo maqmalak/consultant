@@ -65,25 +65,25 @@ export interface TaxReturn extends FrappeMeta {
   content_hash?: string;
   approved_content_hash?: string;
   fbr_submission_status?: string;
-  fbr_acknowledgment_number?: string;
+  iris_acknowledgment_no?: string;
   submission_timestamp?: string;
 }
 
-// -------------------------------------------------------------- Client Visit
+// -------------------------------------------------------------- Site Visit
 
-export interface ClientVisit extends FrappeMeta {
-  doctype: "Client Visit";
+export interface SiteVisit extends FrappeMeta {
+  doctype: "Site Visit";
   visit_type?: string;
   tax_client?: string;
-  contact_person?: string;
+  full_name?: string;
   mobile?: string;
-  lead_status?: string;
+  status?: string;
   visit_date?: string;
   purpose?: string;
   city?: string;
   field_officer?: string;
   assigned_consultant?: string;
-  next_follow_up_date?: string;
+  follow_up_date?: string;
 }
 
 // ------------------------------------------------------------------ Dashboard

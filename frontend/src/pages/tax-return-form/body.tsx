@@ -53,7 +53,7 @@ function stepContents() {
         </div>
       );
     case 2:
-      return <ChildTableEditor name="Tax Return Income" control={control} label="Income" flex={1} />;
+      return <ChildTableEditor name="Tax Return Income Source" control={control} label="Income" flex={1} />;
     case 3:
       return <ChildTableEditor name="Tax Return Deduction" control={control} label="Deductions" flex={1} />;
     case 4:
@@ -134,7 +134,7 @@ function stepContents() {
           <div className="flex items-center justify-between border border-border rounded-lg px-4 py-3">
             <div>
               <p className="text-sm font-medium text-foreground">Filing error details</p>
-              <p className="text-xs text-muted-foreground">{values.filing_error_details ?? "—"}</p>
+              <p className="text-xs text-muted-foreground">{values.filing_error_notes ?? "—"}</p>
             </div>
           </div>
         </div>

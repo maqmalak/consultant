@@ -9,14 +9,14 @@ app_license = "mit"
 fixtures = [
 	{"dt": "Role", "filters": [[
 		"role_name", "in", [
-			"Tax Consultant Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver",
-			"Filing Officer", "Field Officer", "Tax Client User"
+			"Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver",
+			"Filing Officer", "Field Officer", "Client"
 		]
 	]]},
 	{"dt": "Tax Year"},
 	{"dt": "Tax Regime"},
-	{"dt": "Tax Service Type"},
-	{"dt": "Tax Document Category"},
+	{"dt": "Service"},
+	{"dt": "Document Type"},
 	{"dt": "Workspace", "filters": [[
 		"module", "=", "Pakistan Income Tax Consultancy"
 	]]},
@@ -62,25 +62,25 @@ fixtures = [
 # include js in doctype views
 doctype_js = {
 	"Tax Client": "pakistan_income_tax_consultancy/doctype/tax_client/tax_client.js",
-	"Client Visit": "pakistan_income_tax_consultancy/doctype/client_visit/client_visit.js",
+	"Site Visit": "pakistan_income_tax_consultancy/doctype/site_visit/site_visit.js",
 	"Tax Engagement": "pakistan_income_tax_consultancy/doctype/tax_engagement/tax_engagement.js",
 	"Tax Document": "pakistan_income_tax_consultancy/doctype/tax_document/tax_document.js",
 	"Tax Return": "pakistan_income_tax_consultancy/doctype/tax_return/tax_return.js",
 	"Tax Calculation": "pakistan_income_tax_consultancy/doctype/tax_calculation/tax_calculation.js",
 	"Tax Review": "pakistan_income_tax_consultancy/doctype/tax_review/tax_review.js",
 	"Tax Approval": "pakistan_income_tax_consultancy/doctype/tax_approval/tax_approval.js",
-	"Tax Filing Record": "pakistan_income_tax_consultancy/doctype/tax_filing_record/tax_filing_record.js",
+	"Filing Record": "pakistan_income_tax_consultancy/doctype/filing_record/filing_record.js",
 	"Tax Year": "pakistan_income_tax_consultancy/doctype/tax_year/tax_year.js",
 	"Tax Regime": "pakistan_income_tax_consultancy/doctype/tax_regime/tax_regime.js",
-	"Tax Service Type": "pakistan_income_tax_consultancy/doctype/tax_service_type/tax_service_type.js",
-	"Tax Slab Rule": "pakistan_income_tax_consultancy/doctype/tax_slab_rule/tax_slab_rule.js",
+	"Service": "pakistan_income_tax_consultancy/doctype/service/service.js",
+	"Tax Slab Setting": "pakistan_income_tax_consultancy/doctype/tax_slab_setting/tax_slab_setting.js",
 	"Tax Credit Rule": "pakistan_income_tax_consultancy/doctype/tax_credit_rule/tax_credit_rule.js",
 	"Withholding Tax Section": "pakistan_income_tax_consultancy/doctype/withholding_tax_section/withholding_tax_section.js",
-	"Tax Document Category": "pakistan_income_tax_consultancy/doctype/tax_document_category/tax_document_category.js",
+	"Document Type": "pakistan_income_tax_consultancy/doctype/document_type/document_type.js",
 	"Tax Consultancy Settings": "pakistan_income_tax_consultancy/doctype/tax_consultancy_settings/tax_consultancy_settings.js",
 	"Document Requirement Rule": "pakistan_income_tax_consultancy/doctype/document_requirement_rule/document_requirement_rule.js",
-	"Client Visit Document": "pakistan_income_tax_consultancy/doctype/client_visit_document/client_visit_document.js",
-	"Client Visit Service": "pakistan_income_tax_consultancy/doctype/client_visit_service/client_visit_service.js",
+	"Site Visit Document": "pakistan_income_tax_consultancy/doctype/site_visit_document/site_visit_document.js",
+	"Site Visit Service": "pakistan_income_tax_consultancy/doctype/site_visit_service/site_visit_service.js",
 }
 doctype_list_js = {
 	"Tax Return": "pakistan_income_tax_consultancy/doctype/tax_return/tax_return.js",
@@ -175,26 +175,26 @@ doctype_list_js = {
 
 permission_query_conditions = {
 	"Tax Client": "pakistan_tax_consultancy.permissions.tax_client_query",
-	"Client Visit": "pakistan_tax_consultancy.permissions.client_visit_query",
+	"Site Visit": "pakistan_tax_consultancy.permissions.site_visit_query",
 	"Tax Engagement": "pakistan_tax_consultancy.permissions.client_linked_query",
 	"Tax Document": "pakistan_tax_consultancy.permissions.client_linked_query",
 	"Tax Return": "pakistan_tax_consultancy.permissions.client_linked_query",
 	"Tax Calculation": "pakistan_tax_consultancy.permissions.client_linked_query",
 	"Tax Review": "pakistan_tax_consultancy.permissions.client_linked_query",
 	"Tax Approval": "pakistan_tax_consultancy.permissions.client_linked_query",
-	"Tax Filing Record": "pakistan_tax_consultancy.permissions.client_linked_query",
+	"Filing Record": "pakistan_tax_consultancy.permissions.client_linked_query",
 }
 
 has_permission = {
 	"Tax Client": "pakistan_tax_consultancy.permissions.tax_client_has_permission",
-	"Client Visit": "pakistan_tax_consultancy.permissions.client_visit_has_permission",
+	"Site Visit": "pakistan_tax_consultancy.permissions.site_visit_has_permission",
 	"Tax Engagement": "pakistan_tax_consultancy.permissions.client_linked_has_permission",
 	"Tax Document": "pakistan_tax_consultancy.permissions.client_linked_has_permission",
 	"Tax Return": "pakistan_tax_consultancy.permissions.client_linked_has_permission",
 	"Tax Calculation": "pakistan_tax_consultancy.permissions.client_linked_has_permission",
 	"Tax Review": "pakistan_tax_consultancy.permissions.client_linked_has_permission",
 	"Tax Approval": "pakistan_tax_consultancy.permissions.client_linked_has_permission",
-	"Tax Filing Record": "pakistan_tax_consultancy.permissions.client_linked_has_permission",
+	"Filing Record": "pakistan_tax_consultancy.permissions.client_linked_has_permission",
 }
 
 # Document Events
@@ -225,7 +225,7 @@ doc_events = {
 	"Tax Approval": {
 		"validate": "pakistan_tax_consultancy.permissions.validate_client_link",
 	},
-	"Tax Filing Record": {
+	"Filing Record": {
 		"validate": "pakistan_tax_consultancy.permissions.validate_client_link",
 	},
 }

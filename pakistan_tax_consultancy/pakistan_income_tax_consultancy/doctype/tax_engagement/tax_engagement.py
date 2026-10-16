@@ -25,8 +25,8 @@ class TaxEngagement(Document):
 			if getdate(self.period_to) < getdate(self.period_from):
 				frappe.throw(_("Period To must be after Period From"))
 
-		if self.service_type and not frappe.db.exists("Tax Service Type", self.service_type):
-			frappe.throw(_("Tax Service Type {0} does not exist.").format(self.service_type))
+		if self.service and not frappe.db.exists("Service", self.service):
+			frappe.throw(_("Service {0} does not exist.").format(self.service))
 
 		if self.tax_year and not frappe.db.exists("Tax Year", self.tax_year):
 			frappe.throw(_("Tax Year {0} does not exist.").format(self.tax_year))

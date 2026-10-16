@@ -18,9 +18,9 @@ from frappe.utils import flt, getdate
 # ---------------------------------------------------------------------------
 
 def _get_active_slab_rules(tax_year, tax_regime, taxpayer_type):
-    """Return active Tax Slab Rule rows ordered by priority, with their slabs."""
+    """Return active Tax Slab Setting rows ordered by priority, with their slabs."""
     rules = frappe.get_all(
-        "Tax Slab Rule",
+        "Tax Slab Setting",
         filters={
             "tax_year": tax_year,
             "tax_regime": tax_regime,
@@ -33,13 +33,13 @@ def _get_active_slab_rules(tax_year, tax_regime, taxpayer_type):
     )
     if not rules:
         frappe.throw(
-            _("No active Tax Slab Rule found for year {0}, regime {1}, taxpayer {2}").format(
+            _("No active Tax Slab Setting found for year {0}, regime {1}, taxpayer {2}").format(
                 tax_year, tax_regime, taxpayer_type
             ),
             title=_("Missing Slab Rule"),
         )
 
-    rule = frappe.get_doc("Tax Slab Rule", rules[0].name)
+    rule = frappe.get_doc("Tax Slab Setting", rules[0].name)
     slabs = []
     for s in rule.slabs or []:
         slabs.append(
@@ -141,10 +141,10 @@ def calculate_tax(tax_return):
     tax_regime = doc.tax_regime
     taxpayer_type = doc.taxpayer_type or "Individual"
 
-    income_lines = doc.get("income_lines") or []
-    gross_income = sum(flt(l.get("gross_amount")) for l in income_lines)
-    exempt_income = sum(flt(l.get("exempt_amount")) for l in income_lines)
-    taxable_income_from_lines = sum(flt(l.get("taxable_amount")) for l in income_lines)
+    income_sources = doc.get("income_sources") or []
+    gross_income = sum(flt(l.get("gross_amount")) for l in income_sources)
+    exempt_income = sum(flt(l.get("exempt_amount")) for l in income_sources)
+    taxable_income_from_lines = sum(flt(l.get("taxable_amount")) for l in income_sources)
 
     deduction_lines = doc.get("deduction_lines") or []
     total_deductions = sum(flt(l.get("amount")) for l in deduction_lines)
@@ -158,7 +158,7 @@ def calculate_tax(tax_return):
     tax_on_taxable_income = _compute_slab_tax(taxable_income, slabs)
 
     separate_block_tax = sum(
-        flt(l.get("taxable_amount")) for l in income_lines
+        flt(l.get("taxable_amount")) for l in income_sources
         if l.get("tax_treatment") == "Separate Block"
     )
     fixed_tax = sum(flt(s["fixed_tax"]) for s in slabs if taxable_income > flt(s["from_amount"]))
@@ -217,7 +217,7 @@ def calculate_tax(tax_return):
     calc.input_hash = ""
     calc.calculation_log = frappe.as_json(
         {
-            "slab_rule": rule.name,
+            "slab_setting": rule.name,
             "slabs": slabs,
             "credit_rules": [r["name"] for r in credit_rules],
             "gross_income": gross_income,
