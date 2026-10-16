@@ -2,7 +2,7 @@ import frappe
 from frappe.sessions import get_csrf_token
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True, methods=["GET"])
 def get_csrf_token_for_session() -> str:
 	"""Expose the current session's CSRF token to the React SPA.
 

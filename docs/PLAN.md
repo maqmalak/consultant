@@ -19,11 +19,7 @@ Findings:
 
 - **Blog:** v16 core has `Web Page`, `Web Form` and `Website Settings`, but **no `Blog Post`** DocType. The blog becomes our own `Tax Update` DocType, rendered by www pages.
 - **SPA serving:** a hand-made Vite build (as in realestate/solar) is enough, so Doppio isn't needed. `vite build` writes to `public/frontend/`; `www/portal.html` loads it; `website_route_rules` maps `/portal/<path>` to it.
-- **Dev ports:** the tax Vite dev server is set to `:5180`, which **solar already uses**. All sites on this bench also share cookie names, so logging in on one site logs you out of another. Proposal (same pattern as realestate):
-  - add a Procfile entry `web_consultant: bench --site consultant serve --port 8010`
-  - open the desk at `http://consultant.localhost:8010`
-  - run Vite on `:5181` at `http://consultant.localhost:5181`
-  - other sites' configs are not touched
+- **Dev ports (decided):** the portal keeps Vite on **:5180** and the desk runs on **:8010** (`bench --site consultant serve --port 8010`). Both run outside the Procfile today; logs go to `logs/consultant_ui.log` and `logs/web_consultant.log`. Solar's UI is also set to 5180 with `--strictPort`, so the two can't run at the same time. Solar's config is left untouched.
 - **Running processes** cache app code: restart `bench start` after this plan's migrations.
 
 ## 2. Architecture
@@ -173,7 +169,7 @@ Each phase covers the following:
 | # | Scope | State | You can test after it |
 |---|---|---|---|
 | 0 | Inspect + this plan | **done** (this doc) | — |
-| 1 | Site/app/roles/settings/fixtures | **mostly done**: app renamed, roles + DocTypes on spec names. Left: Procfile entry + `consultant.localhost`, Firm Website Settings, fixtures for Workflow/Notifications/Print Formats/Number Cards | desk on `consultant.localhost:8010`; `bench --site consultant list-apps` |
+| 1 | Site/app/roles/settings/fixtures | **mostly done**: app renamed, roles + DocTypes on spec names. Left: Firm Website Settings, fixtures for Workflow/Notifications/Print Formats/Number Cards | desk on `:8010`, portal on `:5180`; `bench --site consultant list-apps` |
 | 2 | Tax Client + Site Visit completion, CSV import with dry run, duplicate detection, portal invite, sign-up + OTP (console SMS) + email verify, rate limits, role redirect; scope the dashboard API | partial (client/visit/duplicates exist) | sign up as a client, OTP shows in the log; import a CSV; convert a visit |
 | 3 | Document Types per client type/service, checklist auto-generation, private upload/download endpoint + audit, verify/reject with reason | partial | upload as a client, reject as staff, re-upload; Draft is blocked until docs are verified |
 | 4 | Engagement + packages, Tax Return child-table split, Tax Year/Tax Slab Setting (DEMO slabs marked NOT VERIFIED), `services/tax_calc.py` with versioned results | partial | create a return, enter income, see payable/refund for TY2026 |
@@ -191,9 +187,8 @@ Demo data (`pakistan_tax_consultancy.setup.demo.create_demo_data`): one user per
 ## 7. Decisions needed from you
 
 1. **Firm details (§2):** firm name, phone/WhatsApp, email, office address, domain. Until you send them, placeholders marked `<FILL>` will show in settings. The website (Phase 8) needs them.
-2. **Dev hosting:** the Procfile `web_consultant` entry on :8010, hostname `consultant.localhost`, Vite on :5181 (recommended). The alternative is to keep sharing :8000.
-3. **Audit records:** keep the extra Tax Calculation / Tax Review / Tax Approval records as an audit trail next to the spec's fields on Tax Return (recommended), or drop them.
-4. **Payment table:** split `Tax Return Payment` into Withholding + Advance Tax tables as the spec says (recommended).
-5. **Work start:** should work start before or after payment? This is the default for the setting in §13.
+2. **Audit records:** keep the extra Tax Calculation / Tax Review / Tax Approval records as an audit trail next to the spec's fields on Tax Return (recommended), or drop them.
+3. **Payment table:** split `Tax Return Payment` into Withholding + Advance Tax tables as the spec says (recommended).
+4. **Work start:** should work start before or after payment? This is the default for the setting in §13.
 
 Unless you say otherwise, I'll take the recommended options and start Phase 1's leftovers, then Phase 2.
