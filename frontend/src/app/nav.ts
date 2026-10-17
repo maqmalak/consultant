@@ -57,7 +57,7 @@ export const STAFF_NAV: NavGroup[] = [
     ],
   },
   {
-    title: "Front Office",
+    title: "Client Communication & Collaboration",
     items: [
       { path: "/crm", label: "CRM", hint: "Leads · Pipeline · Calendar", icon: Handshake, roles: [SM, ADMIN, CONSULTANT, REVIEWER, FIELD], hue: "orange" },
       { path: "/staff/inbox", label: "WhatsApp Inbox", hint: "Team chats with clients", icon: MessageCircle, roles: [SM, ADMIN, CONSULTANT, REVIEWER, FIELD], hue: "green" },
