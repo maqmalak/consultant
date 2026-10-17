@@ -45,6 +45,28 @@ function write(key: string, value: unknown) {
 const systemDark = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches;
 const resolveDark = (mode: ThemeMode) => (mode === "system" ? systemDark() : mode === "dark");
 
+/** Relative luminance (WCAG) of an "H S% L%" triple. */
+function luminance(hsl: string): number | null {
+  const m = hsl.trim().match(/^([\d.]+)\s+([\d.]+)%\s+([\d.]+)%$/);
+  if (!m) return null;
+  const [h, s, l] = [Number(m[1]), Number(m[2]) / 100, Number(m[3]) / 100];
+  const k = (n: number) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+  const lin = (c: number) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * lin(f(0)) + 0.7152 * lin(f(8)) + 0.0722 * lin(f(4));
+}
+
+/** Text / tick colour on the accent: whichever of near-white or near-black contrasts more (bright amber in dark mode needs dark text). */
+function syncPrimaryForeground(root: HTMLElement) {
+  root.style.removeProperty("--primary-foreground");
+  const L = luminance(getComputedStyle(root).getPropertyValue("--primary"));
+  if (L === null) return;
+  const onWhite = 1.05 / (L + 0.05);
+  const onDark = (L + 0.05) / (0.0056 + 0.05); // #0b0f19-ish
+  root.style.setProperty("--primary-foreground", onDark > onWhite ? "222 47% 8%" : "0 0% 100%");
+}
+
 /** Apply mode + customisations to <html>: dark class, colour scheme, --primary/--ring, --radius and root font size. */
 export function applyTheme(mode: ThemeMode, custom: Custom) {
   const root = document.documentElement;
@@ -59,6 +81,7 @@ export function applyTheme(mode: ThemeMode, custom: Custom) {
   if (custom.radius !== null) root.style.setProperty("--radius", `${custom.radius}rem`);
   else root.style.removeProperty("--radius");
   root.style.fontSize = custom.scale && custom.scale !== 100 ? `${custom.scale}%` : "";
+  syncPrimaryForeground(root);
 }
 
 function storedMode(): ThemeMode {

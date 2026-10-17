@@ -13,7 +13,7 @@ import { ThemeCustomizer } from "./theme-provider";
 
 const link = ({ isActive }: { isActive: boolean }) => cn(
   "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-  isActive ? "bg-primary/90 text-white hover:bg-primary" : "text-sidebar-foreground/80 hover:bg-white/10 hover:text-sidebar-foreground");
+  isActive ? "bg-primary/90 text-primary-foreground hover:bg-primary" : "text-sidebar-foreground/80 hover:bg-white/10 hover:text-sidebar-foreground");
 
 function Sidebar() {
   const { hasRole } = useAuth();
