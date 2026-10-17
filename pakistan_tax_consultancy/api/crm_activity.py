@@ -178,6 +178,36 @@ def send_whatsapp(doctype: str, name: str, message: str):
 	return send_message(to=profile, message=message.strip(), content_type="text", reference_doctype=doctype, reference_docname=name)
 
 
+@frappe.whitelist(methods=["GET"])
+def whatsapp_templates(doctype: str, name: str):
+	"""Approved WhatsApp templates built on this record type, each filled from the record for a preview."""
+	from pakistan_tax_consultancy.services.broadcast import render
+
+	doc = _doc(doctype, name)
+	rows = frappe.get_all("WhatsApp Template", {"reference_doctype": doctype, "status": "Approved"},
+		["name", "template_label", "template_type", "footer"], order_by="template_label asc")
+	for r in rows:
+		r.preview = render(r.name, doc=doc)
+	return rows
+
+
+@frappe.whitelist(methods=["POST"])
+def send_whatsapp_template(doctype: str, name: str, template: str):
+	"""An approved template — the only kind Meta delivers outside the 24-hour window. Same consent rules as broadcasts."""
+	from pakistan_tax_consultancy.services import broadcast, wa_inbox
+
+	doc = _doc(doctype, name, "write")
+	mobile = doc.get("mobile_no") or doc.get("phone")
+	tpl = frappe.db.get_value("WhatsApp Template", template, ["reference_doctype", "status"], as_dict=True)
+	if not tpl or tpl.reference_doctype != doctype or tpl.status != "Approved":
+		frappe.throw(_("Pick an approved template for this record."))
+	reason = broadcast._consent_ok(doctype, name, mobile)
+	if reason:
+		frappe.throw(reason)
+	wa_inbox.install_mock()
+	return broadcast.send_template(template, mobile, doctype, name)
+
+
 @frappe.whitelist(methods=["POST"])
 def send_email(doctype: str, name: str, subject: str, message: str, to: str | None = None):
 	from frappe.core.doctype.communication.email import make

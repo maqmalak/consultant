@@ -29,12 +29,25 @@ def require_staff():
 
 
 # ----------------------------------------------------------------------------------------------- dashboard & queues
+def _readable(doctype, **kwargs):
+	"""get_list for the dashboard: a role that may not read this doctype (e.g. a field officer and Tax Return) sees none."""
+	if not frappe.has_permission(doctype, "read"):
+		return []
+	try:
+		return frappe.get_list(doctype, limit_page_length=0, **kwargs)
+	except frappe.PermissionError:  # can read the doctype but not a filtered field (permlevel)
+		from frappe.utils.messages import clear_last_message
+
+		clear_last_message()
+		return []
+
+
 @frappe.whitelist(methods=["GET"])
 def dashboard():
 	require_staff()
 	today = getdate()
-	returns = frappe.get_list("Tax Return", fields=["name", "workflow_state", "assigned_consultant", "tax_year",
-		"net_tax_payable", "refund_due", "modified"], limit_page_length=0)
+	returns = _readable("Tax Return", fields=["name", "workflow_state", "assigned_consultant", "tax_year",
+		"net_tax_payable", "refund_due", "modified"])
 	by_state = {}
 	for r in returns:
 		by_state[r.workflow_state] = by_state.get(r.workflow_state, 0) + 1
@@ -54,15 +67,13 @@ def dashboard():
 	return {
 		"by_state": [{"state": s, "count": by_state.get(s, 0)} for s, *_ in wf.STATES],
 		"total_returns": len(returns),
-		"clients": len(frappe.get_list("Tax Client", pluck="name", limit_page_length=0)),
-		"documents_to_verify": len(frappe.get_list("Tax Document", filters={"status": "Pending"}, pluck="name",
-			limit_page_length=0)),
-		"followups_due": len(frappe.get_list("Site Visit", filters={"follow_up_date": ("<=", today),
-			"status": ("not in", ("Converted", "Not Interested"))}, pluck="name", limit_page_length=0)),
+		"clients": len(_readable("Tax Client", pluck="name")),
+		"documents_to_verify": len(_readable("Tax Document", filters={"status": "Pending"}, pluck="name")),
+		"followups_due": len(_readable("Site Visit", filters={"follow_up_date": ("<=", today),
+			"status": ("not in", ("Converted", "Not Interested"))}, pluck="name")),
 		"overdue": len(overdue),
 		"payments_to_verify": frappe.db.count("Payment Proof", {"status": "Pending"}) if scope == "all" else 0,
-		"consultations_new": len(frappe.get_list("Consultation Request", filters={"status": "New"}, pluck="name",
-			limit_page_length=0)),
+		"consultations_new": len(_readable("Consultation Request", filters={"status": "New"}, pluck="name")),
 		"collected_this_month": collected,
 		"total_payable": sum(flt(r.net_tax_payable) for r in returns),
 		"total_refund": sum(flt(r.refund_due) for r in returns),

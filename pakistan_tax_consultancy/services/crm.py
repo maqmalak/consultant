@@ -8,7 +8,7 @@ The full CRM runs at /crm; the staff portal shows a dashboard, leads and the pip
 import frappe
 from frappe import _
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
-from frappe.utils import strip_html
+from frappe.utils import nowdate, strip_html
 
 # deal status, type, position, colour, probability
 PIPELINE = [
@@ -165,6 +165,18 @@ def on_site_visit(doc, method=None):
 
 
 # ---------------------------------------------------------------- won deal -> Tax Client
+def _site_visit(mobile):
+	"""The latest prospect visit for this number (matched on the last 10 digits), so a won deal keeps where we met them."""
+	from pakistan_tax_consultancy.services.wa_inbox import phone_key
+
+	key = phone_key(mobile) if mobile else None
+	if not key:
+		return None
+	rows = frappe.db.sql("""select name, city, location_description, field_officer, converted_client from `tabSite Visit` where visit_type = 'Prospect'
+		and RIGHT(REGEXP_REPLACE(IFNULL(mobile, ''), '[^0-9]', ''), 10) = %s order by creation desc limit 1""", key, as_dict=True)
+	return rows[0] if rows else None
+
+
 def on_deal_update(doc, method=None):
 	"""CRM Deal on_update: reaching the won stage creates (or links) the Tax Client and hands it to the deal owner."""
 	if doc.status != WON or doc.get("tax_client"):
@@ -181,16 +193,21 @@ def on_deal_update(doc, method=None):
 			mobile = normalize_mobile(doc.mobile_no) if doc.mobile_no else None
 		except ValueError:
 			frappe.throw(_("Fix the mobile number on this deal before marking it {0}: {1}").format(WON, doc.mobile_no))
+		visit = _site_visit(doc.mobile_no)
 		c = frappe.get_doc({"doctype": "Tax Client", "client_name": name, "client_type": doc.get("ptc_client_type") or "Individual-Salaried",
 			"business_name": doc.organization_name if doc.get("ptc_client_type") not in (None, "Individual-Salaried") else None,
-			"mobile": mobile, "email": doc.email, "assigned_consultant": doc.deal_owner, "registration_source": "Office",
-			"status": "Active"})
+			"mobile": mobile, "email": doc.email, "assigned_consultant": doc.deal_owner,
+			"registration_source": "Field Visit" if visit else "Office", "status": "Active",
+			**({"city": visit.city, "residential_address": visit.location_description, "field_officer": visit.field_officer} if visit else {})})
 		c.flags.ignore_permissions = True
 		c.insert()
 		client = c.name
 	doc.db_set("tax_client", client)
 	if doc.lead:
 		frappe.db.set_value("CRM Lead", doc.lead, "tax_client", client)
+	visit = _site_visit(doc.mobile_no)
+	if visit and not visit.converted_client:
+		frappe.db.set_value("Site Visit", visit.name, {"converted_client": client, "conversion_date": nowdate(), "status": "Converted"})
 	frappe.get_doc("Tax Client", client).add_comment("Info", _("Client from CRM deal {0}").format(doc.name))
 	frappe.msgprint(_("Tax client {0} is ready — open it to start the return.").format(client), alert=True)
 

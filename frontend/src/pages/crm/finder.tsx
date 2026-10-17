@@ -15,7 +15,7 @@ import { RichText, RichTextEditor } from "@/components/forms/rich-text-editor";
 import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/cn";
 import { useApi } from "@/lib/use-api";
-import { apiCall } from "@/services/frappe";
+import { apiCall, apiGet } from "@/services/frappe";
 
 const F = "pakistan_tax_consultancy.api.lead_finder";
 type Status = "Pending Review" | "Approved" | "Converted" | "Rejected";
@@ -79,7 +79,7 @@ function MapsSearch({ ready, onImported }: { ready: boolean; onImported: () => v
   const poll = (id: string) => {
     timer.current = window.setTimeout(async () => {
       try {
-        const st = await apiCall<{ status: string }>(`${F}.maps_status`, { run: id });
+        const st = await apiGet<{ status: string }>(`${F}.maps_status`, { run: id });
         setRun((r) => (r ? { ...r, status: st.status } : r));
         if (st.status === "SUCCEEDED") await finish(id);
         else if (["FAILED", "ABORTED", "TIMED-OUT"].includes(st.status)) setErr(new Error(`The Apify run ${st.status.toLowerCase()}.`));

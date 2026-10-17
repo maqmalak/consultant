@@ -86,6 +86,7 @@ export default function App() {
         <Route path="leads/:name" element={<CrmRecordPage doctype="CRM Lead" />} />
         <Route path="deals/:name" element={<CrmRecordPage doctype="CRM Deal" />} />
         <Route path="pipeline" element={<CrmPipelinePage />} />
+        <Route path="deals" element={<Navigate to="/crm/pipeline" replace />} />
         <Route path="follow-ups" element={<FollowUpsPage />} />
         <Route path="calendar" element={<CrmCalendarPage />} />
         <Route path="finder" element={<LeadFinderPage />} />

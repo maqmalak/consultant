@@ -142,6 +142,27 @@ def set_counts(doc):
 
 
 # ---------------------------------------------------------------- send
+def render(template, reference_doctype=None, reference_name=None, doc=None):
+	"""The template body filled from the record, as the person reads it (unknown or unsafe fields stay as {{name}})."""
+	import re
+
+	from pakistan_tax_consultancy.api.broadcast import templates_fields
+
+	body = frappe.db.get_value("WhatsApp Template", template, "message") or ""
+	if doc is None and reference_doctype and reference_name and frappe.db.exists(reference_doctype, reference_name):
+		doc = frappe.get_doc(reference_doctype, reference_name)
+	if doc is None:
+		return body
+	safe = set(templates_fields().get(doc.doctype, ()))
+	fields = dict(frappe.get_all("Template Variable", {"parent": template}, ["variable_name", "variable_field"], as_list=True))
+
+	def fill(m):
+		field = fields.get(m.group(1))
+		return str(doc.get(field) or "") if field in safe else m.group(0)
+
+	return re.sub(r"\{\{\s*(\w+)\s*\}\}", fill, body)
+
+
 def send_template(template, phone, reference_doctype=None, reference_name=None):
 	"""One template message (ported from realestate.whatsapp.channel.send_template); it shows in the inbox and on the record."""
 	from pakistan_tax_consultancy.services.wa_inbox import profile_for
@@ -150,7 +171,7 @@ def send_template(template, phone, reference_doctype=None, reference_name=None):
 	if not profile:
 		frappe.throw(_("Invalid WhatsApp number"))
 	msg = frappe.get_doc({"doctype": "WhatsApp Message", "direction": "Outgoing", "to": profile, "is_template": 1,
-		"whatsapp_template": template, "message": frappe.db.get_value("WhatsApp Template", template, "message") or "Template message",
+		"whatsapp_template": template, "message": render(template, reference_doctype, reference_name) or "Template message",
 		"reference_doctype": reference_doctype, "reference_docname": reference_name})
 	msg.flags.ignore_permissions = True
 	msg.insert()

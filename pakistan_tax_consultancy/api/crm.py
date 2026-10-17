@@ -61,7 +61,9 @@ def dashboard():
 	open_deals = [d for d in deals if kind.get(d.status) in ("Open", "Ongoing")]
 	return {
 		"new_leads_7d": sum(1 for lead in leads if getdate(lead.creation) >= add_days(today, -7)),
-		"open_leads": frappe.db.count("CRM Lead", {"converted": 0, "status": ("not in", ["Junk", "Unqualified", "Converted"])}),
+		# permission-aware like every other number here (a field officer counts only the leads they can open)
+		"open_leads": len(frappe.get_list("CRM Lead", filters={"converted": 0, "status": ("not in", ["Junk", "Unqualified", "Converted"])},
+			pluck="name", limit_page_length=0)),
 		"open_deals": len(open_deals), "pipeline_value": sum(value(d) for d in open_deals),
 		"won_month": sum(1 for d in won if closed(d) >= month), "won_value_month": sum(value(d) for d in won if closed(d) >= month),
 		"win_rate": round(100 * len(recent_won) / (len(recent_won) + len(recent_lost))) if (recent_won or recent_lost) else None,

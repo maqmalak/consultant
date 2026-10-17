@@ -53,6 +53,29 @@ class TestCrm(IntegrationTestCase):
 		frappe.get_doc("CRM Deal", deal).save()
 		self.assertEqual(frappe.db.count("Tax Client", {"client_name": "Won Deal Person"}), 1)
 
+	def test_won_deal_from_site_visit_keeps_visit_details(self):
+		from pakistan_tax_consultancy.api import crm as crm_api
+
+		visit = frappe.get_doc({"doctype": "Site Visit", "visit_type": "Prospect", "full_name": "Visit Deal Person", "mobile": "03000990451",
+			"visit_date": frappe.utils.nowdate(), "city": "Faisalabad", "location_description": "Shop 1 (test)",
+			"client_type": "Individual-Business"}).insert(ignore_permissions=True)
+		lead = frappe.get_all("CRM Lead", {"mobile_no": ("like", "%3000990451")}, pluck="name")[0]
+		self.assertEqual(frappe.db.get_value("CRM Lead", lead, "source"), "Site Visit")
+		client = crm_api.move_deal(crm_api.convert(lead), crm.WON)["tax_client"]
+		self.assertEqual(frappe.db.get_value("Tax Client", client, ["city", "registration_source"]), ("Faisalabad", "Field Visit"))
+		self.assertEqual(frappe.db.get_value("Site Visit", visit.name, ["converted_client", "status"]), (client, "Converted"))
+
+	def test_staff_dashboard_for_field_officer(self):
+		"""The dashboard is in the field officer's menu; sections they may not read are empty, not an error."""
+		from pakistan_tax_consultancy.api import staff
+		from pakistan_tax_consultancy.tests.test_permission_isolation import make_user
+
+		officer = frappe.db.exists("User", "crm.field@example.com") or make_user("crm.field@example.com", ["Field Officer"], "Crm Field").name
+		frappe.set_user(officer)
+		data = staff.dashboard()
+		self.assertEqual(data["total_returns"], 0)
+		self.assertIn("clients", data)
+
 	def test_lost_needs_a_reason(self):
 		from pakistan_tax_consultancy.api import crm as crm_api
 

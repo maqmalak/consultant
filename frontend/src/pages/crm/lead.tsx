@@ -66,6 +66,8 @@ function Composer({ d, onDone, initial }: { d: Detail; onDone: () => void; initi
   const [tool, setTool] = useState<Tool>(initial ?? "note");
   const [f, setF] = useState({ text: "", title: "", due: tomorrowAt10(), priority: "Medium", assigned_to: me?.user ?? "", subject: "",
     category: "Call", minutes: "30" });
+  const [waMode, setWaMode] = useState<"text" | "template">("text");
+  const [waTemplate, setWaTemplate] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<unknown>(null);
   const [ok, setOk] = useState<string | null>(null);
@@ -76,17 +78,20 @@ function Composer({ d, onDone, initial }: { d: Detail; onDone: () => void; initi
     try {
       if (tool === "note") await apiCall(`${A}.add_note`, { ...ref, content: f.text });
       if (tool === "task") await apiCall(`${A}.add_task`, { ...ref, title: f.title || htmlText(f.text).split("\n")[0] || "Follow up", due_date: f.due.replace("T", " "), priority: f.priority, assigned_to: f.assigned_to, description: f.text });
-      if (tool === "whatsapp") await apiCall(`${A}.send_whatsapp`, { ...ref, message: f.text });
+      if (tool === "whatsapp" && waMode === "template") await apiCall(`${A}.send_whatsapp_template`, { ...ref, template: waTemplate });
+      else if (tool === "whatsapp") await apiCall(`${A}.send_whatsapp`, { ...ref, message: f.text });
       if (tool === "email") await apiCall(`${A}.send_email`, { ...ref, subject: f.subject, message: f.text });
       if (tool === "event") await apiCall(`${A}.schedule`, { category: f.category, starts_on: f.due.replace("T", " "), subject: f.title, note: f.text, minutes: Number(f.minutes), ref_doctype: d.doctype, ref_name: d.name });
       setOk({ note: "Note added", task: "Follow-up scheduled", whatsapp: "WhatsApp sent", email: "Email sent", event: "Added to the calendar" }[tool]);
       setF({ ...f, text: "", title: "", subject: "" });
+      setWaTemplate("");
       onDone();
     } catch (e) { setErr(e); } finally { setBusy(false); }
   };
   const blocked = tool === "whatsapp" && (!d.contact.mobile || !!d.whatsapp_opted_out) ? (!d.contact.mobile ? "No mobile number on this record." : "This person opted out of WhatsApp.")
-    : tool === "email" && !d.contact.email ? "No email address on this record."
-    : tool === "email" && !d.email_ready ? "Set up the outgoing email account first (Settings → Email)." : null;
+    : tool === "email" && !d.contact.email ? "No email address on this record." : null;
+  // without an outgoing account the email can still be drafted from a template — only Send waits
+  const noMail = tool === "email" && !d.email_ready;
   return (
     <div className="rounded-2xl border bg-card shadow-sm">
       <div className="border-b p-2">
@@ -114,16 +119,27 @@ function Composer({ d, onDone, initial }: { d: Detail; onDone: () => void; initi
               )}
             </div>
           )}
+          {noMail && <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:text-amber-300">Sending is off until the outgoing email account is set up (Settings → Email) — you can still draft from a template.</p>}
+          {tool === "whatsapp" && (
+            <div className="inline-flex rounded-lg border bg-muted/40 p-0.5 text-sm">
+              {([["text", "Free text"], ["template", "Template"]] as const).map(([k, l]) => (
+                <button key={k} type="button" onClick={() => setWaMode(k)}
+                  className={cn("rounded-md px-3 py-1 font-medium transition", waMode === k ? "bg-[#25D366] text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>{l}</button>
+              ))}
+            </div>
+          )}
           {tool === "email" && <EmailTemplatePicker d={d} onPick={(subject, body) => setF((x) => ({ ...x, subject, text: body }))} />}
           {tool === "email" && <input className="field" placeholder="Subject" value={f.subject} onChange={set("subject")} />}
-          {tool === "whatsapp"
+          {tool === "whatsapp" && waMode === "template"
+            ? <WhatsAppTemplatePicker d={d} value={waTemplate} onChange={setWaTemplate} />
+            : tool === "whatsapp"
             ? <TextArea rows={4} value={f.text} onChange={set("text")} placeholder={`Message to ${d.contact.mobile ?? ""}`} />
             : <RichTextEditor key={tool} value={f.text} onChange={(html) => setF((x) => ({ ...x, text: html }))} minHeight={tool === "email" ? 220 : tool === "note" ? 140 : 90}
                 placeholder={{ note: "What happened? What did they say?", task: "Details (optional)", whatsapp: "", email: `Message to ${d.contact.email ?? ""}`, event: "Agenda / notes (optional)" }[tool]} />}
-          {tool === "whatsapp" && <p className="text-xs text-muted-foreground">Free text reaches the person only within 24 hours of their last WhatsApp message; it also appears in the team inbox.</p>}
+          {tool === "whatsapp" && <p className="text-xs text-muted-foreground">{waMode === "template" ? "Approved templates reach the person any time; the message is filled from this record and appears in the team inbox." : "Free text reaches the person only within 24 hours of their last WhatsApp message; it also appears in the team inbox."}</p>}
           <div className="flex flex-wrap items-center gap-3">
             <Button loading={busy} onClick={() => void submit()}
-              disabled={(tool === "note" || tool === "whatsapp") ? !htmlText(f.text) : tool === "email" ? !f.subject.trim() || !htmlText(f.text) : tool === "task" ? !(f.title.trim() || htmlText(f.text)) || !f.due : !f.due}>
+              disabled={tool === "whatsapp" && waMode === "template" ? !waTemplate : noMail ? true : (tool === "note" || tool === "whatsapp") ? !htmlText(f.text) : tool === "email" ? !f.subject.trim() || !htmlText(f.text) : tool === "task" ? !(f.title.trim() || htmlText(f.text)) || !f.due : !f.due}>
               {!busy && <Send className="h-4 w-4" />}{{ note: "Save note", task: "Schedule follow-up", whatsapp: "Send WhatsApp", email: "Send email", event: "Add to calendar" }[tool]}
             </Button>
             {ok && <span className="flex items-center gap-1 text-sm text-emerald-600"><CheckCircle2 className="h-4 w-4" />{ok}</span>}
@@ -177,6 +193,39 @@ function Timeline({ items, onTask, onEvent }: { items: Item[]; onTask: (id: stri
         );
       })}
     </ol>
+  );
+}
+
+interface WaTemplate { name: string; template_label: string; template_type: string; preview: string; footer?: string }
+
+/** Approved WhatsApp templates for this record type, previewed as a chat bubble filled from the record. */
+function WhatsAppTemplatePicker({ d, value, onChange }: { d: Detail; value: string; onChange: (name: string) => void }) {
+  const list = useApi<WaTemplate[]>(`${A}.whatsapp_templates`, { doctype: d.doctype, name: d.name });
+  if (list.error) return <InlineError error={list.error} />;
+  if (!list.data) return <p className="text-sm text-muted-foreground">Loading templates…</p>;
+  if (!list.data.length) return <p className="rounded-lg bg-muted/60 px-3 py-2 text-sm text-muted-foreground">No approved template for {d.doctype === "CRM Lead" ? "leads" : "deals"} yet — add one under WhatsApp Broadcast → Templates.</p>;
+  const picked = list.data.find((t) => t.name === value);
+  return (
+    <div className="grid gap-3 md:grid-cols-[minmax(0,15rem)_1fr]">
+      <div className="space-y-1.5">
+        {list.data.map((t) => (
+          <button key={t.name} type="button" onClick={() => onChange(t.name)}
+            className={cn("flex w-full items-center justify-between gap-2 rounded-xl border px-3 py-2 text-start text-sm transition",
+              value === t.name ? "border-[#25D366] bg-[#25D366]/10 ring-2 ring-[#25D366]/25" : "hover:border-[#25D366]/50")}>
+            <span className="min-w-0"><span className="block truncate font-medium">{t.template_label}</span><span className="text-[11px] text-muted-foreground">{t.template_type}</span></span>
+            {value === t.name && <Check className="h-4 w-4 shrink-0 text-[#25D366]" />}
+          </button>
+        ))}
+      </div>
+      <div className="rounded-xl bg-[#0b141a]/5 p-3 dark:bg-[#0b141a]">
+        {picked ? (
+          <div className="ms-auto max-w-md rounded-xl rounded-tr-sm bg-[#d9fdd3] px-3 py-2 text-sm text-[#111b21] shadow-sm dark:bg-[#005c4b] dark:text-[#e9edef]">
+            <p className="whitespace-pre-wrap">{picked.preview}</p>
+            {picked.footer && <p className="mt-1.5 text-[11px] opacity-60">{picked.footer}</p>}
+          </div>
+        ) : <p className="py-6 text-center text-sm text-muted-foreground">Pick a template to preview it</p>}
+      </div>
+    </div>
   );
 }
 

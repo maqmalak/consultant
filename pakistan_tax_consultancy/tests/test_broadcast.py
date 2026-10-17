@@ -61,3 +61,20 @@ class TestBroadcast(IntegrationTestCase):
 		self.assertEqual([(v.variable_name, v.variable_field) for v in doc.template_variables], [("first_name", "first_name")])
 		# sensitive fields can never fill a template
 		self.assertRaises(frappe.ValidationError, api.update_template, self.client_tpl, "x", "Dear {{c}}, your CNIC on file. Thanks.", {"c": "cnic"})
+
+	def test_template_from_lead_page(self):
+		"""Lead page → WhatsApp → Template: previewed and stored filled in from the lead, same consent rules as broadcasts."""
+		from pakistan_tax_consultancy.api import crm_activity as act
+
+		lead = crm.make_lead("Tpl Person", "+923000990103", source="Walk In")
+		frappe.db.set_value("CRM Lead", lead, "first_name", "Tpl")
+		rows = {r.name: r for r in act.whatsapp_templates("CRM Lead", lead)}
+		self.assertIn(self.lead_tpl, rows)
+		self.assertNotIn(self.client_tpl, rows)  # built on Tax Client, not leads
+		self.assertIn("Tpl", rows[self.lead_tpl].preview)
+		self.assertNotIn("{{", rows[self.lead_tpl].preview)
+		msg = frappe.get_doc("WhatsApp Message", act.send_whatsapp_template("CRM Lead", lead, self.lead_tpl))
+		self.assertTrue(msg.is_template)
+		self.assertNotIn("{{", msg.message)
+		self.assertRaises(frappe.ValidationError, act.send_whatsapp_template, "CRM Lead", lead, self.client_tpl)
+		self.assertRaises(frappe.ValidationError, act.send_whatsapp_template, "CRM Lead", self.out_lead, self.lead_tpl)
