@@ -5,7 +5,7 @@
  * printed as a "Tax Planning Report" into the client's document vault. Everything here is an estimate.
  */
 import {
-  ArrowDownRight, ArrowLeft, ArrowUpRight, Banknote, Check, Download, FileText, FlaskConical, GitCompareArrows, History, Landmark, Minus,
+  ArrowDownRight, ArrowLeft, ArrowUpRight, Banknote, Check, Download, FileText, FlaskConical, GitCompareArrows, History, Landmark, Lock, Minus,
   Percent, Plus, Receipt, RotateCcw, Save, Scale, SlidersHorizontal, Trash2, TrendingDown, Upload, type LucideIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -26,7 +26,11 @@ const S = "pakistan_tax_consultancy.api.simulator";
 type Group = "income" | "addback" | "deduction" | "credit" | "paid";
 interface Lever { key: string; label: string; group: Group; base: number; last_year: number | null; hint: string | null; max: number }
 type Result = Record<string, number | null> & { tax_liability: number; effective_rate: number };
-interface Scenario { name: string; title: string; notes: string | null; levers: Record<string, number>; result: Result; owner_name: string; creation: string }
+interface Scenario { name: string; title: string; notes: string | null; levers: Record<string, number>; result: Result; owner_name: string; creation: string;
+  applied_on: string | null; applied_by: string | null; applied_calculation: string | null }
+interface ApplyPlan { changes: { key: string; label: string; group: string; old: number; new: number }[]; evidence: { document_type: string; label: string; amount: number }[];
+  before: Result; after: Result; editable: boolean; state: string; applied: { name: string; title: string } | null }
+const EDITABLE = ["Documents Pending", "Draft", "Changes Required"];
 interface Ctx {
   tax_return: string; tax_client: string; client_name: string; tax_year: string; taxpayer_type: string; workflow_state: string;
   rules_are_demo: boolean; groups: Record<Group, string>; metrics: [string, string][]; wealth_metrics: [string, string][];
@@ -360,12 +364,75 @@ function SaveDialog({ open, onClose, taxReturn, values, loaded, changes, onSaved
   );
 }
 
+/** Preview of what "Apply to return" will change, then the apply itself. */
+function ApplyDialog({ s, taxReturn, onClose, onDone }: { s: Scenario; taxReturn: string; onClose: () => void; onDone: () => void }) {
+  const plan = useApi<ApplyPlan>(`${S}.apply_preview`, { name: s.name });
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<unknown>(null);
+  const [done, setDone] = useState<{ calculation: string; tax_liability: number } | null>(null);
+  const p = plan.data;
+  const apply = async () => {
+    setBusy(true); setErr(null);
+    try { setDone(await apiCall(`${S}.apply_scenario`, { name: s.name })); } catch (e) { setErr(e); } finally { setBusy(false); }
+  };
+  return (
+    <Dialog open size="lg" onClose={done ? onDone : onClose} title={done ? "Scenario applied" : `Apply “${s.title}” to the return`}
+      footer={done ? <><Link to={`/staff/returns/${taxReturn}`} className="inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium hover:bg-accent">Open the return</Link><Button onClick={onDone}>Done</Button></>
+        : <><Button variant="ghost" onClick={onClose}>Cancel</Button><Button loading={busy} disabled={!p?.editable || !p?.changes.length || !!p?.applied} onClick={() => void apply()}>{!busy && <Upload className="h-4 w-4" />} Apply to return</Button></>}>
+      {plan.error ? <ErrorState error={plan.error} /> : !p ? <Loading /> : done ? (
+        <div className="space-y-3 text-sm">
+          <p className="flex items-center gap-2 rounded-xl bg-emerald-500/10 px-3 py-2.5 text-emerald-700 dark:text-emerald-300"><Check className="h-4 w-4" />
+            The return now uses these figures. Tax recalculated: <b>{money(done.tax_liability)}</b> (calculation {done.calculation}).</p>
+          {p.evidence.length > 0 && <p>The client has been asked for {p.evidence.map((e) => e.document_type).join(", ")}. <b>Submit for Review</b> stays blocked until they are uploaded and verified.</p>}
+          <p className="text-muted-foreground">Next: check the return, then <b>Submit for Review</b> as usual. The reviewer sees a note that it was prepared from this scenario.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {!p.editable && <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:text-amber-300">The return is {p.state} — it can't be changed now.</p>}
+          {p.applied && <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:text-amber-300">“{p.applied.title}” is already applied. Undo it first.</p>}
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-xl bg-muted/50 p-3"><p className="text-[11px] text-muted-foreground">Tax now</p><p className="font-bold tabular-nums">{money(p.before.tax_liability)}</p></div>
+            <div className="rounded-xl bg-primary/10 p-3"><p className="text-[11px] text-muted-foreground">After applying</p><p className="font-bold tabular-nums text-primary">{money(p.after.tax_liability)}</p></div>
+            <div className="rounded-xl bg-muted/50 p-3"><p className="text-[11px] text-muted-foreground">Difference</p>
+              <p className="font-bold"><Delta value={p.after.tax_liability - p.before.tax_liability} metric="tax_liability" /></p></div>
+          </div>
+          <div className="overflow-hidden rounded-xl border">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-[11px] uppercase tracking-wider text-muted-foreground"><tr><th className="px-3 py-2 text-start">Return line</th><th className="px-3 py-2 text-end">Now</th><th className="px-3 py-2 text-end">Will be</th></tr></thead>
+              <tbody className="divide-y">
+                {p.changes.map((c) => (
+                  <tr key={c.key}><td className="px-3 py-2">{c.label}{c.old === 0 && <span className="ms-2 rounded bg-sky-500/15 px-1.5 text-[10px] font-semibold text-sky-700 dark:text-sky-300">new line</span>}</td>
+                    <td className="px-3 py-2 text-end tabular-nums text-muted-foreground">{money(c.old)}</td><td className="px-3 py-2 text-end font-semibold tabular-nums">{money(c.new)}</td></tr>
+                ))}
+                {!p.changes.length && <tr><td colSpan={3} className="px-3 py-4 text-center text-muted-foreground">Same figures as the return — nothing to apply.</td></tr>}
+              </tbody>
+            </table>
+          </div>
+          {p.evidence.length > 0 && (
+            <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+              <p className="flex items-center gap-2 font-semibold text-amber-800 dark:text-amber-300"><FileText className="h-4 w-4" /> Evidence the client must upload</p>
+              <ul className="mt-1.5 space-y-0.5 text-amber-900/80 dark:text-amber-200/80">{p.evidence.map((e) => <li key={e.document_type}>• {e.document_type} — for {e.label} {money(e.amount)}</li>)}</ul>
+              <p className="mt-1.5 text-xs text-muted-foreground">Submit for Review stays blocked until these are verified.</p>
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">Lines in a group are adjusted together; a new item gets its own line marked “from scenario”. The tax is recalculated with the year's rates and a new calculation version is kept. You can undo while the return is being prepared.</p>
+          <InlineError error={err} />
+        </div>
+      )}
+    </Dialog>
+  );
+}
+
 function Scenarios({ ctx, picked, setPicked, onChanged, onLoad }: {
   ctx: Ctx; picked: string[]; setPicked: (f: (p: string[]) => string[]) => void; onChanged: () => void; onLoad: (s: Scenario) => void;
 }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState<unknown>(null);
   const [docs, setDocs] = useState<Record<string, { file: string; version: number }>>({});
+  const [applying, setApplying] = useState<Scenario | null>(null);
+  const [undoing, setUndoing] = useState<Scenario | null>(null);
+  const editable = EDITABLE.includes(ctx.workflow_state);
+  const appliedOne = ctx.scenarios.find((x) => x.applied_on);
   const best = ctx.scenarios.length ? ctx.scenarios.reduce((a, b) => (b.result.tax_liability < a.result.tax_liability ? b : a)) : null;
   const chosen = ctx.scenarios.filter((s) => picked.includes(s.name));
   const columns = [
@@ -407,7 +474,8 @@ function Scenarios({ ctx, picked, setPicked, onChanged, onLoad }: {
                   <span className="min-w-0"><span className="block truncate font-semibold">{s.title}</span>
                     <span className="text-[11px] text-muted-foreground">{s.owner_name} · {new Date(s.creation).toLocaleDateString()}</span></span>
                 </label>
-                {best?.name === s.name && ctx.scenarios.length > 1 && <span className="shrink-0 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">Lowest tax</span>}
+                {s.applied_on && <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#d4af37]/20 px-2 py-0.5 text-[11px] font-bold text-[#8a6914] dark:text-[#f3d77a]"><Check className="h-3 w-3" /> Applied to return</span>}
+                {!s.applied_on && best?.name === s.name && ctx.scenarios.length > 1 && <span className="shrink-0 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">Lowest tax</span>}
               </div>
               <div className="mt-3 flex items-end justify-between">
                 <div><p className="text-[11px] text-muted-foreground">Tax liability</p><p className="text-xl font-bold tabular-nums">{money(s.result.tax_liability)}</p></div>
@@ -416,6 +484,14 @@ function Scenarios({ ctx, picked, setPicked, onChanged, onLoad }: {
               {moved.length > 0 && <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{moved.map((l) => `${l.label} ${money(s.levers[l.key])}`).join(" · ")}</p>}
               {s.notes && <p className="mt-1 line-clamp-2 text-xs italic text-muted-foreground">{s.notes}</p>}
               <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-3">
+                {s.applied_on ? (
+                  <Button size="sm" variant="outline" disabled={!editable} title={editable ? undefined : `The return is ${ctx.workflow_state} — reopen it to change figures`}
+                    onClick={() => setUndoing(s)}><RotateCcw className="h-3.5 w-3.5" /> Undo</Button>
+                ) : (
+                  <Button size="sm" disabled={!editable || !!appliedOne}
+                    title={!editable ? `Only while the return is being prepared (now: ${ctx.workflow_state})` : appliedOne ? `Undo “${appliedOne.title}” first` : "Write these figures into the return"}
+                    onClick={() => setApplying(s)}><Upload className="h-3.5 w-3.5" /> Apply to return</Button>
+                )}
                 <Button size="sm" variant="outline" onClick={() => onLoad(s)}><SlidersHorizontal className="h-3.5 w-3.5" /> Load</Button>
                 <Button size="sm" variant="outline" loading={busy === s.name} onClick={() => void generate(s)}>{busy !== s.name && <FileText className="h-3.5 w-3.5" />} Generate report</Button>
                 {docs[s.name] && <a href={docs[s.name].file} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"><Download className="h-3.5 w-3.5" /> v{docs[s.name].version} PDF</a>}
@@ -425,6 +501,21 @@ function Scenarios({ ctx, picked, setPicked, onChanged, onLoad }: {
           );
         })}
       </div>
+
+      {!editable && (
+        <p className="flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:text-amber-300">
+          <Lock className="h-4 w-4 shrink-0" /> The return is <b>{ctx.workflow_state}</b>. Scenarios can be applied or undone only while it is being prepared (Documents Pending, Draft or Changes Required).</p>
+      )}
+      {applying && <ApplyDialog s={applying} taxReturn={ctx.tax_return} onClose={() => setApplying(null)} onDone={() => { setApplying(null); onChanged(); }} />}
+      <Dialog open={!!undoing} onClose={() => setUndoing(null)} title="Undo applied scenario?"
+        footer={<><Button variant="ghost" onClick={() => setUndoing(null)}>Keep it</Button>
+          <Button variant="danger" loading={busy === undoing?.name} onClick={() => {
+            if (!undoing) return;
+            setBusy(undoing.name); setErr(null);
+            apiCall(`${S}.undo_scenario`, { name: undoing.name }).then(() => { setUndoing(null); onChanged(); }).catch(setErr).finally(() => setBusy(null));
+          }}><RotateCcw className="h-4 w-4" /> Undo</Button></>}>
+        <p className="text-sm">The return's income, deduction, credit and tax-paid lines go back exactly as they were before <b>“{undoing?.title}”</b> was applied, and the tax is recalculated. Any manual edits made to those lines since then are lost. Document requests it added are removed unless the client already uploaded them.</p>
+      </Dialog>
 
       <div className="rounded-2xl border bg-card p-4 shadow-sm">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">

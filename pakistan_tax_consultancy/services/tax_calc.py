@@ -115,10 +115,13 @@ def snapshot(doc) -> dict:
 		taxable = row.taxable_amount
 		if not taxable and row.tax_treatment != "Exempt":
 			taxable = max(flt(row.gross_amount) - flt(row.exempt_amount), 0)
-		income.append({"income_category": row.income_category, "tax_treatment": row.tax_treatment or NORMAL,
+		line = {"income_category": row.income_category, "tax_treatment": row.tax_treatment or NORMAL,
 			"gross_amount": flt(row.gross_amount), "exempt_amount": flt(row.exempt_amount),
 			"taxable_amount": 0 if row.tax_treatment == "Exempt" else flt(taxable),
-			"tax_rate_percent": flt(row.get("tax_rate_percent"))})
+			"tax_rate_percent": flt(row.get("tax_rate_percent"))}
+		if row.get("is_addback"):  # only when set, so the input hash of every other return is unchanged
+			line["addback"] = 1
+		income.append(line)
 	return {
 		"tax_year": doc.tax_year,
 		"taxpayer_type": taxpayer_type_for(doc),

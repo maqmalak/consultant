@@ -52,7 +52,7 @@ def amounts(snap: dict) -> dict:
 		out[key] = out.get(key, 0.0) + flt(value)
 
 	for line in snap["income"]:
-		add(_income_key(line), line["gross_amount"])
+		add(ADDBACK if line.get("addback") else _income_key(line), line["gross_amount"])
 	for d in snap["deductions"]:
 		add(f"ded|{d.get('deduction_type') or 'Other'}", d["amount"])
 	for c in snap["credits"]:
@@ -112,6 +112,8 @@ def apply(snap: dict, values: dict, ly_snap: dict | None = None) -> dict:
 	for line in (ly_snap or {}).get("income", []):
 		ly_lines.setdefault(_income_key(line), line)
 
+	inc_key = lambda r: ADDBACK if r.get("addback") else _income_key(r)  # noqa: E731
+
 	def scale(rows, key_of, fields, key, target):
 		mine = [r for r in rows if key_of(r) == key]
 		base = sum(flt(r[fields[0]]) for r in mine)
@@ -124,11 +126,11 @@ def apply(snap: dict, values: dict, ly_snap: dict | None = None) -> dict:
 		return target  # nothing to scale: the caller adds a line
 
 	for key, target in values.items():
-		if abs(target - now.get(key, 0.0)) < 0.5 and key != ADDBACK:
+		if abs(target - now.get(key, 0.0)) < 0.5:
 			continue
 		kind, *rest = key.split("|")
 		if kind == "inc":
-			left = scale(s["income"], _income_key, ("gross_amount", "exempt_amount", "taxable_amount"), key, target)
+			left = scale(s["income"], inc_key, ("gross_amount", "exempt_amount", "taxable_amount"), key, target)
 			if left:
 				category, treatment = rest
 				rate = flt((ly_lines.get(key) or {}).get("tax_rate_percent"))
@@ -145,9 +147,11 @@ def apply(snap: dict, values: dict, ly_snap: dict | None = None) -> dict:
 		elif kind in ("wht", "adv"):
 			table = "withholding" if kind == "wht" else "advance_tax"
 			s[table] = [{"section" if kind == "wht" else "cpr_no": None, "amount": target}] if target else []
-		elif kind == ADDBACK and target:
-			s["income"].append({"income_category": "Business", "tax_treatment": tax_calc.NORMAL, "gross_amount": target,
-				"exempt_amount": 0, "taxable_amount": target, "tax_rate_percent": 0, "addback": 1})
+		elif kind == ADDBACK:
+			left = scale(s["income"], inc_key, ("gross_amount", "exempt_amount", "taxable_amount"), key, target)
+			if left:
+				s["income"].append({"income_category": "Business", "tax_treatment": tax_calc.NORMAL, "gross_amount": left,
+					"exempt_amount": 0, "taxable_amount": left, "tax_rate_percent": 0, "addback": 1})
 	return s
 
 

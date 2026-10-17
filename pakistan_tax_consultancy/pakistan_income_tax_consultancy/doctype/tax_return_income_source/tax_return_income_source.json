@@ -13,7 +13,8 @@
   "gross_amount",
   "exempt_amount",
   "taxable_amount",
-  "supporting_document"
+  "supporting_document",
+  "is_addback"
  ],
  "fields": [
   {
@@ -75,6 +76,12 @@
    "fieldtype": "Link",
    "label": "Supporting Document",
    "options": "Tax Document"
+  },
+  {
+   "fieldname": "is_addback",
+   "fieldtype": "Check",
+   "label": "Add-back (inadmissible expense)",
+   "description": "Expense added back to business profit; taxed at normal rates."
   }
  ],
  "istable": 1,

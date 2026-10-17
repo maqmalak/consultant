@@ -28,7 +28,8 @@
   "rejection_reason",
   "sb_notes",
   "notes",
-  "internal_notes"
+  "internal_notes",
+  "requested_reason"
  ],
  "fields": [
   {
@@ -102,7 +103,7 @@
    "label": "File"
   },
   {
-   "description": "Private file — downloaded only through the audited endpoint",
+   "description": "Private file \u2014 downloaded only through the audited endpoint",
    "fieldname": "file",
    "fieldtype": "Attach",
    "label": "File"
@@ -181,6 +182,13 @@
    "fieldtype": "Text",
    "label": "Internal Notes",
    "permlevel": 2
+  },
+  {
+   "fieldname": "requested_reason",
+   "fieldtype": "Small Text",
+   "label": "Why this is needed",
+   "read_only": 1,
+   "description": "Set when a tax-planning scenario applied to the return needs evidence (kept when the checklist is rebuilt)."
   }
  ],
  "links": [],

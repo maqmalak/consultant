@@ -45,7 +45,7 @@ def generate_checklist(doc) -> int:
 	"""Add missing checklist items; drop untouched items that no longer apply. Returns the number of required items."""
 	wanted = required_types(doc)
 	existing = {d.document_type: d for d in frappe.get_all("Tax Document", filters={"tax_return": doc.name},
-		fields=["name", "document_type", "status", "file", "is_required"])}
+		fields=["name", "document_type", "status", "file", "is_required", "requested_reason"])}
 	for dtype, required in wanted.items():
 		item = existing.get(dtype)
 		if item:
@@ -56,14 +56,15 @@ def generate_checklist(doc) -> int:
 			"tax_engagement": doc.get("tax_engagement"), "tax_year": doc.tax_year, "document_type": dtype,
 			"document_name": dtype, "status": "Requested", "is_required": required}).insert(ignore_permissions=True)
 	for dtype, item in existing.items():
-		if dtype not in wanted and item.status == "Requested" and not item.file:
+		# items a tax-planning scenario asked for are not rule-based: keep them until the scenario is undone
+		if dtype not in wanted and item.status == "Requested" and not item.file and not item.requested_reason:
 			frappe.delete_doc("Tax Document", item.name, ignore_permissions=True, force=True)
 	return sum(wanted.values())
 
 
 def checklist(tax_return: str) -> list[dict]:
 	rows = frappe.get_all("Tax Document", filters={"tax_return": tax_return},
-		fields=["name", "document_type", "document_name", "status", "is_required", "rejection_reason", "file",
+		fields=["name", "document_type", "document_name", "status", "is_required", "rejection_reason", "file", "requested_reason",
 			"upload_date", "is_client_upload", "modified"],
 		order_by="is_required desc, document_type asc")
 	hints = {d.name: d for d in frappe.get_all("Document Type", fields=["name", "category", "client_hint"])}

@@ -37,7 +37,8 @@ def simulate(tax_return: str, values: str | dict):
 @frappe.whitelist(methods=["GET"])
 def scenarios(tax_return: str):
 	_return(tax_return)
-	rows = frappe.get_list("Tax Scenario", {"tax_return": tax_return}, ["name", "title", "notes", "levers", "result", "owner", "creation"],
+	rows = frappe.get_list("Tax Scenario", {"tax_return": tax_return}, ["name", "title", "notes", "levers", "result", "owner", "creation",
+		"applied_on", "applied_by", "applied_calculation"],
 		order_by="creation asc", limit_page_length=50)
 	for r in rows:
 		r.levers, r.result = frappe.parse_json(r.levers) or {}, frappe.parse_json(r.result) or {}
@@ -79,3 +80,36 @@ def generate_report(name: str):
 	res = documents.generate("Tax Planning Report", name, remarks=sc.title)
 	res["file"] = frappe.db.get_value("Generated Document", res["name"], "file")
 	return res
+
+
+# ---------------------------------------------------------------- apply the final scenario to the return
+def _scenario(name):
+	require_staff()
+	sc = frappe.get_doc("Tax Scenario", name)
+	sc.check_permission("read")
+	return sc, frappe.get_doc("Tax Return", sc.tax_return)
+
+
+@frappe.whitelist(methods=["GET"])
+def apply_preview(name: str):
+	from pakistan_tax_consultancy.services import scenario_apply
+
+	sc, doc = _scenario(name)
+	return scenario_apply.plan(doc, sc)
+
+
+@frappe.whitelist(methods=["POST"])
+def apply_scenario(name: str):
+	"""Write the scenario's figures into the return, recalculate, and request the evidence it needs."""
+	from pakistan_tax_consultancy.services import scenario_apply
+
+	sc, doc = _scenario(name)
+	return scenario_apply.apply(doc, sc)
+
+
+@frappe.whitelist(methods=["POST"])
+def undo_scenario(name: str):
+	from pakistan_tax_consultancy.services import scenario_apply
+
+	sc, doc = _scenario(name)
+	return scenario_apply.undo(doc, sc)

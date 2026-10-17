@@ -18,7 +18,13 @@
   "sb1",
   "notes",
   "levers",
-  "result"
+  "result",
+  "sb_apply",
+  "applied_on",
+  "applied_by",
+  "cb_apply",
+  "applied_calculation",
+  "before_lines"
  ],
  "fields": [
   {
@@ -108,6 +114,42 @@
    "fieldtype": "JSON",
    "label": "Result",
    "read_only": 1
+  },
+  {
+   "fieldname": "sb_apply",
+   "fieldtype": "Section Break",
+   "label": "Applied to the return"
+  },
+  {
+   "fieldname": "applied_on",
+   "fieldtype": "Datetime",
+   "label": "Applied on",
+   "read_only": 1
+  },
+  {
+   "fieldname": "applied_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Applied by",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_apply",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "applied_calculation",
+   "fieldtype": "Link",
+   "options": "Tax Calculation",
+   "label": "Tax calculation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "before_lines",
+   "fieldtype": "JSON",
+   "label": "Return lines before applying",
+   "read_only": 1,
+   "hidden": 1
   }
  ],
  "links": [],
