@@ -8,9 +8,12 @@ import frappe
 
 
 class ConsoleProvider:
+	"""Development only: no SMS leaves the server — the text goes to logs/pakistan_tax_consultancy.sms.log (and stdout)."""
+
 	def send(self, mobile, text):
-		frappe.logger("pakistan_tax_consultancy.sms").info(f"SMS to {mobile}: {text}")
-		print(f"[SMS console] to {mobile}: {text}")
+		# warning level: the default logger level drops info, which left the code unreadable during local sign-up tests
+		frappe.logger("pakistan_tax_consultancy.sms", allow_site=False).warning(f"SMS to {mobile}: {text}")
+		print(f"[SMS console] to {mobile}: {text}", flush=True)
 
 
 PROVIDERS = {"Console (development)": ConsoleProvider}

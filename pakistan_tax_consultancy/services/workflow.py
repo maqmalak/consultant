@@ -9,7 +9,7 @@ import json
 
 import frappe
 from frappe import _
-from frappe.utils import cint, now_datetime
+from frappe.utils import flt, cint, now_datetime
 
 DOCUMENTS_PENDING = "Documents Pending"
 DRAFT = "Draft"
@@ -134,6 +134,12 @@ def guard_transition(doc, old_state, new_state, comment=None):
 			("taxpayer_type", _("Taxpayer Type"))) if not doc.get(field)]
 		if not doc.get("income_sources"):
 			missing.append(_("at least one income source"))
+		# final / separate-block income is taxed at its own rate; without one it adds no tax while its withholding still
+		# counts as paid, which understates the tax (caught in an end-to-end test with bank profit)
+		no_rate = [r.income_category for r in doc.get("income_sources") or []
+			if r.tax_treatment in ("Final / Fixed", "Separate Block") and not flt(r.tax_rate_percent) and flt(r.gross_amount)]
+		if no_rate:
+			missing.append(_("the tax rate for {0} (final / separate-block income)").format(", ".join(sorted(set(no_rate)))))
 		if missing:
 			_fail(_("Complete these before review: {0}").format(", ".join(missing)))
 		if not is_calculation_current(doc):

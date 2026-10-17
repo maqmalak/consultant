@@ -53,13 +53,23 @@ def send(users, subject, message, doc=None, sms=None, mobile=None):
 			send_sms(number, sms)
 
 
+def email_ready() -> bool:
+	return bool(frappe.db.exists("Email Account", {"enable_outgoing": 1, "default_outgoing": 1}) or frappe.conf.get("mail_server"))
+
+
 def sendmail(**kwargs) -> bool:
-	"""Queue an email; a site without an outgoing email account must never break the business step that notifies."""
+	"""Queue an email; a site without an outgoing email account must never break — or show an error in — the business
+	step that notifies (Frappe queues a "set up an email account" message for the user before it raises)."""
+	if not email_ready():
+		frappe.logger("pakistan_tax_consultancy").info(f"email not sent (no outgoing account): {kwargs.get('subject')}")
+		return False
+	messages = list(frappe.local.message_log or [])
 	try:
 		frappe.sendmail(delayed=True, **kwargs)
 		return True
 	except frappe.OutgoingEmailError:
-		frappe.logger("pakistan_tax_consultancy").info(f"email not sent (no outgoing account): {kwargs.get('subject')}")
+		frappe.local.message_log = messages  # drop the setup notice meant for an admin, not this user
+		frappe.logger("pakistan_tax_consultancy").info(f"email not sent: {kwargs.get('subject')}")
 		return False
 
 

@@ -51,11 +51,15 @@ def copy_into_return(doc) -> int:
 		doc.append(table, row)
 		added += 1
 
+	def section(code):
+		"""The active Withholding Tax Section for a code (149 salary, 151 bank profit, 155 rent, 231B vehicle registration)."""
+		return frappe.db.get_value("Withholding Tax Section", {"section_code": code, "is_active": 1}, "name")
+
 	for s in d.get("salary", []):
 		add("income_sources", {"income_category": "Salary", "tax_treatment": "Normal", "gross_amount": s["annual_salary"],
 			"payer_or_employer": f"{s['employer'] or 'Employer'}{FROM_CLIENT}"})
 		if s.get("tax_deducted"):
-			add("withholding_lines", {"payer": f"{s['employer'] or 'Employer'}{FROM_CLIENT}", "amount": s["tax_deducted"]})
+			add("withholding_lines", {"payer": f"{s['employer'] or 'Employer'}{FROM_CLIENT}", "amount": s["tax_deducted"], "section": section("149")})
 	for b in d.get("business", []):
 		add("income_sources", {"income_category": "Business", "tax_treatment": "Normal",
 			"gross_amount": max(flt(b["annual_sales"]) - flt(b["annual_expenses"]), 0),
@@ -64,14 +68,14 @@ def copy_into_return(doc) -> int:
 		add("income_sources", {"income_category": "Property (Rent)", "tax_treatment": "Normal", "gross_amount": r["annual_rent"],
 			"description": f"{r['property'] or 'Property'}{FROM_CLIENT}"})
 		if r.get("tax_deducted"):
-			add("withholding_lines", {"payer": f"Tenant — {r['property'] or 'rent'}{FROM_CLIENT}", "amount": r["tax_deducted"]})
+			add("withholding_lines", {"payer": f"Tenant — {r['property'] or 'rent'}{FROM_CLIENT}", "amount": r["tax_deducted"], "section": section("155")})
 	for b in d.get("bank", []):
 		if b.get("profit"):
 			# consultant sets the Finance Act rate for this separate-block income in the wizard
 			add("income_sources", {"income_category": "Profit on Debt", "tax_treatment": "Separate Block", "gross_amount": b["profit"],
 				"description": f"{b['bank'] or 'Bank'} profit{FROM_CLIENT}"})
 		if b.get("tax_deducted"):
-			add("withholding_lines", {"payer": f"{b['bank'] or 'Bank'}{FROM_CLIENT}", "amount": b["tax_deducted"]})
+			add("withholding_lines", {"payer": f"{b['bank'] or 'Bank'}{FROM_CLIENT}", "amount": b["tax_deducted"], "section": section("151")})
 		if b.get("balance_30_june"):
 			add("asset_lines", {"asset_type": "Bank Balance", "description": f"{b['bank'] or 'Bank'} balance on 30 June{FROM_CLIENT}",
 				"cost_value": b["balance_30_june"]})
@@ -81,6 +85,10 @@ def copy_into_return(doc) -> int:
 	for v in d.get("vehicles", []):
 		add("asset_lines", {"asset_type": "Motor Vehicle", "cost_value": v["value"],
 			"description": f"{v['make_model'] or 'Vehicle'} {v['registration_no']}".strip() + FROM_CLIENT})
+		if v.get("tax_paid_on_registration"):
+			# tax collected at registration is claimable withholding for a filer
+			add("withholding_lines", {"payer": f"Excise — {v['make_model'] or 'vehicle'} registration{FROM_CLIENT}",
+				"amount": v["tax_paid_on_registration"], "section": section("231B")})
 	for o in d.get("other_income", []):
 		add("income_sources", {"income_category": "Other Sources", "tax_treatment": "Normal", "gross_amount": o["amount"],
 			"description": f"{o['description'] or 'Other income'}{FROM_CLIENT}"})

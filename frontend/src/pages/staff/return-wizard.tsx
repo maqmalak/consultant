@@ -171,6 +171,13 @@ export function ReturnWizard() {
   if (ov?.documents && ov.documents.total > ov.documents.verified) missing.push(`${ov.documents.total - ov.documents.verified} required document(s) not verified`);
   if (!ov?.calculation_current) missing.push("Calculation is out of date — recalculate");
   if (doc.wealth_statement_required && !doc.asset_lines?.length) missing.push("Wealth statement has no assets");
+  for (const r of doc.income_sources ?? []) {
+    if (["Final / Fixed", "Separate Block"].includes(r.tax_treatment) && !Number(r.tax_rate_percent) && Number(r.gross_amount))
+      missing.push(`${r.income_category}${r.payer_or_employer ? ` (${r.payer_or_employer})` : ""}: enter its tax rate from the Finance Act — without it no tax is charged but its withholding still counts`);
+  }
+  for (const c of doc.credit_lines ?? []) if (Number(c.eligible_amount) && !Number(c.credit_amount)) missing.push(`${c.credit_type}: the credit amount is still 0`);
+  const noSection = (doc.withholding_lines ?? []).filter((w: any) => !w.section).length;
+  if (noSection) missing.push(`${noSection} withholding line(s) have no tax section (e.g. 149 salary, 151 bank profit)`);
   if (ov?.engagement && !["Paid", "Waived"].includes(ov.engagement.payment_status)) missing.push(`Fee ${ov.engagement.payment_status.toLowerCase()} (check firm payment policy)`);
 
   const stepDone: Record<Step, boolean> = {
