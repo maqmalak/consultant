@@ -29,7 +29,7 @@ export function ReturnsPage() {
   const selected = data?.some((r) => r.name === picked) ? picked
     : data?.find((r) => r.tax_year === site?.tax_year)?.name ?? data?.[0]?.name ?? null;
   return (
-    <div className="page-container">
+    <div className="page-container max-w-[1800px]">
       <PageHeader title="Tax returns" subtitle="Every return you may see, newest activity first" icon={<FileText className="h-5 w-5" />} />
       <div className="mb-4 flex flex-wrap gap-2">
         <div className="relative w-64"><Search className="absolute start-2.5 top-3 h-4 w-4 text-muted-foreground" />
@@ -39,7 +39,7 @@ export function ReturnsPage() {
         <SelectInput aria-label="Tax year" className="w-36" value={year} onChange={(e) => setYear(e.target.value)}>
           <option value="">All years</option>{(site?.tax_years ?? []).map((y) => <option key={y}>{y}</option>)}</SelectInput>
       </div>
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0">
           {isLoading && <Loading />}
           {error && <ErrorState error={error} onRetry={() => void mutate()} />}
