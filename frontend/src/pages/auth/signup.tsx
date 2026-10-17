@@ -23,6 +23,7 @@ export function SignupPage() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [details, setDetails] = useState<SignupDetails | null>(null);
   const [otpRequest, setOtpRequest] = useState("");
+  const [sent, setSent] = useState<{ channel: string; sms_available: boolean } | null>(null);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
@@ -47,6 +48,7 @@ export function SignupPage() {
     const r = await auth.requestOtp(d.mobile);
     setDetails(d);
     setOtpRequest(r.request);
+    setSent(r);
     setStep(2);
   }));
 
@@ -70,7 +72,7 @@ export function SignupPage() {
         <form onSubmit={sendCode} className="space-y-4" noValidate>
           <Field label={t("Full name")} required error={e.full_name?.message}>{(id) => (
             <TextInput id={id} autoComplete="name" {...form.register("full_name")} />)}</Field>
-          <Field label={t("Mobile number")} required error={e.mobile?.message} hint="We send a verification code by SMS">{(id) => (
+          <Field label={t("Mobile number")} required error={e.mobile?.message} hint="We send a 6-digit code on WhatsApp (or by SMS)">{(id) => (
             <TextInput id={id} type="tel" inputMode="tel" autoComplete="tel" placeholder="0300 1234567" {...form.register("mobile")} />)}</Field>
           <Field label={t("Email")} required error={e.email?.message}>{(id) => (
             <TextInput id={id} type="email" autoComplete="email" {...form.register("email")} />)}</Field>
@@ -99,7 +101,7 @@ export function SignupPage() {
       )}
       {step === 2 && (
         <div className="space-y-4">
-          <p className="text-sm">{t("We sent a 6-digit code to")} <b dir="ltr">{details?.mobile}</b>.</p>
+          <p className="text-sm">{sent?.channel === "WhatsApp" ? t("We sent a 6-digit code on WhatsApp to") : t("We sent a 6-digit code by SMS to")} <b dir="ltr">{details?.mobile}</b>.</p>
           <Field label={t("Verification code")} required>{(id) => (
             <TextInput id={id} inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code}
               onChange={(ev) => setCode(ev.target.value.replace(/\D/g, ""))} className="text-center text-lg tracking-[0.5em]" />)}</Field>
@@ -108,8 +110,13 @@ export function SignupPage() {
           <div className="flex justify-between text-sm">
             <button type="button" className="text-muted-foreground hover:underline" onClick={() => setStep(1)}>{t("Back")}</button>
             <button type="button" className="text-primary hover:underline" disabled={busy}
-              onClick={() => run(async () => setOtpRequest((await auth.requestOtp(details!.mobile)).request))}>Resend code</button>
+              onClick={() => run(async () => { const r = await auth.requestOtp(details!.mobile, sent?.channel === "SMS" ? "sms" : undefined); setOtpRequest(r.request); setSent(r); setCode(""); })}>{t("Resend code")}</button>
           </div>
+          {sent?.sms_available && (
+            <button type="button" className="w-full rounded-lg border border-dashed px-3 py-2 text-sm text-muted-foreground hover:border-primary/50 hover:text-foreground" disabled={busy}
+              onClick={() => run(async () => { const r = await auth.requestOtp(details!.mobile, "sms"); setOtpRequest(r.request); setSent(r); setCode(""); })}>
+              {t("No WhatsApp? Send the code by SMS instead")}</button>
+          )}
         </div>
       )}
       {step === 3 && (

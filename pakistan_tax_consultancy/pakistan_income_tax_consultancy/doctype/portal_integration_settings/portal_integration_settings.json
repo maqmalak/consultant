@@ -42,7 +42,18 @@
   "apify_actor_id",
   "cb_apify",
   "apify_max_places",
-  "apify_language"
+  "apify_language",
+  "sb_otp",
+  "otp_channel",
+  "wa_tpl_otp",
+  "sms_provider",
+  "sms_sender_id",
+  "cb_otp",
+  "sms_twilio_sid",
+  "sms_twilio_token",
+  "sms_gateway_url",
+  "sms_gateway_api_key",
+  "sms_last_test"
  ],
  "fields": [
   {
@@ -272,6 +283,75 @@
    "fieldtype": "Data",
    "label": "Result Language",
    "default": "en"
+  },
+  {
+   "fieldname": "sb_otp",
+   "fieldtype": "Section Break",
+   "label": "Verification codes (6-digit)",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "otp_channel",
+   "fieldtype": "Select",
+   "label": "Send codes by",
+   "options": "WhatsApp, then SMS\nSMS only\nWhatsApp only",
+   "default": "WhatsApp, then SMS",
+   "description": "WhatsApp first needs an approved Authentication template on the firm's WhatsApp number; if WhatsApp fails the same code goes by SMS."
+  },
+  {
+   "fieldname": "wa_tpl_otp",
+   "fieldtype": "Data",
+   "label": "WhatsApp authentication template",
+   "default": "vvs_verification_code",
+   "description": "Name of the approved Meta template of category Authentication (body: {{1}} is your verification code, with a Copy code button)."
+  },
+  {
+   "fieldname": "sms_provider",
+   "fieldtype": "Select",
+   "label": "SMS provider",
+   "options": "Console (development)\nTwilio\nHTTP gateway",
+   "default": "Console (development)"
+  },
+  {
+   "fieldname": "sms_sender_id",
+   "fieldtype": "Data",
+   "label": "Sender ID / mask",
+   "description": "e.g. VVS-TAX (approved by your SMS company / PTA) or the Twilio number"
+  },
+  {
+   "fieldname": "cb_otp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sms_twilio_sid",
+   "fieldtype": "Data",
+   "label": "Twilio Account SID",
+   "depends_on": "eval:doc.sms_provider=='Twilio'"
+  },
+  {
+   "fieldname": "sms_twilio_token",
+   "fieldtype": "Password",
+   "label": "Twilio Auth Token",
+   "depends_on": "eval:doc.sms_provider=='Twilio'"
+  },
+  {
+   "fieldname": "sms_gateway_url",
+   "fieldtype": "Small Text",
+   "label": "Gateway URL",
+   "depends_on": "eval:doc.sms_provider=='HTTP gateway'",
+   "description": "The provider's send link with placeholders {to} (923001234567), {to_e164} (+923001234567), {message}, {sender}, {api_key}. Must be https."
+  },
+  {
+   "fieldname": "sms_gateway_api_key",
+   "fieldtype": "Password",
+   "label": "Gateway API key",
+   "depends_on": "eval:doc.sms_provider=='HTTP gateway'"
+  },
+  {
+   "fieldname": "sms_last_test",
+   "fieldtype": "Small Text",
+   "label": "Last test",
+   "read_only": 1
   }
  ],
  "issingle": 1,

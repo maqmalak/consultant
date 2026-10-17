@@ -19,7 +19,14 @@ WA_FIELDS = ("whatsapp_provider", "whatsapp_enabled", "wa_mock_mode", "wa_app_id
 	"wa_language", "wa_tpl_ready_for_confirmation", "wa_tpl_document_rejected", "wa_tpl_documents_reminder", "wa_tpl_filed",
 	"wa_tpl_payment_received", "wa_tpl_deadline")
 PAY_FIELDS = ("payment_gateway", "gateway_environment", "gateway_merchant_id", "gateway_store_id", "gateway_api_key")
+OTP_FIELDS = ("otp_channel", "wa_tpl_otp", "sms_provider", "sms_sender_id", "sms_twilio_sid", "sms_gateway_url")
 EMAIL_ACCOUNT = "Firm Outgoing Email"
+
+
+def _otp_whatsapp_ready():
+	from pakistan_tax_consultancy.services.otp import whatsapp_ready
+
+	return whatsapp_ready()
 
 
 def require_admin():
@@ -58,6 +65,12 @@ def get_settings():
 			"has_secret": _has_password("Portal Integration Settings", "Portal Integration Settings", "gateway_secret"),
 			"has_salt": _has_password("Portal Integration Settings", "Portal Integration Settings", "gateway_salt"),
 			"return_url": frappe.utils.get_url("/api/method/pakistan_tax_consultancy.api.payments.gateway_return")},
+		"otp": {**{f: integ.get(f) for f in OTP_FIELDS}, "otp_channel": integ.get("otp_channel") or "WhatsApp, then SMS",
+			"wa_tpl_otp": integ.get("wa_tpl_otp") or "vvs_verification_code", "sms_provider": integ.get("sms_provider") or "Console (development)",
+			"sms_last_test": integ.get("sms_last_test"),
+			"has_twilio_token": _has_password("Portal Integration Settings", "Portal Integration Settings", "sms_twilio_token"),
+			"has_gateway_key": _has_password("Portal Integration Settings", "Portal Integration Settings", "sms_gateway_api_key"),
+			"whatsapp_ready": _otp_whatsapp_ready()},
 		"lead_finder": {"apify_actor_id": integ.get("apify_actor_id") or "nwua9Gu5YrADL7ZDj", "apify_max_places": integ.get("apify_max_places") or 50,
 			"apify_language": integ.get("apify_language") or "en",
 			"has_token": _has_password("Portal Integration Settings", "Portal Integration Settings", "apify_api_token")},
@@ -167,6 +180,40 @@ def save_payment(data: str | dict):
 			doc.gateway_environment))
 	doc.save(ignore_permissions=True)
 	return get_settings()["payment"]
+
+
+@frappe.whitelist(methods=["POST"])
+def save_otp(data: str | dict):
+	"""Verification-code delivery: channel order, WhatsApp template, SMS provider and its (write-only) secrets."""
+	from pakistan_tax_consultancy.services.sms import PROVIDERS
+
+	require_admin()
+	data = frappe.parse_json(data)
+	doc = frappe.get_single("Portal Integration Settings")
+	_apply(doc, data, OTP_FIELDS)
+	if doc.sms_provider not in PROVIDERS:
+		frappe.throw(_("Unknown SMS provider."))
+	if doc.sms_gateway_url and not doc.sms_gateway_url.strip().startswith("https://"):
+		frappe.throw(_("The SMS gateway link must start with https://"))
+	for secret in ("sms_twilio_token", "sms_gateway_api_key"):
+		if data.get(secret):  # write-only; blank keeps the stored value
+			doc.set(secret, data[secret].strip())
+	doc.save(ignore_permissions=True)
+	return get_settings()["otp"]
+
+
+@frappe.whitelist(methods=["POST"])
+def test_otp(mobile: str, channel: str | None = None):
+	"""Send a test message (no real code) by WhatsApp-first order or SMS only, and record the outcome."""
+	from frappe.utils import now_datetime
+
+	from pakistan_tax_consultancy.services import otp
+
+	require_admin()
+	used = otp.deliver(mobile, "000000", 10, ("sms",) if channel == "sms" else None)
+	result = f"{now_datetime():%d %b %H:%M} · to …{(mobile or '')[-4:]} · {used or 'not delivered — see Error Log'}"
+	frappe.db.set_single_value("Portal Integration Settings", "sms_last_test", result)
+	return {"result": result, "channel": used}
 
 
 @frappe.whitelist(methods=["POST"])

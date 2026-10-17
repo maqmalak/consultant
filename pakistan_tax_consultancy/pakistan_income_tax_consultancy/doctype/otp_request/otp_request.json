@@ -13,7 +13,8 @@
   "attempts",
   "verified",
   "ip_address",
-  "user"
+  "user",
+  "channel"
  ],
  "fields": [
   {
@@ -73,6 +74,13 @@
    "label": "User",
    "options": "User",
    "read_only": 1
+  },
+  {
+   "fieldname": "channel",
+   "fieldtype": "Data",
+   "label": "Sent by",
+   "read_only": 1,
+   "in_list_view": 1
   }
  ],
  "links": [],

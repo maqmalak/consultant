@@ -27,11 +27,13 @@ def _mobile(value):
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])
 @rate_limit(limit=10, seconds=60 * 60)
-def request_otp(mobile: str, purpose: str = "Signup"):
+def request_otp(mobile: str, purpose: str = "Signup", channel: str | None = None):
+	"""Send a 6-digit code — WhatsApp first, SMS as backup; `channel="sms"` is the client's "Send by SMS instead"."""
 	mobile = _mobile(mobile)
 	if purpose == "Signup" and frappe.db.exists("Tax Client", {"mobile_e164": mobile, "portal_user": ("is", "set")}):
 		frappe.throw(_("An account already exists for this mobile number. Please sign in."))
-	return {"request": otp.issue(mobile, purpose if purpose in ("Signup", "Verify") else "Signup")}
+	res = otp.issue(mobile, purpose if purpose in ("Signup", "Verify") else "Signup", "sms" if channel == "sms" else None)
+	return {**res, "to": f"…{mobile[-4:]}", "sms_available": res["channel"] == "WhatsApp"}
 
 
 @frappe.whitelist(allow_guest=True, methods=["POST"])

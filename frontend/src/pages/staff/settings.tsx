@@ -2,7 +2,7 @@
  * Tax Admin settings: firm details (website + portal), WhatsApp, outgoing email and the payment gateway.
  * Secrets are write-only — the page only knows whether one is stored; leaving the field blank keeps it.
  */
-import { CheckCircle2, CreditCard, Mail, MessageCircle, Radar, Settings2, Store } from "lucide-react";
+import { CheckCircle2, CreditCard, KeyRound, Mail, MessageCircle, Radar, Settings2, Smartphone, Store } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { ErrorState, InlineError, Loading } from "@/components/common/states";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ interface AllSettings {
   email: Rec & { configured: boolean; has_password: boolean };
   payment: Rec & { has_secret: boolean; has_salt: boolean; return_url: string; gateway_status: string | null };
   lead_finder: Rec & { has_token: boolean };
+  otp: Rec & { has_twilio_token: boolean; has_gateway_key: boolean; whatsapp_ready: boolean; sms_last_test: string | null };
 }
 
 function useSaver<T>(fn: (data: Rec) => Promise<T>) {
@@ -358,8 +359,81 @@ function LeadFinderTab({ data, onSaved }: { data: AllSettings["lead_finder"]; on
   );
 }
 
-const TAB_TONES: Record<string, TabTone> = { firm: "gold", whatsapp: "whatsapp", email: "sky", payment: "emerald", lead_finder: "violet" };
-const TABS = [["firm", "Firm", Store], ["whatsapp", "WhatsApp", MessageCircle], ["email", "Email", Mail], ["payment", "Payment gateway", CreditCard], ["lead_finder", "Lead Finder", Radar]] as const;
+// ------------------------------------------------------------------------------------------------ verification codes
+const OTP_ORDER = [["WhatsApp, then SMS", "WhatsApp first, SMS as backup", "Recommended — most clients read WhatsApp first; if it fails the same code goes by SMS."],
+  ["SMS only", "SMS only", "Every code by SMS."], ["WhatsApp only", "WhatsApp only", "No SMS cost — but a client without WhatsApp cannot sign up."]] as const;
+
+function OtpTab({ data, onSaved }: { data: AllSettings["otp"]; onSaved: () => void }) {
+  const { form, set } = useForm({ ...data, sms_twilio_token: "", sms_gateway_api_key: "" });
+  const save = useSaver((d) => apiCall(`${S}.save_otp`, { data: d }));
+  const [mobile, setMobile] = useState("");
+  const test = useSaver((d) => apiCall<{ result: string }>(`${S}.test_otp`, d).then((r) => r.result));
+  const p = { form, set };
+  const provider = form.sms_provider as string;
+  return (
+    <div className="space-y-5">
+      <Section title="How the 6-digit code reaches the client" hint="Used when a client creates an account (and later for sign-in or reset by mobile). The code is only stored scrambled; it never appears in the team inbox or logs.">
+        <div className="grid gap-3 md:grid-cols-3">
+          {OTP_ORDER.map(([value, label, hint]) => (
+            <button key={value} type="button" onClick={() => set("otp_channel", value)}
+              className={cn("rounded-xl border p-4 text-start transition", form.otp_channel === value ? "border-primary bg-primary/5 ring-2 ring-primary/25" : "hover:border-primary/40")}>
+              <p className="flex items-center gap-2 text-sm font-semibold">{value.startsWith("WhatsApp") ? <MessageCircle className="h-4 w-4 text-[#25D366]" /> : <Smartphone className="h-4 w-4 text-sky-500" />}{label}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="WhatsApp" hint={<>Needs the WhatsApp tab set to <b>WhatsApp Cloud API (Meta)</b> and switched on, plus an <b>Authentication</b> template approved by Meta with body “<i>{"{{1}}"} is your verification code</i>” and a <i>Copy code</i> button.</>}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Text label="Authentication template name" field="wa_tpl_otp" {...p} hint="Exactly as approved in Meta WhatsApp Manager" />
+          <div className={cn("flex items-center gap-2 self-end rounded-lg px-3 py-2.5 text-sm", data.whatsapp_ready ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" : "bg-amber-500/10 text-amber-800 dark:text-amber-300")}>
+            {data.whatsapp_ready ? <CheckCircle2 className="h-4 w-4" /> : <KeyRound className="h-4 w-4" />}
+            {data.whatsapp_ready ? "WhatsApp is ready to send codes." : "WhatsApp is not ready — codes will go by SMS until it is."}
+          </div>
+        </div>
+      </Section>
+
+      <Section title="SMS (backup)" hint="Ask your SMS company for a sender ID (mask) registered with PTA. Keys are stored encrypted and never shown again.">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="SMS provider">{(id) => (
+            <SelectInput id={id} value={provider} onChange={(e) => set("sms_provider", e.target.value)}>
+              {["Console (development)", "Twilio", "HTTP gateway"].map((o) => <option key={o}>{o}</option>)}</SelectInput>)}</Field>
+          <Text label="Sender ID / mask" field="sms_sender_id" {...p} hint="e.g. VVS-TAX, or the Twilio number" />
+          {provider === "Twilio" && <>
+            <Text label="Twilio Account SID" field="sms_twilio_sid" {...p} />
+            <Text label={`Twilio Auth Token ${data.has_twilio_token ? "(stored — leave blank to keep)" : ""}`} field="sms_twilio_token" type="password" {...p} />
+          </>}
+          {provider === "HTTP gateway" && <>
+            <div className="sm:col-span-2"><Field label="Gateway send link" hint="From your SMS company, with {to} {to_e164} {message} {sender} {api_key} where the values go. Must start with https://">{(id) => (
+              <TextArea id={id} rows={2} value={form.sms_gateway_url ?? ""} onChange={(e) => set("sms_gateway_url", e.target.value)}
+                placeholder="https://sms.example.pk/api/send?key={api_key}&to={to}&mask={sender}&msg={message}" />)}</Field></div>
+            <Text label={`Gateway API key ${data.has_gateway_key ? "(stored — leave blank to keep)" : ""}`} field="sms_gateway_api_key" type="password" {...p} />
+          </>}
+        </div>
+        {provider === "Console (development)" && <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:text-amber-300">Development mode — no SMS leaves the server; codes are written to the server log only.</p>}
+      </Section>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <Button loading={save.busy} onClick={() => void save.run(form).then((r) => r && onSaved())}>Save verification settings</Button>
+        <Saved ok={save.ok} err={save.err} />
+      </div>
+
+      <Section title="Send a test" hint="Sends the test code 000000 in the chosen order (save first). Use your own mobile.">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="w-56"><Field label="Mobile">{(id) => <TextInput id={id} inputMode="tel" placeholder="03xx-xxxxxxx" value={mobile} onChange={(e) => setMobile(e.target.value)} />}</Field></div>
+          <Button variant="outline" loading={test.busy} disabled={!mobile.trim()} onClick={() => void test.run({ mobile })}>Test (WhatsApp first)</Button>
+          <Button variant="outline" loading={test.busy} disabled={!mobile.trim()} onClick={() => void test.run({ mobile, channel: "sms" })}>Test SMS only</Button>
+        </div>
+        <Saved ok={test.ok} err={test.err} />
+        {data.sms_last_test && !test.ok && <p className="text-xs text-muted-foreground">Last test: {data.sms_last_test}</p>}
+      </Section>
+    </div>
+  );
+}
+
+const TAB_TONES: Record<string, TabTone> = { firm: "gold", whatsapp: "whatsapp", email: "sky", payment: "emerald", lead_finder: "violet", otp: "indigo" };
+const TABS = [["firm", "Firm", Store], ["whatsapp", "WhatsApp", MessageCircle], ["email", "Email", Mail], ["payment", "Payment gateway", CreditCard], ["lead_finder", "Lead Finder", Radar], ["otp", "Verification codes", KeyRound]] as const;
 
 export function SettingsPage() {
   const { data, error, isLoading, mutate } = useApi<AllSettings>(`${S}.get_settings`);
@@ -377,6 +451,7 @@ export function SettingsPage() {
       {data && tab === "whatsapp" && <WhatsAppTab key={JSON.stringify(data.whatsapp)} data={data.whatsapp} onSaved={saved} />}
       {data && tab === "email" && <EmailTab key={JSON.stringify(data.email)} data={data.email} onSaved={saved} />}
       {data && tab === "payment" && <PaymentTab key={JSON.stringify(data.payment)} data={data.payment} onSaved={saved} />}
+      {data && tab === "otp" && <OtpTab key={JSON.stringify(data.otp)} data={data.otp} onSaved={saved} />}
       {data && tab === "lead_finder" && <LeadFinderTab key={JSON.stringify(data.lead_finder)} data={data.lead_finder} onSaved={saved} />}
     </div>
   );

@@ -43,7 +43,10 @@ class TestBroadcast(IntegrationTestCase):
 				self.assertEqual(r.status, "Skipped")
 
 	def test_broadcast_sends_in_test_mode(self):
-		name = api.start(json.dumps({"template": self.lead_tpl, "audience": "Leads", "lead_source": "Walk In"}))
+		from unittest.mock import patch
+
+		with patch.object(api, "_workers", return_value=False):  # run inline whether or not a bench worker is up
+			name = api.start(json.dumps({"template": self.lead_tpl, "audience": "Leads", "lead_source": "Walk In"}))
 		doc = frappe.get_doc("WhatsApp Broadcast", name)
 		self.assertEqual(doc.status, "Completed")
 		sent = [r for r in doc.recipients if r.status == "Sent"]

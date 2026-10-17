@@ -119,7 +119,7 @@ class TestTaxPortalFlow(IntegrationTestCase):
 		from pakistan_tax_consultancy.services import otp
 
 		frappe.set_user("Guest")
-		req = otp.issue(mobile)
+		req = otp.issue(mobile)["request"]
 		code = None
 		# the console SMS provider cannot be read back, so find the code by brute force over the hash (test only)
 		stored = frappe.db.get_value("OTP Request", req, "otp_hash")

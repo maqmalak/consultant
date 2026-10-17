@@ -188,7 +188,8 @@ export interface PaymentDetails {
 
 // ------------------------------------------------------------------------------------------------ calls
 export const auth = {
-  requestOtp: (mobile: string) => apiCall<{ request: string }>(`${AUTH}.request_otp`, { mobile, purpose: "Signup" }),
+  requestOtp: (mobile: string, channel?: "sms") =>
+    apiCall<{ request: string; channel: string; to: string; sms_available: boolean }>(`${AUTH}.request_otp`, { mobile, purpose: "Signup", channel }),
   verifyOtp: (request: string, mobile: string, code: string) =>
     apiCall<{ verified: boolean }>(`${AUTH}.verify_otp`, { request, mobile, code }),
   signup: (data: Record<string, unknown>) => apiCall<{ user: string; client: string; home: string }>(`${AUTH}.signup`, data),
