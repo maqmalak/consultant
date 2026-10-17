@@ -235,9 +235,12 @@ export function ReturnWizard() {
               <Section title="Questionnaire" hint="Answers decide the document checklist. Rebuild the checklist after changing them.">
                 <div className="grid gap-2 sm:grid-cols-2">
                   {QUESTIONS.map(([key, q]) => (
-                    <label key={key} className="flex items-center gap-2.5 rounded-md border px-3 py-2 text-sm">
-                      <input type="checkbox" className="h-4 w-4 accent-[hsl(var(--primary))]" disabled={!editable}
-                        checked={!!doc[key]} onChange={(e) => change({ [key]: e.target.checked ? 1 : 0 })} /> {q}
+                    <label key={key} className={cn("flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm transition-colors",
+                      doc[key] ? "border-primary/60 bg-primary/10 font-medium text-foreground" : "text-muted-foreground",
+                      editable ? "cursor-pointer hover:border-primary/40" : "cursor-default")}>
+                      <input type="checkbox" disabled={!editable} checked={!!doc[key]} onChange={(e) => change({ [key]: e.target.checked ? 1 : 0 })} />
+                      <span className="flex-1">{q}</span>
+                      <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-bold", doc[key] ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>{doc[key] ? "Yes" : "No"}</span>
                     </label>
                   ))}
                 </div>

@@ -3,6 +3,41 @@
 @tailwind utilities;
 
 @layer base {
+  /* Checkboxes: clearly drawn in both themes, and still legible when read-only (browsers grey disabled ones out, which
+     made ticked answers almost invisible in dark mode). */
+  input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    flex-shrink: 0;
+    width: 1.05rem;
+    height: 1.05rem;
+    border: 2px solid hsl(var(--input));
+    border-radius: 0.3rem;
+    background: hsl(var(--card));
+    display: inline-grid;
+    place-content: center;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+  }
+  input[type="checkbox"]::before {
+    content: "";
+    width: 0.62rem;
+    height: 0.62rem;
+    transform: scale(0);
+    transition: transform 0.12s ease-in-out;
+    background: hsl(var(--primary-foreground));
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
+  input[type="checkbox"]:checked {
+    background: hsl(var(--primary));
+    border-color: hsl(var(--primary));
+  }
+  input[type="checkbox"]:checked::before { transform: scale(1); }
+  input[type="checkbox"]:hover:not(:disabled) { border-color: hsl(var(--primary)); }
+  input[type="checkbox"]:focus-visible { outline: none; box-shadow: 0 0 0 3px hsl(var(--ring) / 0.35); }
+  input[type="checkbox"]:disabled { cursor: default; opacity: 1; }
+  input[type="checkbox"]:disabled:not(:checked) { background: hsl(var(--muted)); border-color: hsl(var(--border)); }
+  input[type="checkbox"]:disabled:checked { background: hsl(var(--primary) / 0.85); border-color: hsl(var(--primary) / 0.85); }
   :root {
     --background: 220 24% 95%; /* soft grey-blue page so white cards stand out */
     --foreground: 222 47% 11%;
