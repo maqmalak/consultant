@@ -72,9 +72,14 @@ export const STAFF_NAV: NavGroup[] = [
       { path: "/staff/insights", label: "Insights", hint: "Trends · funnel · team", icon: TrendingUp, roles: STAFF, hue: "sky" },
       { path: "/staff/reports", label: "Report Center", hint: "Run · filter · CSV", icon: BarChart3, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER], hue: "rose" },
       { path: "/staff/content", label: "Website & Rules", hint: "Prices · FAQ · Articles · Tax years", icon: BookOpen, roles: [SM, ADMIN], hue: "teal" },
-      { path: "/staff/team", label: "Team", hint: "Staff logins & roles", icon: UserCog, roles: [SM, ADMIN], hue: "indigo" },
+    ],
+  },
+  {
+    title: "Setup",
+    items: [
+      { path: "/staff/settings", label: "Settings", hint: "Firm · WhatsApp · Email · Payments · Codes", icon: Settings2, roles: [SM, ADMIN], hue: "slate" },
       { path: "/staff/roles", label: "Roles & Permissions", hint: "Who may do what", icon: ShieldHalf, roles: [SM, ADMIN], hue: "violet" },
-      { path: "/staff/settings", label: "Settings", hint: "Firm · WhatsApp · Email · Payments", icon: Settings2, roles: [SM, ADMIN], hue: "slate" },
+      { path: "/staff/team", label: "Team", hint: "Staff logins & roles", icon: UserCog, roles: [SM, ADMIN], hue: "indigo" },
     ],
   },
 ];
