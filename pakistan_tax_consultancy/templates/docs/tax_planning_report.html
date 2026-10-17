@@ -1,0 +1,66 @@
+{%- set r = ptc_scenario_report(doc.name) -%}
+{%- set main = (r.columns | selectattr("main") | list)[0].result -%}
+{%- set actual = r.ctx.actual -%}
+{%- set saving = (actual.tax_liability or 0) - (main.tax_liability or 0) -%}
+<div class="ptc">
+  <p class="draft">{{ _("TAX PLANNING ESTIMATE — NOT A RETURN AND NOT AN FBR DOCUMENT") }}</p>
+  <p class="eyebrow">{{ _("Tax planning report") }} · {{ _("Tax Year") }} {{ doc.tax_year }}</p>
+  <h1>{{ doc.client_name }}</h1>
+  <p class="muted">{{ _("Scenario") }}: <b style="color:#141416;">{{ doc.title }}</b> · {{ _(r.ctx.taxpayer_type) }} · {{ _("prepared") }} {{ ptc_date() }}</p>
+  {% if doc.notes %}<p style="margin-top:6px;">{{ doc.notes }}</p>{% endif %}
+
+  <div class="result">
+    <span class="k muted" style="font-size:9px;letter-spacing:1px;text-transform:uppercase;">
+      {% if saving > 0 %}{{ _("Estimated tax saving against this year's actual figures") }}{% elif saving < 0 %}{{ _("Estimated additional tax against this year's actual figures") }}{% else %}{{ _("Tax liability unchanged") }}{% endif %}
+    </span>
+    <div class="big">{{ ptc_money(saving if saving >= 0 else -saving) }}</div>
+    <span class="muted">{{ _("Tax liability") }} {{ ptc_money(actual.tax_liability) }} → {{ ptc_money(main.tax_liability) }}
+      · {{ _("effective rate") }} {{ actual.effective_rate }}% → {{ main.effective_rate }}%</span>
+  </div>
+
+  <h2>{{ _("Comparison") }}</h2>
+  <table class="grid">
+    <tr><th></th>{% for c in r.columns %}<th class="num"{% if c.main %} style="color:#fff;"{% endif %}>{{ c.title }}</th>{% endfor %}</tr>
+    {% for key, label in r.metrics %}
+    <tr{% if key in ("tax_liability",) %} class="total"{% endif %}>
+      <td>{{ label }}</td>
+      {% for c in r.columns %}<td class="num"{% if c.main %} style="background:#fffaf0;font-weight:bold;"{% endif %}>{{ ptc_money(c.result[key]) if c.result[key] is not none else "—" }}</td>{% endfor %}
+    </tr>
+    {% endfor %}
+    <tr><td>{{ _("Effective rate") }}</td>{% for c in r.columns %}<td class="num">{{ c.result.effective_rate }}%</td>{% endfor %}</tr>
+  </table>
+
+  {% if r.changes %}
+  <div style="page-break-inside: avoid;">
+  <h2>{{ _("What changes in this scenario") }}</h2>
+  <table class="grid">
+    <tr><th>{{ _("Item") }}</th>{% if r.ctx.last_year %}<th class="num">{{ _("Last year") }}</th>{% endif %}<th class="num">{{ _("This year") }}</th><th class="num">{{ _("Scenario") }}</th><th class="num">{{ _("Change") }}</th></tr>
+    {% for c in r.changes %}
+    <tr><td>{{ c.label }}</td>
+      {% if r.ctx.last_year %}<td class="num">{{ ptc_money(c.last_year) if c.last_year is not none else "—" }}</td>{% endif %}
+      <td class="num">{{ ptc_money(c.base) }}</td><td class="num"><b>{{ ptc_money(c.value) }}</b></td>
+      <td class="num">{{ "+" if c.delta > 0 else "−" }} {{ ptc_money(c.delta if c.delta > 0 else -c.delta) }}</td></tr>
+    {% endfor %}
+  </table>
+  </div>
+  {% endif %}
+
+  {% if r.ctx.last_year and r.ctx.last_year.wealth %}
+  <div style="page-break-inside: avoid;">
+  <h2>{{ _("Wealth statement — last year and this year") }}</h2>
+  <table class="grid">
+    <tr><th></th><th class="num">TY{{ r.ctx.last_year.tax_year }}</th><th class="num">TY{{ doc.tax_year }}</th><th class="num">{{ _("Change") }}</th></tr>
+    {% for key, label in r.ctx.wealth_metrics %}
+    {%- set a = r.ctx.last_year.wealth[key] or 0 -%}{%- set b = r.ctx.wealth[key] or 0 -%}
+    <tr><td>{{ label }}</td><td class="num">{{ ptc_money(a) }}</td><td class="num">{{ ptc_money(b) }}</td>
+      <td class="num">{{ "+" if b - a > 0 else ("−" if b - a < 0 else "") }} {{ ptc_money((b - a) if b >= a else (a - b)) }}</td></tr>
+    {% endfor %}
+  </table>
+  </div>
+  {% endif %}
+
+  <div class="note">
+    {{ _("Prepared by your consultant with the firm's tax simulator. These are estimates for planning only: they use the rates the firm has set up for the tax year and the figures in your return as they stand today. Your tax is final only as filed on FBR IRIS.") }}
+    {% if r.ctx.rules_are_demo %}<br><b>{{ _("Calculated with demonstration tax rates — the figures are illustrative until the firm verifies the current Finance Act rates.") }}</b>{% endif %}
+  </div>
+</div>

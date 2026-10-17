@@ -3,7 +3,7 @@
  * versioned PDFs on the firm letterhead, IRIS acknowledgments and invoices, and every uploaded document — searchable,
  * by year and category, with expiry warnings. Used by the client portal (/vault) and the staff client page.
  */
-import {
+import { SlidersHorizontal,
   BadgeCheck, Calculator, Download, FileText, Handshake, Landmark, ListChecks, Lock, Mail, PenLine, Receipt, Search,
   ShieldCheck, Sparkles, type LucideIcon,
 } from "lucide-react";
@@ -32,7 +32,7 @@ export interface VaultData {
 }
 
 const ICONS: Record<string, LucideIcon> = {
-  "pen-line": PenLine, handshake: Handshake, "list-checks": ListChecks, calculator: Calculator, landmark: Landmark, mail: Mail, "badge-check": BadgeCheck,
+  "pen-line": PenLine, handshake: Handshake, "list-checks": ListChecks, calculator: Calculator, landmark: Landmark, mail: Mail, "badge-check": BadgeCheck, "sliders-horizontal": SlidersHorizontal,
 };
 const day = (v: string | null) => (v ? new Date(v.replace(" ", "T")).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "");
 const STATUS_LABEL: Record<string, string> = { Requested: "To upload", Pending: "Checking", Verified: "Verified", Rejected: "Upload again" };

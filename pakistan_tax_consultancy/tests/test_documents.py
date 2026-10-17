@@ -76,6 +76,8 @@ class TestDocuments(IntegrationTestCase):
 		frappe.set_user(self.client_user.name)
 		data = vault.my_vault()
 		self.assertEqual(data["client"].name, self.mine.name)
-		self.assertTrue(all(t["source"] in ("Tax Client", "Tax Engagement", "Tax Return") for t in data["generate"]))
+		self.assertTrue(all(t["source"] in ("Tax Client", "Tax Engagement", "Tax Return", "Tax Scenario") for t in data["generate"]))
+		# planning scenarios are staff records: a client sees only reports already generated for them
+		self.assertFalse([t for g in data["generate"] if g["source"] == "Tax Scenario" for t in g["targets"] if not t["versions"]])
 		targets = {t["name"] for g in data["generate"] for t in g["targets"]}
 		self.assertNotIn(self.other_return.name, targets)

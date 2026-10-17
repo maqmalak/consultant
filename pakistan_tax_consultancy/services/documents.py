@@ -34,10 +34,12 @@ DOCUMENTS = {
 		"A ready letter to your employer or bank asking for your tax deduction certificate."),
 	"Filing Confirmation": ("Tax Return", "filing_confirmation",
 		"Confirms the return was filed, with the IRIS acknowledgment number."),
+	"Tax Planning Report": ("Tax Scenario", "tax_planning_report",
+		"A what-if from your consultant: how a change would move your tax, next to this year and last year."),
 }
 ICONS = {"Authority Letter": "pen-line", "Engagement Letter": "handshake", "Document Checklist": "list-checks",
 	"Tax Computation Summary": "calculator", "Wealth Statement Summary": "landmark",
-	"Withholding Certificate Request": "mail", "Filing Confirmation": "badge-check"}
+	"Withholding Certificate Request": "mail", "Filing Confirmation": "badge-check", "Tax Planning Report": "sliders-horizontal"}
 # the summary figures are the client's to see once the consultant has prepared them for confirmation
 CLIENT_FIGURES_STATES = (wf.AWAITING_CLIENT, wf.APPROVED) + wf.FILED_STATES
 FILED_OK = (wf.ACKNOWLEDGED, wf.CLOSED)
@@ -100,6 +102,8 @@ def blocked_reason(document_type, src, for_client=False):
 			return _("Available once assets or liabilities are entered.")
 		if for_client and src.workflow_state not in CLIENT_FIGURES_STATES:
 			return _("Available when your return is ready for you to check.")
+	if document_type == "Tax Planning Report" and for_client:
+		return _("Prepared by your consultant from the tax simulator.")
 	if document_type == "Filing Confirmation" and not (src.workflow_state in FILED_OK and src.get("iris_acknowledgment_no")):
 		return _("Available after FBR IRIS acknowledges the filed return.")
 	return None
@@ -120,6 +124,12 @@ def sources(tax_client, for_client=False):
 	for document_type, (doctype, _t, desc) in DOCUMENTS.items():
 		if doctype == "Tax Client":
 			targets = [(client.name, _("All years"), None, None)]
+		elif doctype == "Tax Scenario":
+			# staff planning records: listed for history even where the viewer may not open the scenario itself
+			targets = [(sc.name, f"TY{sc.tax_year} · {sc.title}", sc.tax_year, blocked_reason(document_type, sc, for_client))
+				for sc in frappe.get_all("Tax Scenario", {"tax_client": tax_client}, ["name", "title", "tax_year"], order_by="creation desc", limit=8)]
+			if for_client:  # clients see only the reports already shared with them
+				targets = [t for t in targets if history.get((document_type, t[0]))]
 		elif doctype == "Tax Engagement":
 			targets = [(e.name, f"TY{e.tax_year} · {e.service_package or e.service}", e.tax_year, None) for e in engagements]
 		else:

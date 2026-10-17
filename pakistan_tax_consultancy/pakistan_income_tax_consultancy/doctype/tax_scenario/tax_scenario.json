@@ -1,0 +1,177 @@
+{
+ "actions": [],
+ "autoname": "TAX-SCN-.YYYY.-.#####",
+ "creation": "2026-10-17 15:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "tax_return",
+  "tax_client",
+  "client_name",
+  "cb1",
+  "tax_year",
+  "taxable_income",
+  "tax_liability",
+  "net_payable",
+  "refund_due",
+  "sb1",
+  "notes",
+  "levers",
+  "result"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Scenario",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "tax_return",
+   "fieldtype": "Link",
+   "label": "Tax Return",
+   "reqd": 1,
+   "in_list_view": 1,
+   "options": "Tax Return"
+  },
+  {
+   "fieldname": "tax_client",
+   "fieldtype": "Link",
+   "label": "Client",
+   "options": "Tax Client",
+   "read_only": 1
+  },
+  {
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "label": "Client name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tax_year",
+   "fieldtype": "Link",
+   "label": "Tax Year",
+   "options": "Tax Year",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "taxable_income",
+   "fieldtype": "Currency",
+   "label": "Taxable income",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_liability",
+   "fieldtype": "Currency",
+   "label": "Tax liability",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "net_payable",
+   "fieldtype": "Currency",
+   "label": "Net payable",
+   "read_only": 1
+  },
+  {
+   "fieldname": "refund_due",
+   "fieldtype": "Currency",
+   "label": "Refund due",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb1",
+   "fieldtype": "Section Break",
+   "label": "Scenario"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "levers",
+   "fieldtype": "JSON",
+   "label": "Lever values",
+   "read_only": 1,
+   "description": "Amount per simulator lever (income group, add-backs, deductions, credits, tax paid)."
+  },
+  {
+   "fieldname": "result",
+   "fieldtype": "JSON",
+   "label": "Result",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-10-17 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Pakistan Income Tax Consultancy",
+ "name": "Tax Scenario",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "permlevel": 0,
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "print": 1,
+   "delete": 1,
+   "export": 1,
+   "share": 1
+  },
+  {
+   "role": "Tax Admin",
+   "permlevel": 0,
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "print": 1,
+   "delete": 1,
+   "export": 1,
+   "share": 1
+  },
+  {
+   "role": "Tax Consultant",
+   "permlevel": 0,
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "print": 1,
+   "delete": 1
+  },
+  {
+   "role": "Tax Reviewer",
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "print": 1
+  },
+  {
+   "role": "Tax Approver",
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "print": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "title",
+ "track_changes": 1,
+ "description": "A saved what-if from the tax simulator: lever values for one return and the tax they give (estimate, never filed)."
+}

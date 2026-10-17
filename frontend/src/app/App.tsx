@@ -22,6 +22,7 @@ import { PaymentsQueue } from "@/pages/staff/payments";
 import { QueuePage } from "@/pages/staff/queue";
 import { ReportsPage } from "@/pages/staff/reports";
 import { ReturnWizard } from "@/pages/staff/return-wizard";
+import { SimulatorPage } from "@/pages/staff/simulator";
 import { ReturnsPage } from "@/pages/staff/returns";
 import { SettingsPage } from "@/pages/staff/settings";
 import { ClientForm } from "@/pages/staff/client-form";
@@ -65,6 +66,7 @@ export default function App() {
         <Route path="visits/new" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT, FIELD]}><VisitForm /></RequireStaff>} />
         <Route path="returns" element={<ReturnsPage />} />
         <Route path="returns/:name" element={<ReturnWizard />} />
+        <Route path="returns/:name/simulator" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT, ROLES.REVIEWER, ROLES.APPROVER]}><SimulatorPage /></RequireStaff>} />
         <Route path="queue/:queue" element={<QueuePage />} />
         <Route path="payments" element={<RequireStaff roles={[SM, ADMIN]}><PaymentsQueue /></RequireStaff>} />
         <Route path="consultations" element={<ConsultationsPage />} />

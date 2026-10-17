@@ -3,7 +3,7 @@
  * Calculation → Validation → Workflow. Autosaves while the return is in preparation; every rule is re-checked
  * on the server (services/workflow.py), so the buttons here are conveniences, not the security boundary.
  */
-import { AlertTriangle, Calculator, Check, CheckCircle2, CircleDashed, Download, ExternalLink, FileCheck2, Save, X } from "lucide-react";
+import { AlertTriangle, Calculator, Check, CheckCircle2, CircleDashed, Download, ExternalLink, FileCheck2, Save, SlidersHorizontal, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import useSWR from "swr";
@@ -202,6 +202,7 @@ export function ReturnWizard() {
             {saving ? "Saving…" : dirty ? "Unsaved changes" : editable ? "All changes saved" : "Read-only in this state"}
           </span>
           {editable && <Button size="default" variant="outline" loading={saving} disabled={!dirty} onClick={() => void save()}><Save className="h-4 w-4" /> Save draft</Button>}
+          <Link to={`/staff/returns/${doc.name}/simulator`} className="inline-flex h-9 items-center gap-1.5 rounded-md border-[1.5px] border-[#d4af37]/50 bg-[#d4af37]/10 px-3 text-sm font-semibold text-[#8a6914] hover:bg-[#d4af37]/20 dark:text-[#f3d77a]"><SlidersHorizontal className="h-4 w-4" /> Simulator</Link>
           <a href={`/app/tax-return/${doc.name}`} className="inline-flex h-9 items-center gap-1 rounded-md px-3 text-sm text-muted-foreground hover:bg-accent">Desk <ExternalLink className="h-3.5 w-3.5" /></a>
         </div>
       </div>

@@ -19,7 +19,7 @@ ALL_SCOPE_ROLES = {"System Manager", "Tax Admin", "Tax Reviewer", "Tax Approver"
 CLIENT_LINKED = ("Tax Engagement", "Tax Document", "Tax Return", "Tax Calculation", "Tax Review",
 	"Tax Approval", "Filing Record", "Review Comment", "Payment Proof", "Client Message", "Generated Document")
 # what a client may see of their own records: never internal review work
-CLIENT_HIDDEN = ("Tax Calculation", "Tax Review", "Tax Approval")
+CLIENT_HIDDEN = ("Tax Calculation", "Tax Review", "Tax Approval", "Tax Scenario")
 OWN_ASSIGNMENT = ("Tax Return", "Tax Engagement")
 
 
