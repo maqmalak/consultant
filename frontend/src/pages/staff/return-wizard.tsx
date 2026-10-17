@@ -72,31 +72,31 @@ function ClientYearCard({ doc, ov }: { doc: Doc; ov: any }) {
   ];
   return (
     <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
-      <div className="hero-dark relative p-5 text-white sm:p-6">
-        <div aria-hidden className="pointer-events-none absolute -end-16 -top-16 h-48 w-48 rounded-full bg-[#d4af37]/20 blur-3xl" />
+      <div className="relative overflow-hidden border-b bg-gradient-to-br from-[#d4af37]/15 via-[#d4af37]/5 to-transparent p-5 sm:p-6">
+        <div aria-hidden className="pointer-events-none absolute -end-16 -top-16 h-48 w-48 rounded-full bg-[#d4af37]/15 blur-3xl" />
         <div className="relative flex flex-wrap items-start justify-between gap-5">
           <div className="flex min-w-0 items-center gap-4">
             <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#f3d77a] via-[#d4af37] to-[#9c7a22] text-lg font-bold text-[#141416] shadow-lg">{initialsOf(doc.client_name)}</span>
             <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#f3d77a]">Client</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8a6914] dark:text-[#f3d77a]">Client</p>
               <Link to={`/staff/clients/${doc.tax_client}`} className="block truncate font-display text-2xl font-semibold hover:underline">{doc.client_name}</Link>
-              {c.business_name && <p className="truncate text-sm text-white/60">{c.business_name}</p>}
+              {c.business_name && <p className="truncate text-sm text-muted-foreground">{c.business_name}</p>}
               <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-medium">
-                {c.client_type && <span className="rounded-full bg-white/10 px-2.5 py-0.5">{c.client_type}</span>}
-                {c.city && <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-0.5"><MapPin className="h-3 w-3" />{c.city}</span>}
-                {filer && <span className={cn("rounded-full px-2.5 py-0.5", filer.startsWith("Filer") ? "bg-emerald-400/20 text-emerald-200" : "bg-amber-400/20 text-amber-200")}>{filer.replace(" (Active Taxpayer)", " · ATL")}</span>}
-                {c.has_portal && <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-0.5"><Check className="h-3 w-3" /> Portal</span>}
-                {c.whatsapp_opt_in ? <span className="rounded-full bg-[#25D366]/20 px-2.5 py-0.5 text-[#7ef0a8]">WhatsApp ✓</span> : null}
+                {c.client_type && <span className="rounded-full border bg-card px-2.5 py-0.5">{c.client_type}</span>}
+                {c.city && <span className="inline-flex items-center gap-1 rounded-full border bg-card px-2.5 py-0.5"><MapPin className="h-3 w-3" />{c.city}</span>}
+                {filer && <span className={cn("rounded-full px-2.5 py-0.5", filer.startsWith("Filer") ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" : "bg-amber-500/15 text-amber-800 dark:text-amber-300")}>{filer.replace(" (Active Taxpayer)", " · ATL")}</span>}
+                {c.has_portal && <span className="inline-flex items-center gap-1 rounded-full border bg-card px-2.5 py-0.5"><Check className="h-3 w-3" /> Portal</span>}
+                {c.whatsapp_opt_in ? <span className="rounded-full bg-[#25D366]/15 px-2.5 py-0.5 text-[#128C7E] dark:text-[#25D366]">WhatsApp ✓</span> : null}
               </div>
             </div>
           </div>
-          <div className="rounded-2xl bg-white/5 px-5 py-3 text-end ring-1 ring-white/10">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50">Tax year</p>
-            <p className="font-display text-3xl font-bold text-[#f3d77a]">{doc.tax_year}</p>
-            <p className="text-xs text-white/60">{fmtDay(doc.period_from || year.start_date)} – {fmtDay(doc.period_to || year.end_date)}</p>
+          <div className="rounded-2xl border bg-card px-5 py-3 text-end shadow-sm">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Tax year</p>
+            <p className="font-display text-3xl font-bold text-[#b8912a] dark:text-[#f3d77a]">{doc.tax_year}</p>
+            <p className="text-xs text-muted-foreground">{fmtDay(doc.period_from || year.start_date)} – {fmtDay(doc.period_to || year.end_date)}</p>
             {year.return_due_date && (
               <p className={cn("mt-1.5 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
-                filed ? "bg-emerald-400/20 text-emerald-200" : due != null && due < 0 ? "bg-white/10 text-white/70" : due != null && due <= 14 ? "bg-rose-400/25 text-rose-100" : "bg-white/10 text-white/80")}>
+                filed ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" : due != null && due < 0 ? "bg-muted text-muted-foreground" : due != null && due <= 14 ? "bg-rose-500/15 text-rose-700 dark:text-rose-300" : "bg-[#d4af37]/15 text-[#8a6914] dark:text-[#f3d77a]")}>
                 <CalendarClock className="h-3 w-3" /> {filed ? "Filed" : due != null && due < 0 ? `Due date passed (${fmtDay(year.return_due_date)})` : `Due ${fmtDay(year.return_due_date)} · ${due} days`}
               </p>
             )}
