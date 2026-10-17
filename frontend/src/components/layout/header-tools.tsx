@@ -100,7 +100,11 @@ export function UserMenu({ staff }: { staff: boolean }) {
   const name = me?.full_name || me?.user || "";
   const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
   const role = (me?.roles ?? []).find((r) => ["Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer", "Field Officer", "System Manager"].includes(r));
-  const signOut = (to = "/login") => void logout().then(() => navigate(to));
+  // a full reload after sign-out drops every cached screen of the previous user; sign out even if the call fails
+  const signOut = (switching = false) => {
+    setOpen(false);
+    void logout().catch(() => undefined).finally(() => window.location.assign(`/portal/login${switching ? "?switch=1" : ""}`));
+  };
   const item = "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm hover:bg-accent";
   const go = (to: string) => { setOpen(false); navigate(to); };
   return (
@@ -135,8 +139,8 @@ export function UserMenu({ staff }: { staff: boolean }) {
           )}
           <a className={item} href="/"><Globe className="h-4 w-4 text-muted-foreground" /> {t("Visit website")}</a>
           <div className="my-1 h-px bg-border" />
-          <button className={item} onClick={() => signOut("/login")}><Users className="h-4 w-4 text-muted-foreground" /> {t("Sign in as someone else")}</button>
-          <button className={cn(item, "text-rose-600 dark:text-rose-400")} onClick={() => signOut("/login")}><LogOut className="h-4 w-4" /> {t("Sign out")}</button>
+          <button className={item} onClick={() => signOut(true)}><Users className="h-4 w-4 text-muted-foreground" /> {t("Sign in as someone else")}</button>
+          <button className={cn(item, "text-rose-600 dark:text-rose-400")} onClick={() => signOut()}><LogOut className="h-4 w-4" /> {t("Sign out")}</button>
         </div>
       )}
     </div>

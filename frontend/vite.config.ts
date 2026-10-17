@@ -49,6 +49,9 @@ export default defineConfig(({ mode, command }) => {
         "/printview": proxyOpts,
         // Frappe CRM (leads / deals open there from the staff CRM page)
         "/crm": proxyOpts,
+        // Everything else is the public website (/, /tax-calculator, /tax-updates/…), as on the Frappe port —
+        // only the portal itself and Vite's own module paths stay on the dev server.
+        "^/(?!portal(?:/|$)|@|src/|node_modules/|__)": proxyOpts,
       },
     },
     test: {

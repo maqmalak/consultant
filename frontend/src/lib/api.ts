@@ -1,5 +1,5 @@
 /** Typed wrappers around the app's whitelisted methods (pakistan_tax_consultancy.api.*). */
-import { apiCall, apiGet, apiUpload } from "@/services/frappe";
+import { apiCall, apiUpload } from "@/services/frappe";
 
 const PUB = "pakistan_tax_consultancy.api.public";
 const AUTH = "pakistan_tax_consultancy.api.auth";
@@ -193,7 +193,7 @@ export const auth = {
     apiCall<{ verified: boolean }>(`${AUTH}.verify_otp`, { request, mobile, code }),
   signup: (data: Record<string, unknown>) => apiCall<{ user: string; client: string; home: string }>(`${AUTH}.signup`, data),
   login: (usr: string, pwd: string) => apiCall<{ message: string; home_page: string }>("login", { usr, pwd }),
-  logout: () => apiGet("logout"),
+  logout: () => apiCall("logout"),  // POST only on Frappe v16 (GET answers 403)
   resetPassword: (user: string) => apiCall("frappe.core.doctype.user.user.reset_password", { user }),
   resendVerification: () => apiCall(`${AUTH}.resend_email_verification`),
 };
