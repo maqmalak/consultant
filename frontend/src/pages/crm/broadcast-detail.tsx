@@ -50,7 +50,7 @@ export function BroadcastDetailPage() {
   return (
     <div className="page-container space-y-5">
       <Link to="/crm/broadcast" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Broadcasts</Link>
-      <div className="overflow-hidden rounded-3xl bg-[#0b0b0c] text-white">
+      <div className="overflow-hidden rounded-3xl hero-dark text-white">
         <div className="relative p-6 sm:p-8">
           <div aria-hidden className="absolute inset-0 bg-[radial-gradient(600px_240px_at_90%_0%,rgba(37,211,102,0.22),transparent_60%)]" />
           <div className="relative flex flex-wrap items-start gap-6">

@@ -109,7 +109,7 @@ export function NewLeadPage() {
 
         <aside className="space-y-4 lg:sticky lg:top-20">
           <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
-            <div className="bg-[#0b0b0c] px-5 py-6 text-white">
+            <div className="hero-dark px-5 py-6 text-white">
               <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-[#f3d77a] via-[#d4af37] to-[#9c7a22] text-lg font-bold text-[#141416]">
                 {(f.first_name[0] ?? "?").toUpperCase()}{(f.last_name[0] ?? "").toUpperCase()}</span>
               <p className="mt-3 font-display text-xl font-semibold">{name || "New lead"}</p>

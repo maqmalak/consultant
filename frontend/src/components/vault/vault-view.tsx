@@ -115,7 +115,7 @@ export function VaultView({ data, staff = false, onGenerate }: {
   return (
     <div className="space-y-8">
       {/* header */}
-      <div className="relative overflow-hidden rounded-3xl bg-[#0b0b0c] p-6 text-white sm:p-8">
+      <div className="relative overflow-hidden rounded-3xl hero-dark p-6 text-white sm:p-8">
         <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(600px_260px_at_90%_0%,rgba(212,175,55,0.28),transparent_60%)]" />
         <div className="relative flex flex-wrap items-center gap-5">
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#d4af37]/40 bg-[#d4af37]/10 text-[#f3d77a]"><ShieldCheck className="h-7 w-7" /></span>
