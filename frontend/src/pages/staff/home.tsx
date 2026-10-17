@@ -2,6 +2,7 @@ import { LayoutGrid, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { STAFF_NAV } from "@/app/nav";
+import { HomePanel } from "@/components/staff/home-panel";
 import { GlossyIcon } from "@/components/ui/app-icon";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/cn";
@@ -23,7 +24,8 @@ export function StaffHome() {
   }, [q, hasRole]);
   const total = groups.reduce((n, g) => n + g.items.length, 0);
   return (
-    <div className="flex flex-col gap-6 p-4 sm:p-6">
+    <div className="grid items-start gap-6 p-4 sm:p-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+    <div className="flex min-w-0 flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">{greeting()}, {(me?.full_name ?? "").split(" ")[0]}</h1>
@@ -56,6 +58,10 @@ export function StaffHome() {
           </div>
         </section>
       ))}
+    </div>
+    <aside className="xl:sticky xl:top-20 xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto xl:pe-1 scrollbar-thin">
+      <HomePanel />
+    </aside>
     </div>
   );
 }
