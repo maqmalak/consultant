@@ -23,6 +23,7 @@ import { QueuePage } from "@/pages/staff/queue";
 import { ReportsPage } from "@/pages/staff/reports";
 import { ReturnWizard } from "@/pages/staff/return-wizard";
 import { SimulatorPage } from "@/pages/staff/simulator";
+import { RolesPage } from "@/pages/staff/roles";
 import { ReturnsPage } from "@/pages/staff/returns";
 import { SettingsPage } from "@/pages/staff/settings";
 import { ClientForm } from "@/pages/staff/client-form";
@@ -77,6 +78,7 @@ export default function App() {
         <Route path="settings" element={<RequireStaff roles={[SM, ADMIN]}><SettingsPage /></RequireStaff>} />
         <Route path="content" element={<RequireStaff roles={[SM, ADMIN]}><ContentPage /></RequireStaff>} />
         <Route path="team" element={<RequireStaff roles={[SM, ADMIN]}><TeamPage /></RequireStaff>} />
+        <Route path="roles" element={<RequireStaff roles={[SM, ADMIN]}><RolesPage /></RequireStaff>} />
       </Route>
 
       {/* CRM: a separate app (own sidebar), same login — switch from the header */}

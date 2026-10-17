@@ -1,4 +1,5 @@
 import {
+  ShieldHalf,
   BadgeCheck, BarChart3, Handshake, BookOpen, MessageCircle, UserCog, ClipboardCheck, FileCheck2, FileText, FileUp, Home, LayoutDashboard, MapPin, MessageSquare,
   PhoneCall, Send, Settings2, ShieldAlert, ShieldCheck, Upload, User, Users, Wallet, type LucideIcon,
 } from "lucide-react";
@@ -70,6 +71,7 @@ export const STAFF_NAV: NavGroup[] = [
       { path: "/staff/reports", label: "Reports", hint: "Excel · CSV", icon: BarChart3, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER], hue: "rose" },
       { path: "/staff/content", label: "Website & Rules", hint: "Prices · FAQ · Articles · Tax years", icon: BookOpen, roles: [SM, ADMIN], hue: "teal" },
       { path: "/staff/team", label: "Team", hint: "Staff logins & roles", icon: UserCog, roles: [SM, ADMIN], hue: "indigo" },
+      { path: "/staff/roles", label: "Roles & Permissions", hint: "Who may do what", icon: ShieldHalf, roles: [SM, ADMIN], hue: "violet" },
       { path: "/staff/settings", label: "Settings", hint: "Firm · WhatsApp · Email · Payments", icon: Settings2, roles: [SM, ADMIN], hue: "slate" },
     ],
   },
