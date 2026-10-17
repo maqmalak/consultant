@@ -163,9 +163,24 @@ def move_deal(deal: str, status: str, lost_reason: str | None = None):
 	return {"status": doc.status, "tax_client": frappe.db.get_value("CRM Deal", deal, "tax_client")}
 
 
+LEAD_FORM_FIELDS = ("salutation", "first_name", "last_name", "mobile_no", "email", "organization", "website", "job_title", "industry",
+	"territory", "source", "status", "lead_owner", "ptc_client_type")
+
+
+@frappe.whitelist(methods=["GET"])
+def get_lead(name: str):
+	_guard()
+	doc = frappe.get_doc("CRM Lead", name)
+	doc.check_permission("read")
+	d = {f: doc.get(f) or "" for f in LEAD_FORM_FIELDS}
+	d.update(mobile=d.pop("mobile_no"), client_type=d.pop("ptc_client_type") or "Individual-Salaried", name=doc.name,
+		converted=doc.converted, can_write=doc.has_permission("write"))
+	return d
+
+
 @frappe.whitelist(methods=["POST"])
-def save_lead(data: str | dict):
-	"""The full New Lead page: person, business, how they found us, owner, first note (rich text)."""
+def save_lead(data: str | dict, name: str | None = None):
+	"""The New / Edit Lead page: person, business, how they found us, owner, first note (rich text, new leads only)."""
 	from pakistan_tax_consultancy.api.crm_activity import rich
 	from pakistan_tax_consultancy.utils.validators import normalize_mobile
 
@@ -181,14 +196,21 @@ def save_lead(data: str | dict):
 		except ValueError as e:
 			frappe.throw(_(str(e)))
 	dup = crm.find_lead(mobile, d.get("email"))
-	if dup and not frappe.utils.cint(d.get("allow_duplicate")):
+	if dup and dup != name and not frappe.utils.cint(d.get("allow_duplicate")):
 		frappe.throw(_("A lead with this mobile or email already exists: {0}").format(dup), title=_("Possible duplicate"))
-	lead = frappe.get_doc({"doctype": "CRM Lead", "salutation": d.get("salutation") or None, "first_name": first,
+	values = {"salutation": d.get("salutation") or None, "first_name": first,
 		"last_name": (d.get("last_name") or "").strip() or None, "mobile_no": mobile, "email": (d.get("email") or "").strip().lower() or None,
 		"organization": (d.get("organization") or "").strip() or None, "website": (d.get("website") or "").strip() or None,
 		"job_title": (d.get("job_title") or "").strip() or None, "industry": d.get("industry") or None, "territory": d.get("territory") or None,
 		"source": d.get("source") or None, "status": d.get("status") or "New", "lead_owner": d.get("lead_owner") or frappe.session.user,
-		"ptc_client_type": d.get("client_type") or "Individual-Salaried"})
+		"ptc_client_type": d.get("client_type") or "Individual-Salaried"}
+	if name:
+		lead = frappe.get_doc("CRM Lead", name)
+		lead.check_permission("write")
+		lead.update(values)
+		lead.save()
+		return lead.name
+	lead = frappe.get_doc({"doctype": "CRM Lead", **values})
 	lead.insert()
 	note = rich(d.get("note"))
 	if frappe.utils.strip_html(note).strip():
@@ -208,3 +230,18 @@ def lead_form_options():
 		"salutations": frappe.get_all("Salutation", pluck="name"),
 		"owners": frappe.get_all("User", {"name": ("in", frappe.get_all("Has Role", {"role": ("in", ["Sales User", "Sales Manager"]), "parenttype": "User"},
 			pluck="parent") or [""]), "enabled": 1}, ["name", "full_name"], order_by="full_name")}
+
+
+DEAL_FORM_FIELDS = ("expected_deal_value", "deal_value", "service_package", "next_step", "expected_closure_date", "ptc_client_type", "organization_name")
+
+
+@frappe.whitelist(methods=["POST"])
+def update_deal(name: str, data: str | dict):
+	"""Deal details from the deal page: value, package, next step, expected close."""
+	_guard()
+	doc = frappe.get_doc("CRM Deal", name)
+	doc.check_permission("write")
+	d = frappe.parse_json(data) if isinstance(data, str) else data
+	doc.update({k: (d.get(k) or None) for k in DEAL_FORM_FIELDS if k in d})
+	doc.save()
+	return doc.name

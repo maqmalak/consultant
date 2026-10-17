@@ -4,7 +4,7 @@
  */
 import {
   ArrowLeft, ArrowRightLeft, BadgeCheck, CalendarClock, CalendarPlus, Check, CheckCircle2, CircleDot, Download, ExternalLink, FileText, Mail,
-  MessageCircle, NotebookPen, Paperclip, Phone, PhoneCall, Send, Sparkles, Trash2, Upload, Users, X, type LucideIcon,
+  MessageCircle, NotebookPen, Paperclip, Pencil, Phone, PhoneCall, Send, Sparkles, Trash2, Upload, Users, X, type LucideIcon,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -31,7 +31,8 @@ interface Detail {
   owner: string | null; owner_name: string | null; source: string | null; organization: string | null; client_type: string | null;
   tax_client: string | null; converted: number; deal: string | null; lead: string | null; value: number | null; package: string | null;
   next_step: string | null; created: string; contact: { mobile: string | null; email: string | null }; whatsapp_opted_out: number;
-  email_ready: boolean; crm_url: string; timeline: Item[]; open_tasks: Item[]; upcoming: Item[]; lost_reasons: string[];
+  email_ready: boolean; crm_url: string; timeline: Item[]; open_tasks: Item[]; upcoming: Item[]; lost_reasons: string[]; can_write: boolean;
+  deal_fields: Record<string, string | number | null> | null; packages: { name: string; price: number }[];
   agents: { name: string; full_name: string }[];
 }
 
@@ -250,6 +251,37 @@ function Attachments({ doctype, name }: { doctype: string; name: string }) {
   );
 }
 
+/** Deal details: value, package, next step, expected close. */
+function EditDeal({ d, open, onClose, onSaved }: { d: Detail; open: boolean; onClose: () => void; onSaved: () => void }) {
+  const [f, setF] = useState<Record<string, string>>(() => Object.fromEntries(Object.entries(d.deal_fields ?? {}).map(([k, v]) => [k, v == null || v === 0 ? "" : String(v)])));
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<unknown>(null);
+  const set = (k: string) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
+  const save = async () => {
+    setBusy(true); setErr(null);
+    try { await apiCall("pakistan_tax_consultancy.api.crm.update_deal", { name: d.name, data: JSON.stringify(f) }); onSaved(); onClose(); }
+    catch (e) { setErr(e); } finally { setBusy(false); }
+  };
+  return (
+    <Dialog open={open} onClose={onClose} title="Edit deal details" size="lg"
+      footer={<><Button variant="ghost" onClick={onClose}>Cancel</Button><Button loading={busy} onClick={() => void save()}>Save changes</Button></>}>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="text-sm font-medium">Package
+          <SelectInput className="mt-1.5" value={f.service_package ?? ""} onChange={(e) => {
+            const p = d.packages.find((x) => x.name === e.target.value);
+            setF({ ...f, service_package: e.target.value, expected_deal_value: p && !Number(f.expected_deal_value) ? String(p.price) : f.expected_deal_value });
+          }}><option value="">—</option>{d.packages.map((p) => <option key={p.name} value={p.name}>{p.name} · Rs {Math.round(p.price).toLocaleString()}</option>)}</SelectInput></label>
+        <label className="text-sm font-medium">Business / organization<input className="field mt-1.5" value={f.organization_name ?? ""} onChange={set("organization_name")} /></label>
+        <label className="text-sm font-medium">Expected value (Rs)<input className="field mt-1.5" type="number" min={0} value={f.expected_deal_value ?? ""} onChange={set("expected_deal_value")} /></label>
+        <label className="text-sm font-medium">Agreed value (Rs)<input className="field mt-1.5" type="number" min={0} value={f.deal_value ?? ""} onChange={set("deal_value")} placeholder="When the fee is agreed" /></label>
+        <label className="text-sm font-medium">Expected close<input className="field mt-1.5" type="date" value={f.expected_closure_date ?? ""} onChange={set("expected_closure_date")} /></label>
+        <label className="text-sm font-medium">Next step<input className="field mt-1.5" value={f.next_step ?? ""} onChange={set("next_step")} placeholder="e.g. Collect bank certificate" /></label>
+      </div>
+      <InlineError error={err} />
+    </Dialog>
+  );
+}
+
 export function CrmRecordPage({ doctype }: { doctype: "CRM Lead" | "CRM Deal" }) {
   const { name = "" } = useParams();
   const navigate = useNavigate();
@@ -258,6 +290,7 @@ export function CrmRecordPage({ doctype }: { doctype: "CRM Lead" | "CRM Deal" })
   const [lost, setLost] = useState<string | null>(null);
   const [filter, setFilter] = useState<Kind | "all">("all");
   const [tab, setTab] = useState<"activity" | "attachments">("activity");
+  const [editDeal, setEditDeal] = useState(false);
   if (isLoading) return <Loading />;
   if (error || !d) return <div className="page-container"><ErrorState error={error} onRetry={() => void mutate()} /></div>;
   const run = (p: Promise<unknown>) => p.then(() => mutate()).catch(setErr);
@@ -273,7 +306,7 @@ export function CrmRecordPage({ doctype }: { doctype: "CRM Lead" | "CRM Deal" })
   return (
     <div className="page-container space-y-5">
       <Link to={doctype === "CRM Lead" ? "/crm/leads" : "/crm/pipeline"} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-4 w-4" /> {doctype === "CRM Lead" ? "Leads" : "Pipeline"}</Link>
+        <ArrowLeft className="h-4 w-4" /> {doctype === "CRM Lead" ? "Leads" : "Deals"}</Link>
 
       {/* header */}
       <div className="flex flex-wrap items-start gap-4 rounded-2xl border bg-card p-5 shadow-sm">
@@ -281,7 +314,11 @@ export function CrmRecordPage({ doctype }: { doctype: "CRM Lead" | "CRM Deal" })
           {d.person.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase()}</span>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{doctype === "CRM Lead" ? "Lead" : "Deal"} · {d.name}</p>
-          <h1 className="text-2xl font-semibold leading-tight">{d.person}</h1>
+          <h1 className="flex flex-wrap items-center gap-2 text-2xl font-semibold leading-tight">{d.person}
+            {d.can_write && (doctype === "CRM Lead"
+              ? <Link to={`/crm/leads/${name}/edit`} className="inline-flex h-7 items-center gap-1 rounded-full border px-2.5 text-xs font-semibold text-muted-foreground hover:border-primary/50 hover:text-foreground"><Pencil className="h-3.5 w-3.5" /> Edit</Link>
+              : <button type="button" onClick={() => setEditDeal(true)} className="inline-flex h-7 items-center gap-1 rounded-full border px-2.5 text-xs font-semibold text-muted-foreground hover:border-primary/50 hover:text-foreground"><Pencil className="h-3.5 w-3.5" /> Edit details</button>)}
+          </h1>
           <p className="mt-0.5 text-sm text-muted-foreground">{[d.organization !== d.person ? d.organization : null, d.client_type, d.source && `via ${d.source}`].filter(Boolean).join(" · ")}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {tel && <a href={`tel:${tel}`} className="inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium hover:bg-accent"><Phone className="h-3.5 w-3.5" />{d.contact.mobile}</a>}
@@ -367,6 +404,7 @@ export function CrmRecordPage({ doctype }: { doctype: "CRM Lead" | "CRM Deal" })
         </aside>
       </div>
 
+      {editDeal && <EditDeal d={d} open={editDeal} onClose={() => setEditDeal(false)} onSaved={() => void mutate()} />}
       <Dialog open={lost !== null} onClose={() => setLost(null)} title="Why was this deal lost?"
         footer={<><Button variant="ghost" onClick={() => setLost(null)}>Cancel</Button>
           <Button onClick={() => { void run(apiCall(`${A}.set_status`, { doctype, name, status: "Lost", lost_reason: lost })); setLost(null); }}>Mark lost</Button></>}>

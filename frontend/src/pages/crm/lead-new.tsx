@@ -3,9 +3,9 @@
  * with a live preview card and a duplicate check (same mobile or email) before saving.
  */
 import { AlertTriangle, ArrowLeft, Briefcase, Compass, Mail, NotebookPen, Phone, Save, UserPlus, UserRound, type LucideIcon } from "lucide-react";
-import { useState, type ReactNode } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { InlineError } from "@/components/common/states";
+import { useEffect, useState, type ReactNode } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { InlineError, Loading } from "@/components/common/states";
 import { CRM_COLORS } from "@/components/crm/kanban-board";
 import { RichTextEditor } from "@/components/forms/rich-text-editor";
 import { Button } from "@/components/ui/button";
@@ -35,13 +35,22 @@ function L({ label, children, wide, required }: { label: string; children: React
 
 export function NewLeadPage() {
   const navigate = useNavigate();
+  const { name: editName } = useParams();
+  const editing = !!editName;
   const { me } = useAuth();
   const opts = useApi<Options>(`${C}.lead_form_options`);
+  const current = useApi<Record<string, string>>(editing ? `${C}.get_lead` : null, { name: editName });
   const [f, setF] = useState<Record<string, string>>({ salutation: "", first_name: "", last_name: "", mobile: "", email: "", job_title: "", organization: "",
     website: "", industry: "", territory: "", client_type: "Individual-Salaried", source: "Walk In", status: "New", lead_owner: me?.user ?? "", note: "" });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<unknown>(null);
   const [dup, setDup] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(!editing);
+  useEffect(() => {
+    if (!editing || loaded || !current.data) return;
+    setF((x) => ({ ...x, ...Object.fromEntries(Object.entries(current.data!).map(([k, v]) => [k, v == null ? "" : String(v)])), note: "" }));
+    setLoaded(true);
+  }, [editing, loaded, current.data]);
   const set = (k: string) => (e: { target: { value: string } }) => { setF({ ...f, [k]: e.target.value }); setDup(null); };
   const name = [f.salutation, f.first_name, f.last_name].filter(Boolean).join(" ");
   const status = opts.data?.statuses.find((s) => s.name === f.status);
@@ -50,7 +59,7 @@ export function NewLeadPage() {
   const save = async (allow = false) => {
     setBusy(true); setErr(null);
     try {
-      const lead = await apiCall<string>(`${C}.save_lead`, { data: JSON.stringify({ ...f, allow_duplicate: allow ? 1 : 0 }) });
+      const lead = await apiCall<string>(`${C}.save_lead`, { data: JSON.stringify({ ...f, allow_duplicate: allow ? 1 : 0 }), name: editName });
       navigate(`/crm/leads/${lead}`);
     } catch (e) {
       const m = humanizeError(e) ?? "";
@@ -59,12 +68,13 @@ export function NewLeadPage() {
     } finally { setBusy(false); }
   };
 
+  if (editing && !loaded) return current.error ? <div className="page-container"><InlineError error={current.error} /></div> : <Loading />;
   return (
     <div className="page-container space-y-5">
-      <Link to="/crm/leads" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Leads</Link>
+      <Link to={editing ? `/crm/leads/${editName}` : "/crm/leads"} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> {editing ? name || "Lead" : "Leads"}</Link>
       <div className="flex flex-wrap items-center gap-3">
         <span className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-[#f3d77a] via-[#d4af37] to-[#9c7a22] text-[#141416]"><UserPlus className="h-5 w-5" /></span>
-        <div><h1 className="text-2xl font-semibold">New lead</h1><p className="text-sm text-muted-foreground">Someone who may need tax help — add what you know; the rest can come later.</p></div>
+        <div><h1 className="text-2xl font-semibold">{editing ? "Edit lead" : "New lead"}</h1><p className="text-sm text-muted-foreground">{editing ? `${editName} · notes and activity stay on the lead's timeline` : "Someone who may need tax help — add what you know; the rest can come later."}</p></div>
       </div>
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -102,9 +112,9 @@ export function NewLeadPage() {
             <L label="Owner"><SelectInput value={f.lead_owner} onChange={set("lead_owner")}>{opts.data?.owners.map((o) => <option key={o.name} value={o.name}>{o.full_name}</option>)}</SelectInput></L>
           </Section>
 
-          <Section icon={NotebookPen} title="First note" hint="What do they need? What did you promise?">
+          {!editing && <Section icon={NotebookPen} title="First note" hint="What do they need? What did you promise?">
             <div className="sm:col-span-2"><RichTextEditor value={f.note} onChange={(html) => setF((x) => ({ ...x, note: html }))} minHeight={180} placeholder="e.g. Salaried, two employers this year; wants a refund of bank WHT. Call back Monday." /></div>
-          </Section>
+          </Section>}
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-20">
@@ -112,7 +122,7 @@ export function NewLeadPage() {
             <div className="hero-dark px-5 py-6 text-white">
               <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-[#f3d77a] via-[#d4af37] to-[#9c7a22] text-lg font-bold text-[#141416]">
                 {(f.first_name[0] ?? "?").toUpperCase()}{(f.last_name[0] ?? "").toUpperCase()}</span>
-              <p className="mt-3 font-display text-xl font-semibold">{name || "New lead"}</p>
+              <p className="mt-3 font-display text-xl font-semibold">{name || (editing ? editName : "New lead")}</p>
               <p className="text-sm text-white/60">{[f.job_title, f.organization].filter(Boolean).join(" · ") || CLIENT_TYPES.find(([v]) => v === f.client_type)?.[1]}</p>
             </div>
             <div className="space-y-2 p-5 text-sm">
@@ -131,7 +141,7 @@ export function NewLeadPage() {
             </div>
           )}
           <InlineError error={err} />
-          <Button className="w-full" size="default" loading={busy} disabled={!valid} onClick={() => void save()}>{!busy && <Save className="h-4 w-4" />} Save lead</Button>
+          <Button className="w-full" size="default" loading={busy} disabled={!valid} onClick={() => void save()}>{!busy && <Save className="h-4 w-4" />} {editing ? "Save changes" : "Save lead"}</Button>
           {!valid && <p className="text-center text-xs text-muted-foreground">A first name and a mobile or email are needed.</p>}
         </aside>
       </div>

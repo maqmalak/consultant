@@ -166,3 +166,19 @@ class TestCrmPages(IntegrationTestCase):
 		self.assertEqual([a.name for a in act.attachments("CRM Lead", lead)], [f.name])
 		act.remove_attachment("CRM Lead", lead, f.name)
 		self.assertEqual(act.attachments("CRM Lead", lead), [])
+
+	def test_edit_lead_and_deal(self):
+		from pakistan_tax_consultancy.api import crm as crm_api
+
+		lead = crm_api.save_lead({"first_name": "Edit", "last_name": "Me", "mobile": "03000990301", "source": "Walk In"})
+		other = crm_api.save_lead({"first_name": "Other", "mobile": "03000990302", "source": "Walk In"})
+		data = crm_api.get_lead(lead)
+		self.assertEqual((data["first_name"], data["mobile"]), ("Edit", "+923000990301"))
+		crm_api.save_lead({**data, "first_name": "Edited", "organization": "Edited Traders", "status": "Contacted"}, name=lead)
+		self.assertEqual(frappe.db.get_value("CRM Lead", lead, ["first_name", "organization", "status"]), ("Edited", "Edited Traders", "Contacted"))
+		# taking another lead's mobile is caught as a duplicate
+		self.assertRaises(frappe.ValidationError, crm_api.save_lead, {**data, "mobile": "03000990302"}, name=lead)
+		self.assertTrue(other)
+		deal = crm_api.convert(lead)
+		crm_api.update_deal(deal, {"expected_deal_value": 12000, "next_step": "Send quote", "expected_closure_date": "2026-10-30"})
+		self.assertEqual(frappe.db.get_value("CRM Deal", deal, ["expected_deal_value", "next_step"]), (12000, "Send quote"))
