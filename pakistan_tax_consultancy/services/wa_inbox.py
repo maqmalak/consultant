@@ -60,6 +60,8 @@ def fake_response(method, endpoint, payload):
 			"messages": [{"id": f"wamid.MOCK{stamp}"}]}
 	if "message_templates" in endpoint:
 		return {"data": []} if method == "GET" else {"id": f"MOCKTPL{stamp}", "status": "APPROVED"}
+	if method == "POST" and "components" in payload:  # template edit: Meta re-reviews; test mode approves at once
+		return {"success": True, "id": endpoint, "status": "APPROVED"}
 	return {"success": True, "id": f"MOCK{stamp}"}
 
 

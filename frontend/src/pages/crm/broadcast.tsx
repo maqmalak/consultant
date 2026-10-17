@@ -3,7 +3,7 @@
  * gets it (and who is skipped — no consent, opted out, no number), send in the background at a safe pace, watch progress.
  * The Templates tab creates new templates for Meta's approval and syncs their status.
  */
-import { Ban, BarChart3, CheckCircle2, ChevronRight, Clock, Eye, FlaskConical, Megaphone, MessageSquareText, Plus, RefreshCw, Send, Sparkles, XCircle } from "lucide-react";
+import { Ban, BarChart3, CheckCircle2, ChevronRight, Clock, Eye, FlaskConical, Megaphone, MessageSquareText, Pencil, Plus, RefreshCw, Send, Sparkles, XCircle } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ColorTabs } from "@/components/ui/color-tabs";
@@ -105,11 +105,13 @@ function NewBroadcast({ open, onClose, tpl, onStarted, preset }: { open: boolean
 }
 
 // ------------------------------------------------------------------------------------------------ templates
-function TemplateDetail({ t, onClose, onUse, manage }: { t: Template | null; onClose: () => void; onUse: (t: Template) => void; manage: boolean }) {
+function TemplateDetail({ t, onClose, onUse, onEdit, manage }: { t: Template | null; onClose: () => void; onUse: (t: Template) => void; onEdit: (t: Template) => void; manage: boolean }) {
   if (!t) return null;
   return (
     <Dialog open={!!t} onClose={onClose} title={t.template_label} size="lg"
-      footer={<><Button variant="ghost" onClick={onClose}>Close</Button>{manage && t.status === "Approved" && <Button onClick={() => onUse(t)}><Send className="h-4 w-4" /> Use in a broadcast</Button>}</>}>
+      footer={<><Button variant="ghost" onClick={onClose}>Close</Button>
+        {manage && <Button variant="outline" onClick={() => onEdit(t)}><Pencil className="h-4 w-4" /> Edit</Button>}
+        {manage && t.status === "Approved" && <Button onClick={() => onUse(t)}><Send className="h-4 w-4" /> Use in a broadcast</Button>}</>}>
       <div className="grid gap-5 sm:grid-cols-[1fr_15rem]">
         <div className="rounded-2xl bg-[#efeae2] p-4 dark:bg-[#0b141a]"><Bubble text={t.message} footer={t.footer} /></div>
         <dl className="space-y-3 text-sm">
@@ -153,7 +155,8 @@ function Templates({ tpl, reload, manage, onUse }: { tpl?: TemplatesData; reload
           ))}
         </div>
       )}
-      <TemplateDetail t={open} onClose={() => setOpen(null)} manage={manage} onUse={(t) => { setOpen(null); onUse(t); }} />
+      <TemplateDetail t={open} onClose={() => setOpen(null)} manage={manage} onUse={(t) => { setOpen(null); onUse(t); }}
+        onEdit={(t) => navigate(`/crm/broadcast/templates/${encodeURIComponent(t.name)}/edit`)} />
     </div>
   );
 }

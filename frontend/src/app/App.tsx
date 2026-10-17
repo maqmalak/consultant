@@ -90,6 +90,7 @@ export default function App() {
         <Route path="finder" element={<LeadFinderPage />} />
         <Route path="broadcast" element={<BroadcastPage />} />
         <Route path="broadcast/templates/new" element={<WhatsAppTemplateEditor />} />
+        <Route path="broadcast/templates/:name/edit" element={<WhatsAppTemplateEditor />} />
         <Route path="broadcast/:name" element={<BroadcastDetailPage />} />
         <Route path="email-templates" element={<EmailTemplatesPage />} />
         <Route path="email-templates/:name" element={<EmailTemplateEditor />} />

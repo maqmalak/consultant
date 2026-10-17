@@ -70,6 +70,41 @@ def create_template(label: str, category: str, body: str, reference_doctype: str
 
 
 @frappe.whitelist(methods=["POST"])
+def update_template(name: str, label: str, body: str, variables: str | dict | None = None, footer: str | None = None):
+	"""Edit a template's wording. Meta reviews the change again (status goes back to Pending until approved — instant in
+	test mode); its category, language and record type stay as they are, and Meta limits how often an approved
+	template can be edited."""
+	_guard(manage=True)
+	import re
+
+	from pakistan_tax_consultancy.services.wa_inbox import install_mock
+
+	doc = frappe.get_doc("WhatsApp Template", name)
+	if not (label or "").strip() or not (body or "").strip():
+		frappe.throw(_("Give the template a name and a message."))
+	variables = frappe.parse_json(variables) if isinstance(variables, str) else (variables or {})
+	allowed = templates_fields().get(doc.reference_doctype, [])
+	used = list(dict.fromkeys(re.findall(r"\{\{\s*([a-z_][a-z0-9_]*)\s*\}\}", body)))
+	missing = [v for v in used if not variables.get(v)]
+	if missing:
+		frappe.throw(_("Choose which field fills {0}.").format(", ".join("{{" + m + "}}" for m in missing)))
+	if allowed and any(variables[v] not in allowed for v in used):
+		frappe.throw(_("Only these fields can fill a template: {0}").format(", ".join(allowed)))
+	unchanged = doc.message == body.strip() and (doc.footer or "") == (footer or "") and \
+		{v.variable_name: v.variable_field for v in doc.template_variables} == {v: variables[v] for v in used}
+	doc.template_label = label.strip()[:140]
+	if unchanged:  # only the label changed: nothing to send to Meta
+		doc.db_set("template_label", doc.template_label)
+		return {"name": doc.name, "status": doc.status}
+	install_mock()
+	doc.message = body.strip()
+	doc.footer = (footer or "")[:60]
+	doc.set("template_variables", [{"variable_name": v, "variable_field": variables[v], "variable_example": "Ahmed"} for v in used])
+	doc.save(ignore_permissions=True)
+	return {"name": doc.name, "status": doc.status}
+
+
+@frappe.whitelist(methods=["POST"])
 def starter_templates():
 	_guard(manage=True)
 	return svc.create_starter_templates()

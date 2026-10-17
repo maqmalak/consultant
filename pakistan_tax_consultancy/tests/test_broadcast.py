@@ -51,3 +51,13 @@ class TestBroadcast(IntegrationTestCase):
 		msg = frappe.get_doc("WhatsApp Message", sent[0].whatsapp_message)
 		self.assertTrue(msg.is_template)
 		self.assertEqual(msg.reference_doctype, "CRM Lead")
+
+	def test_edit_template(self):
+		res = api.update_template(self.lead_tpl, "VVS Lead Introduction", "Assalam-o-Alaikum {{first_name}}, thank you for contacting us. Reply here any time.",
+			{"first_name": "first_name"}, "VVS Consultants")
+		doc = frappe.get_doc("WhatsApp Template", self.lead_tpl)
+		self.assertEqual(res["status"], "Approved")  # test mode re-approves at once; live Meta returns Pending
+		self.assertIn("Reply here any time", doc.message)
+		self.assertEqual([(v.variable_name, v.variable_field) for v in doc.template_variables], [("first_name", "first_name")])
+		# sensitive fields can never fill a template
+		self.assertRaises(frappe.ValidationError, api.update_template, self.client_tpl, "x", "Dear {{c}}, your CNIC on file. Thanks.", {"c": "cnic"})
