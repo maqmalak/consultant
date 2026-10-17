@@ -188,7 +188,20 @@ def return_overview(tax_return: str):
 			fields=["event_type", "user", "timestamp", "from_state", "to_state"], order_by="timestamp desc", limit=30),
 		"engagement": frappe.db.get_value("Tax Engagement", doc.tax_engagement, ["name", "payment_status", "net_fee",
 			"service_package"], as_dict=True) if doc.tax_engagement else None,
+		"client": _client_card(doc),
 	}
+
+
+def _client_card(doc):
+	"""Who the return is for and who works on it (masked identifiers only) — for the Client & year card."""
+	c = frappe.db.get_value("Tax Client", doc.tax_client, ["client_name", "client_type", "business_name", "city", "province", "mobile",
+		"email", "cnic_masked", "ntn", "fbr_registration_status", "registration_source", "portal_user", "whatsapp_opt_in", "creation"],
+		as_dict=True) or {}
+	year = frappe.db.get_value("Tax Year", doc.tax_year, ["start_date", "end_date", "return_due_date"], as_dict=True) or {}
+	name = lambda u: frappe.utils.get_fullname(u) if u else None  # noqa: E731
+	return {**c, "has_portal": bool(c.get("portal_user")), "client_since": c.get("creation"), "year": year,
+		"team": {"consultant": name(doc.assigned_consultant), "reviewer": name(doc.get("reviewer")), "approver": name(doc.get("approver") or doc.get("approved_by")),
+			"filing_officer": name(doc.get("filing_officer"))}}
 
 
 @frappe.whitelist(methods=["POST"])

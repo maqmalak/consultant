@@ -3,7 +3,10 @@
  * Calculation → Validation → Workflow. Autosaves while the return is in preparation; every rule is re-checked
  * on the server (services/workflow.py), so the buttons here are conveniences, not the security boundary.
  */
-import { AlertTriangle, Calculator, Check, CheckCircle2, CircleDashed, Download, ExternalLink, FileCheck2, Save, SlidersHorizontal, X } from "lucide-react";
+import {
+  AlertTriangle, CalendarClock, Calculator, Check, CheckCircle2, CircleDashed, Download, ExternalLink, FileCheck2, FileText, IdCard, MapPin, Package,
+  Phone, Save, SlidersHorizontal, X, type LucideIcon,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import useSWR from "swr";
@@ -47,6 +50,82 @@ async function loadMeta(): Promise<Meta> {
 function opts(meta: Meta | undefined, doctype: string, field: string, blank = false): string[] {
   const o = (meta?.[doctype]?.[field]?.options ?? "").split("\n");
   return blank ? o : o.filter(Boolean);
+}
+
+const fmtDay = (d?: string | null) => (d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—");
+const initialsOf = (n?: string) => (n ?? "").replace(/\(.*?\)/g, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
+
+/** Who the return is for, which year, the engagement and the team — the first thing staff see on a return. */
+function ClientYearCard({ doc, ov }: { doc: Doc; ov: any }) {
+  const c = ov?.client ?? {};
+  const year = c.year ?? {};
+  const due = year.return_due_date ? Math.ceil((new Date(year.return_due_date).getTime() - Date.now()) / 86_400_000) : null;
+  const filed = ["Submitted to FBR", "Acknowledged", "Closed"].includes(doc.workflow_state);
+  const filer = String(c.fbr_registration_status ?? "");
+  const team: [string, string | null][] = [["Consultant", c.team?.consultant], ["Reviewer", c.team?.reviewer], ["Approver", c.team?.approver], ["Filing officer", c.team?.filing_officer]];
+  const tiles: [LucideIcon, string, React.ReactNode, React.ReactNode?][] = [
+    [FileText, "Return", <>{doc.return_type}{doc.return_type === "Revised" && doc.amended_from ? <span className="text-muted-foreground"> of {doc.amended_from}</span> : null}</>, <span dir="ltr">{doc.name}</span>],
+    [Package, "Engagement", ov?.engagement ? <>{ov.engagement.service_package ?? ov.engagement.name}</> : <span className="text-muted-foreground">No engagement</span>,
+      ov?.engagement ? <span className="inline-flex items-center gap-2">{money(ov.engagement.net_fee)} <StateBadge state={ov.engagement.payment_status} /></span> : null],
+    [IdCard, "Identifiers", <span dir="ltr">{c.cnic_masked || "CNIC —"}</span>, <span dir="ltr">NTN {c.ntn || "—"}</span>],
+    [Phone, "Contact", <span dir="ltr">{c.mobile || "—"}</span>, <span className="truncate" dir="ltr">{c.email || "no email"}</span>],
+  ];
+  return (
+    <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+      <div className="hero-dark relative p-5 text-white sm:p-6">
+        <div aria-hidden className="pointer-events-none absolute -end-16 -top-16 h-48 w-48 rounded-full bg-[#d4af37]/20 blur-3xl" />
+        <div className="relative flex flex-wrap items-start justify-between gap-5">
+          <div className="flex min-w-0 items-center gap-4">
+            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#f3d77a] via-[#d4af37] to-[#9c7a22] text-lg font-bold text-[#141416] shadow-lg">{initialsOf(doc.client_name)}</span>
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#f3d77a]">Client</p>
+              <Link to={`/staff/clients/${doc.tax_client}`} className="block truncate font-display text-2xl font-semibold hover:underline">{doc.client_name}</Link>
+              {c.business_name && <p className="truncate text-sm text-white/60">{c.business_name}</p>}
+              <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-medium">
+                {c.client_type && <span className="rounded-full bg-white/10 px-2.5 py-0.5">{c.client_type}</span>}
+                {c.city && <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-0.5"><MapPin className="h-3 w-3" />{c.city}</span>}
+                {filer && <span className={cn("rounded-full px-2.5 py-0.5", filer.startsWith("Filer") ? "bg-emerald-400/20 text-emerald-200" : "bg-amber-400/20 text-amber-200")}>{filer.replace(" (Active Taxpayer)", " · ATL")}</span>}
+                {c.has_portal && <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-0.5"><Check className="h-3 w-3" /> Portal</span>}
+                {c.whatsapp_opt_in ? <span className="rounded-full bg-[#25D366]/20 px-2.5 py-0.5 text-[#7ef0a8]">WhatsApp ✓</span> : null}
+              </div>
+            </div>
+          </div>
+          <div className="rounded-2xl bg-white/5 px-5 py-3 text-end ring-1 ring-white/10">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50">Tax year</p>
+            <p className="font-display text-3xl font-bold text-[#f3d77a]">{doc.tax_year}</p>
+            <p className="text-xs text-white/60">{fmtDay(doc.period_from || year.start_date)} – {fmtDay(doc.period_to || year.end_date)}</p>
+            {year.return_due_date && (
+              <p className={cn("mt-1.5 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
+                filed ? "bg-emerald-400/20 text-emerald-200" : due != null && due < 0 ? "bg-white/10 text-white/70" : due != null && due <= 14 ? "bg-rose-400/25 text-rose-100" : "bg-white/10 text-white/80")}>
+                <CalendarClock className="h-3 w-3" /> {filed ? "Filed" : due != null && due < 0 ? `Due date passed (${fmtDay(year.return_due_date)})` : `Due ${fmtDay(year.return_due_date)} · ${due} days`}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="grid gap-px bg-border sm:grid-cols-2 xl:grid-cols-4">
+        {tiles.map(([Icon, label, main, sub]) => (
+          <div key={label} className="flex min-w-0 items-start gap-3 bg-card p-4">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Icon className="h-4 w-4" /></span>
+            <div className="min-w-0 text-sm">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
+              <p className="truncate font-semibold">{main}</p>
+              {sub && <p className="truncate text-xs text-muted-foreground">{sub}</p>}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t bg-muted/30 px-4 py-3">
+        {team.map(([role, person]) => (
+          <div key={role} className="flex items-center gap-2">
+            <span className={cn("grid h-7 w-7 place-items-center rounded-full text-[10px] font-bold", person ? "bg-primary/15 text-primary" : "border border-dashed text-muted-foreground")}>{person ? initialsOf(person) : "–"}</span>
+            <span className="text-xs leading-tight"><span className="block text-muted-foreground">{role}</span><span className="font-medium">{person ?? "Not assigned"}</span></span>
+          </div>
+        ))}
+        <Link to={`/staff/clients/${doc.tax_client}`} className="ms-auto text-xs font-semibold text-primary hover:underline">Client page →</Link>
+      </div>
+    </section>
+  );
 }
 
 function Section({ title, children, hint }: { title: string; children: React.ReactNode; hint?: string }) {
@@ -231,14 +310,7 @@ export function ReturnWizard() {
         <div className="min-w-0 space-y-5">
           {step === "client" && (
             <>
-              <Section title="Client & year">
-                <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
-                  <div><dt className="text-muted-foreground">Client</dt><dd className="font-medium">{doc.client_name} ({doc.tax_client})</dd></div>
-                  <div><dt className="text-muted-foreground">Tax year</dt><dd>{doc.tax_year} · {doc.period_from} → {doc.period_to}</dd></div>
-                  <div><dt className="text-muted-foreground">Return type</dt><dd>{doc.return_type}</dd></div>
-                  <div><dt className="text-muted-foreground">Engagement</dt><dd>{ov?.engagement ? <>{ov.engagement.service_package ?? ov.engagement.name} · <StateBadge state={ov.engagement.payment_status} /></> : "—"}</dd></div>
-                </dl>
-              </Section>
+              <ClientYearCard doc={doc} ov={ov} />
               <ClientDetailsPanel doc={doc} editable={editable} onDone={async () => { await mutate(); void overview.mutate(); }} />
               <Section title="Questionnaire" hint="Answers decide the document checklist. Rebuild the checklist after changing them.">
                 <div className="grid gap-2 sm:grid-cols-2">
