@@ -435,7 +435,7 @@ function WorkflowStep({ doc, ov, onDone }: { doc: Doc; ov: any; onDone: () => Pr
         {transitions.length ? (
           <div className="flex flex-wrap gap-2">
             {transitions.map((t) => (
-              <Button key={t.action} variant={/Request|Error|Question/.test(t.action) ? "outline" : "primary"} loading={busy && action === t.action}
+              <Button key={`${doc.workflow_state}|${t.action}|${t.next_state}`} variant={/Request|Error|Question/.test(t.action) ? "outline" : "primary"} loading={busy && action === t.action}
                 onClick={() => (NEEDS_COMMENT.includes(t.action) ? setAction(t.action) : (setAction(t.action), void run(t.action)))}>
                 {t.action} <span className="text-xs opacity-75">→ {t.next_state}</span>
               </Button>

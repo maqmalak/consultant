@@ -158,8 +158,12 @@ def return_overview(tax_return: str):
 	doc.check_permission("read")
 	transitions = []
 	try:
-		transitions = [{"action": t.action, "next_state": t.next_state} for t in get_transitions(doc)
-			if has_approval_access(frappe.session.user, doc, t)]
+		# one button per action: the workflow has a row per allowed role, so a user with several roles sees repeats
+		seen = {}
+		for t in get_transitions(doc):
+			if has_approval_access(frappe.session.user, doc, t):
+				seen.setdefault((t.action, t.next_state), {"action": t.action, "next_state": t.next_state})
+		transitions = list(seen.values())
 	except Exception:
 		transitions = []
 	review = frappe.db.get_value("Tax Review", {"tax_return": doc.name}, "name", order_by="creation desc")

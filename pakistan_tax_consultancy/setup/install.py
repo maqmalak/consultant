@@ -105,11 +105,11 @@ def ensure_workflow():
 		"is_active": 1, "send_email_alert": 0, "override_status": 0})
 	doc.set("states", [])
 	for state, _style, roles in wf.STATES:
-		for role in roles:  # one row per role that may edit in this state
+		for role in dict.fromkeys(roles):  # one row per role that may edit in this state
 			doc.append("states", {"state": state, "doc_status": "0", "allow_edit": role})
 	doc.set("transitions", [])
 	for f, action, t, roles, self_ok in wf.TRANSITIONS:
-		for role in roles:
+		for role in dict.fromkeys(roles):  # role groups overlap (Tax Admin is in several) — one row per role
 			doc.append("transitions", {"state": f, "action": action, "next_state": t, "allowed": role,
 				"allow_self_approval": self_ok})
 	doc.flags.ignore_permissions = True
