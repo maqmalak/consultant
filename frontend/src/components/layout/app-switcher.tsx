@@ -52,9 +52,9 @@ function Launcher({ current }: { current: AppKey }) {
       </button>
       {open && (
         <div className="absolute start-0 top-full z-50 mt-2 w-[22rem] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-2xl border bg-popover shadow-2xl">
-          <div className="hero-dark px-4 py-3 text-white">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#f3d77a]">VVS workspace</p>
-            <p className="text-sm text-white/70">One login — pick where to work</p>
+          <div className="border-b bg-gradient-to-br from-[#d4af37]/20 via-[#d4af37]/5 to-transparent px-4 py-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8a6914] dark:text-[#f3d77a]">VVS workspace</p>
+            <p className="text-sm text-muted-foreground">One login — pick where to work</p>
           </div>
           <div className="grid grid-cols-2 gap-2 p-3">
             {APPS.map((a) => (

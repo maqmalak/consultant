@@ -24,7 +24,7 @@ function Sidebar() {
         <NavLink to="/staff" end className={link}><LayoutGrid className="h-4 w-4" /> Home</NavLink>
       </div>
       <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-4 scrollbar-thin">
-        {STAFF_NAV.map((g) => {
+        {STAFF_NAV.filter((g) => !g.homeOnly).map((g) => {
           const items = g.items.filter((i) => hasRole(...i.roles));
           if (!items.length) return null;
           return (

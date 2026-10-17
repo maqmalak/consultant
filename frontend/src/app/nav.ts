@@ -1,4 +1,5 @@
 import {
+  CalendarDays, Layers, ListTodo, Mail, Megaphone, Radar, Target,
   TrendingUp,
   ShieldHalf,
   BadgeCheck, BarChart3, Handshake, BookOpen, MessageCircle, UserCog, ClipboardCheck, FileCheck2, FileText, FileUp, Home, LayoutDashboard, MapPin, MessageSquare,
@@ -18,6 +19,7 @@ export const ROLES = {
 
 const { SYSTEM_MANAGER: SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILING_OFFICER: FILER, FIELD_OFFICER: FIELD } = ROLES;
 export const STAFF = [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER, FIELD];
+const CRM = [SM, ADMIN, CONSULTANT, REVIEWER, FIELD];
 
 export interface NavItem {
   path: string;
@@ -32,6 +34,8 @@ export interface NavGroup {
   title: string;
   /** Shorter label for the narrow sidebar (the home page shows `title`). */
   short?: string;
+  /** Shown on the home page (and in search) only — the sidebar already links to it. */
+  homeOnly?: boolean;
   items: NavItem[];
 }
 
@@ -80,6 +84,21 @@ export const STAFF_NAV: NavGroup[] = [
       { path: "/staff/settings", label: "Settings", hint: "Firm · WhatsApp · Email · Payments · Codes", icon: Settings2, roles: [SM, ADMIN], hue: "slate" },
       { path: "/staff/roles", label: "Roles & Permissions", hint: "Who may do what", icon: ShieldHalf, roles: [SM, ADMIN], hue: "violet" },
       { path: "/staff/team", label: "Team", hint: "Staff logins & roles", icon: UserCog, roles: [SM, ADMIN], hue: "indigo" },
+    ],
+  },
+  {
+    title: "CRM",
+    homeOnly: true,
+    items: [
+      { path: "/crm", label: "CRM Dashboard", hint: "Pipeline at a glance", icon: LayoutDashboard, roles: CRM, hue: "orange" },
+      { path: "/crm/leads", label: "Leads", hint: "List · board", icon: Users, roles: CRM, hue: "sky" },
+      { path: "/crm/pipeline", label: "Deals", hint: "Pipeline · list", icon: Target, roles: CRM, hue: "violet" },
+      { path: "/crm/follow-ups", label: "Follow-ups", hint: "Tasks due", icon: ListTodo, roles: CRM, hue: "amber" },
+      { path: "/crm/calendar", label: "Calendar", hint: "Meetings · calls", icon: CalendarDays, roles: CRM, hue: "indigo" },
+      { path: "/crm/finder", label: "Lead Finder", hint: "Google Maps · websites", icon: Radar, roles: CRM, hue: "teal" },
+      { path: "/crm/broadcast", label: "WhatsApp Broadcast", hint: "Templates · campaigns", icon: Megaphone, roles: CRM, hue: "green" },
+      { path: "/crm/email-templates", label: "Email Templates", hint: "Ready-made emails", icon: Mail, roles: CRM, hue: "rose" },
+      { path: "/crm/masters", label: "CRM Masters", hint: "Sources · statuses · orgs", icon: Layers, roles: CRM, hue: "slate" },
     ],
   },
 ];
