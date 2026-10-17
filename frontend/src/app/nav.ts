@@ -1,4 +1,5 @@
 import {
+  TrendingUp,
   ShieldHalf,
   BadgeCheck, BarChart3, Handshake, BookOpen, MessageCircle, UserCog, ClipboardCheck, FileCheck2, FileText, FileUp, Home, LayoutDashboard, MapPin, MessageSquare,
   PhoneCall, Send, Settings2, ShieldAlert, ShieldCheck, Upload, User, Users, Wallet, type LucideIcon,
@@ -68,7 +69,8 @@ export const STAFF_NAV: NavGroup[] = [
       { path: "/staff/vault", label: "Document Vault", hint: "Files · Generate letters", icon: ShieldCheck, roles: STAFF, hue: "amber" },
       { path: "/staff/payments", label: "Payments to Verify", hint: "Proofs → invoice", icon: Wallet, roles: [SM, ADMIN], hue: "lime" },
       { path: "/staff/consultations", label: "Consultations", hint: "Website bookings", icon: PhoneCall, roles: [SM, ADMIN, CONSULTANT], hue: "purple" },
-      { path: "/staff/reports", label: "Reports", hint: "Excel · CSV", icon: BarChart3, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER], hue: "rose" },
+      { path: "/staff/insights", label: "Insights", hint: "Trends · funnel · team", icon: TrendingUp, roles: STAFF, hue: "sky" },
+      { path: "/staff/reports", label: "Report Center", hint: "Run · filter · CSV", icon: BarChart3, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER], hue: "rose" },
       { path: "/staff/content", label: "Website & Rules", hint: "Prices · FAQ · Articles · Tax years", icon: BookOpen, roles: [SM, ADMIN], hue: "teal" },
       { path: "/staff/team", label: "Team", hint: "Staff logins & roles", icon: UserCog, roles: [SM, ADMIN], hue: "indigo" },
       { path: "/staff/roles", label: "Roles & Permissions", hint: "Who may do what", icon: ShieldHalf, roles: [SM, ADMIN], hue: "violet" },

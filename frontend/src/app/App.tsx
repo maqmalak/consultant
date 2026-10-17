@@ -20,7 +20,8 @@ import { StaffHome } from "@/pages/staff/home";
 import { ImportPage } from "@/pages/staff/import";
 import { PaymentsQueue } from "@/pages/staff/payments";
 import { QueuePage } from "@/pages/staff/queue";
-import { ReportsPage } from "@/pages/staff/reports";
+import { ReportViewer, ReportsPage } from "@/pages/staff/reports";
+import { InsightsPage } from "@/pages/staff/insights";
 import { ReturnWizard } from "@/pages/staff/return-wizard";
 import { SimulatorPage } from "@/pages/staff/simulator";
 import { RolesPage } from "@/pages/staff/roles";
@@ -75,6 +76,8 @@ export default function App() {
         <Route path="crm" element={<Navigate to="/crm" replace />} />
         <Route path="vault" element={<RequireStaff roles={[SM, ADMIN, CONSULTANT, FIELD, ROLES.REVIEWER, ROLES.APPROVER, ROLES.FILING_OFFICER]}><StaffVaultPage /></RequireStaff>} />
         <Route path="reports" element={<ReportsPage />} />
+        <Route path="reports/:name" element={<ReportViewer />} />
+        <Route path="insights" element={<InsightsPage />} />
         <Route path="settings" element={<RequireStaff roles={[SM, ADMIN]}><SettingsPage /></RequireStaff>} />
         <Route path="content" element={<RequireStaff roles={[SM, ADMIN]}><ContentPage /></RequireStaff>} />
         <Route path="team" element={<RequireStaff roles={[SM, ADMIN]}><TeamPage /></RequireStaff>} />

@@ -59,7 +59,13 @@ def fake_response(method, endpoint, payload):
 		return {"messaging_product": "whatsapp", "contacts": [{"input": payload.get("to"), "wa_id": payload.get("to")}],
 			"messages": [{"id": f"wamid.MOCK{stamp}"}]}
 	if "message_templates" in endpoint:
-		return {"data": []} if method == "GET" else {"id": f"MOCKTPL{stamp}", "status": "APPROVED"}
+		if method == "GET":
+			# the whatsapp app's daily sync marks every template it does not get back as Deleted; in test mode list ours,
+			# as category SAMPLE so the sync skips them without rewriting their text or variables
+			return {"data": [{"name": t.template_name, "language": t.language, "category": "SAMPLE", "status": "APPROVED",
+				"id": t.whatsapp_template_id or t.name} for t in frappe.get_all("WhatsApp Template",
+				fields=["name", "template_name", "language", "whatsapp_template_id"]) if t.template_name]}
+		return {"id": f"MOCKTPL{stamp}", "status": "APPROVED"}
 	if method == "POST" and "components" in payload:  # template edit: Meta re-reviews; test mode approves at once
 		return {"success": True, "id": endpoint, "status": "APPROVED"}
 	return {"success": True, "id": f"MOCK{stamp}"}

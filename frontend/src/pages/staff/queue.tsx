@@ -117,7 +117,7 @@ export function QueuePage() {
   const selected = data?.rows.some((r: Row) => r.name === picked) ? picked
     : data?.rows.find((r: Row) => r.tax_year === site?.tax_year)?.name ?? data?.rows[0]?.name ?? null;
   return (
-    <div className="page-container">
+    <div className="page-container max-w-[1800px]">
       <PageHeader title={item?.label ?? "Queue"} subtitle={item?.hint} icon={item ? <item.icon className="h-5 w-5" /> : undefined} />
       {isDocs ? <DocumentQueue /> : (
         <div className="space-y-4">
@@ -125,7 +125,7 @@ export function QueuePage() {
             <Search className="absolute start-2.5 top-3 h-4 w-4 text-muted-foreground" />
             <input className="field ps-8" placeholder="Search client or return" value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
-          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
             <div className="min-w-0">
               {isLoading && <Loading />}
               {error && <ErrorState error={error} onRetry={() => void mutate()} />}

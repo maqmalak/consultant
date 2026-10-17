@@ -81,3 +81,13 @@ class TestBroadcast(IntegrationTestCase):
 		self.assertNotIn("{{", msg.message)
 		self.assertRaises(frappe.ValidationError, act.send_whatsapp_template, "CRM Lead", lead, self.client_tpl)
 		self.assertRaises(frappe.ValidationError, act.send_whatsapp_template, "CRM Lead", self.out_lead, self.lead_tpl)
+
+	def test_daily_template_sync_keeps_templates_in_test_mode(self):
+		"""The whatsapp app's scheduled sync must not mark our templates Deleted while WhatsApp runs in test mode."""
+		from whatsapp.whatsapp.doctype.whatsapp_template.whatsapp_template import sync_all
+
+		from pakistan_tax_consultancy.services import wa_inbox
+
+		wa_inbox.install_mock()
+		sync_all()
+		self.assertEqual(frappe.db.get_value("WhatsApp Template", self.lead_tpl, "status"), "Approved")
