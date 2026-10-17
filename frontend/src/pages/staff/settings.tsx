@@ -6,6 +6,7 @@ import { CheckCircle2, CreditCard, Mail, MessageCircle, Radar, Settings2, Store 
 import { useState, type ReactNode } from "react";
 import { ErrorState, InlineError, Loading } from "@/components/common/states";
 import { Button } from "@/components/ui/button";
+import { ColorTabs, type TabTone } from "@/components/ui/color-tabs";
 import { Field, SelectInput, TextArea, TextInput } from "@/components/ui/field";
 import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/cn";
@@ -357,6 +358,7 @@ function LeadFinderTab({ data, onSaved }: { data: AllSettings["lead_finder"]; on
   );
 }
 
+const TAB_TONES: Record<string, TabTone> = { firm: "gold", whatsapp: "whatsapp", email: "sky", payment: "emerald", lead_finder: "violet" };
 const TABS = [["firm", "Firm", Store], ["whatsapp", "WhatsApp", MessageCircle], ["email", "Email", Mail], ["payment", "Payment gateway", CreditCard], ["lead_finder", "Lead Finder", Radar]] as const;
 
 export function SettingsPage() {
@@ -367,15 +369,7 @@ export function SettingsPage() {
   return (
     <div className="page-container space-y-5">
       <PageHeader title="Settings" subtitle="Firm details, WhatsApp, email and payments" icon={<Settings2 className="h-5 w-5" />} />
-      <div role="tablist" className="flex gap-1 overflow-x-auto rounded-lg bg-muted p-1">
-        {TABS.map(([key, label, Icon]) => (
-          <button key={key} role="tab" aria-selected={tab === key} onClick={() => setTab(key)}
-            className={cn("flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition",
-              tab === key ? "bg-card text-foreground shadow" : "text-muted-foreground hover:text-foreground")}>
-            <Icon className="h-4 w-4" /> {label}
-          </button>
-        ))}
-      </div>
+      <ColorTabs value={tab} onChange={setTab} tabs={TABS.map(([key, label, icon]) => ({ key, label, icon, tone: TAB_TONES[key] }))} />
       {notice && <p role="status" className="flex items-center gap-1.5 text-sm text-success"><CheckCircle2 className="h-4 w-4" /> {notice}</p>}
       {isLoading && <Loading />}
       {error && <ErrorState error={error} onRetry={() => void mutate()} />}

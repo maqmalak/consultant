@@ -7,6 +7,7 @@ import { Empty, ErrorState, InlineError, Loading } from "@/components/common/sta
 import { Button, LinkButton } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, SelectInput, TextArea, TextInput } from "@/components/ui/field";
+import { RichTextEditor } from "@/components/forms/rich-text-editor";
 import { PageHeader } from "@/components/ui/page-header";
 import { Table, TD, TH, TR } from "@/components/ui/table";
 import { useAuth } from "@/hooks/useAuth";
@@ -125,7 +126,7 @@ export function VisitForm() {
             <button type="button" key={d.name} onClick={() => toggle(docs, setDocs, d.name)} aria-pressed={docs.includes(d.name)}
               className={`rounded-full border px-3 py-1.5 text-sm ${docs.includes(d.name) ? "border-primary bg-primary text-primary-foreground" : "bg-card"}`}>{d.name}</button>))}</div>
         </Card>
-        <Card className="p-4"><Field label="Notes">{(id) => <TextArea id={id} value={f.notes ?? ""} onChange={set("notes")} />}</Field></Card>
+        <Card className="p-4"><p className="mb-1.5 text-sm font-medium">Notes</p><RichTextEditor value={f.notes ?? ""} onChange={(html) => setF((x: typeof f) => ({ ...x, notes: html }))} minHeight={140} placeholder="What they need, documents seen, next step…" /></Card>
         {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
         <Button type="submit" size="lg" className="w-full sm:w-auto" loading={busy}>Save visit</Button>
       </form>

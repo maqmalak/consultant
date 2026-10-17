@@ -1,5 +1,6 @@
 /** Follow-ups (CRM Task): overdue, today and upcoming — mine or the team's, ported from the wise FollowUpsPage idea. */
-import { CalendarClock, Check, ListTodo, X } from "lucide-react";
+import { CalendarCheck2, CalendarClock, Check, ListTodo, User, Users, X } from "lucide-react";
+import { ColorTabs } from "@/components/ui/color-tabs";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Empty, ErrorState, InlineError, Loading } from "@/components/common/states";
@@ -32,13 +33,12 @@ export function FollowUpsPage() {
   const [err, setErr] = useState<unknown>(null);
   const mark = (t: Task, s: string) => apiCall(`${A}.set_task_status`, { task: t.name, status: s }).then(() => mutate()).catch(setErr);
   const groups = status === "open" ? ORDER.map((g) => [g, (data ?? []).filter((t) => bucket(t.due_date) === g)] as const).filter(([, l]) => l.length) : [["Done", data ?? []] as const];
-  const seg = (on: boolean) => cn("rounded-md px-3 py-1.5 text-sm font-medium", on ? "bg-card shadow-sm" : "text-muted-foreground hover:text-foreground");
   return (
     <div className="page-container mx-auto max-w-4xl space-y-5">
       <PageHeader title="Follow-ups" subtitle="Calls to make and promises to keep" icon={<ListTodo className="h-5 w-5" />} />
       <div className="flex flex-wrap gap-2">
-        <div className="flex rounded-lg bg-muted p-1"><button className={seg(scope === "mine")} onClick={() => setScope("mine")}>Mine</button><button className={seg(scope === "team")} onClick={() => setScope("team")}>Team</button></div>
-        <div className="flex rounded-lg bg-muted p-1"><button className={seg(status === "open")} onClick={() => setStatus("open")}>Open</button><button className={seg(status === "done")} onClick={() => setStatus("done")}>Done</button></div>
+        <ColorTabs value={scope} onChange={setScope} tabs={[{ key: "mine", label: "Mine", icon: User, tone: "gold" }, { key: "team", label: "Team", icon: Users, tone: "indigo" }]} />
+        <ColorTabs value={status} onChange={setStatus} tabs={[{ key: "open", label: "Open", icon: ListTodo, tone: "violet" }, { key: "done", label: "Done", icon: CalendarCheck2, tone: "emerald" }]} />
       </div>
       <InlineError error={err} />
       {isLoading ? <Loading /> : error ? <ErrorState error={error} onRetry={() => void mutate()} /> : !data?.length ? <Empty title="All clear" hint="Add follow-ups from a lead's page." /> : (

@@ -161,3 +161,50 @@ def move_deal(deal: str, status: str, lost_reason: str | None = None):
 	doc.probability = frappe.db.get_value("CRM Deal Status", status, "probability") or doc.probability
 	doc.save()
 	return {"status": doc.status, "tax_client": frappe.db.get_value("CRM Deal", deal, "tax_client")}
+
+
+@frappe.whitelist(methods=["POST"])
+def save_lead(data: str | dict):
+	"""The full New Lead page: person, business, how they found us, owner, first note (rich text)."""
+	from pakistan_tax_consultancy.api.crm_activity import rich
+	from pakistan_tax_consultancy.utils.validators import normalize_mobile
+
+	_guard()
+	d = frappe.parse_json(data) if isinstance(data, str) else data
+	first = (d.get("first_name") or "").strip()
+	if not first or not (d.get("mobile") or d.get("email")):
+		frappe.throw(_("Give at least a first name and a mobile number or email."))
+	mobile = None
+	if d.get("mobile"):
+		try:
+			mobile = normalize_mobile(d["mobile"])
+		except ValueError as e:
+			frappe.throw(_(str(e)))
+	dup = crm.find_lead(mobile, d.get("email"))
+	if dup and not frappe.utils.cint(d.get("allow_duplicate")):
+		frappe.throw(_("A lead with this mobile or email already exists: {0}").format(dup), title=_("Possible duplicate"))
+	lead = frappe.get_doc({"doctype": "CRM Lead", "salutation": d.get("salutation") or None, "first_name": first,
+		"last_name": (d.get("last_name") or "").strip() or None, "mobile_no": mobile, "email": (d.get("email") or "").strip().lower() or None,
+		"organization": (d.get("organization") or "").strip() or None, "website": (d.get("website") or "").strip() or None,
+		"job_title": (d.get("job_title") or "").strip() or None, "industry": d.get("industry") or None, "territory": d.get("territory") or None,
+		"source": d.get("source") or None, "status": d.get("status") or "New", "lead_owner": d.get("lead_owner") or frappe.session.user,
+		"ptc_client_type": d.get("client_type") or "Individual-Salaried"})
+	lead.insert()
+	note = rich(d.get("note"))
+	if frappe.utils.strip_html(note).strip():
+		frappe.get_doc({"doctype": "FCRM Note", "title": frappe.utils.strip_html(note).strip().split("\n")[0][:120], "content": note,
+			"reference_doctype": "CRM Lead", "reference_docname": lead.name}).insert()
+	return lead.name
+
+
+@frappe.whitelist(methods=["GET"])
+def lead_form_options():
+	_guard()
+	return {"sources": frappe.get_all("CRM Lead Source", pluck="name", order_by="name"),
+		"statuses": frappe.get_all("CRM Lead Status", ["name", "color"], order_by="position"),
+		"industries": frappe.get_all("CRM Industry", pluck="name", order_by="name"),
+		"territories": frappe.get_all("CRM Territory", pluck="name", order_by="name"),
+		"organizations": frappe.get_all("CRM Organization", pluck="name", order_by="modified desc", limit=200),
+		"salutations": frappe.get_all("Salutation", pluck="name"),
+		"owners": frappe.get_all("User", {"name": ("in", frappe.get_all("Has Role", {"role": ("in", ["Sales User", "Sales Manager"]), "parenttype": "User"},
+			pluck="parent") or [""]), "enabled": 1}, ["name", "full_name"], order_by="full_name")}

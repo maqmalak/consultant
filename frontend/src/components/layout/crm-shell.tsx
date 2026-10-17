@@ -1,5 +1,5 @@
 /** The CRM app: its own sidebar and header (switch back to the Tax Portal from the header). */
-import { CalendarDays, Handshake, LayoutDashboard, ListTodo, Megaphone, Menu, Radar, Target, Users, X } from "lucide-react";
+import { CalendarDays, Handshake, Layers, LayoutDashboard, ListTodo, Mail, Megaphone, Menu, Radar, Target, Users, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { cn } from "@/lib/cn";
@@ -17,6 +17,8 @@ export const CRM_NAV = [
   { path: "/crm/calendar", label: "Calendar", icon: CalendarDays },
   { path: "/crm/finder", label: "Lead Finder", icon: Radar },
   { path: "/crm/broadcast", label: "WhatsApp Broadcast", icon: Megaphone },
+  { path: "/crm/email-templates", label: "Email Templates", icon: Mail },
+  { path: "/crm/masters", label: "Masters", icon: Layers },
 ];
 
 const link = ({ isActive }: { isActive: boolean }) => cn(

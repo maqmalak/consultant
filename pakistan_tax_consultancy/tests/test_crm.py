@@ -135,3 +135,34 @@ class TestLeadFinder(IntegrationTestCase):
 		self.assertEqual(again["added"], 0)  # the same place is never queued twice
 		p = frappe.get_doc("Lead Prospect", {"place_id": "TESTPLACE1"})
 		self.assertEqual((p.city, p.category, p.status), ("Faisalabad", "Restaurant", "Pending Review"))
+
+
+class TestCrmPages(IntegrationTestCase):
+	def test_email_template_render_and_rich_note(self):
+		from pakistan_tax_consultancy.api import crm_activity as act
+		from pakistan_tax_consultancy.api import email_templates as et
+
+		et.save("Test Tpl Welcome", "Hello {{ first_name }}", "<p>Dear {{ first_name }}, <strong>welcome</strong> to {{ firm_name }}.</p><script>x()</script>")
+		lead = crm.make_lead("Render Person", "+923000990201", source="Walk In")
+		r = et.render(template="Test Tpl Welcome", doctype="CRM Lead", name=lead)
+		self.assertEqual(r["subject"], "Hello Render")
+		self.assertIn("<strong>welcome</strong>", r["body"])
+		self.assertNotIn("<script", r["body"])
+		act.add_note("CRM Lead", lead, "<p>Called <em>twice</em></p><img src=x onerror=alert(1)>")
+		note = frappe.get_all("FCRM Note", {"reference_docname": lead}, pluck="content")[0]
+		self.assertIn("<em>twice</em>", note)
+		self.assertNotIn("onerror", note)
+
+	def test_masters_and_attachments(self):
+		from pakistan_tax_consultancy.api import crm_activity as act
+		from pakistan_tax_consultancy.api import crm_masters as m
+
+		m.save("CRM Lead Source", {"source_name": "Test Seminar", "details": "Tax seminar at the chamber"})
+		rows = {r.name: r for r in m.rows("CRM Lead Source")["rows"]}
+		self.assertIn("Test Seminar", rows)
+		self.assertRaises(frappe.ValidationError, m.rows, "User")
+		lead = crm.make_lead("Attach Person", "+923000990202", source="Test Seminar")
+		f = frappe.get_doc({"doctype": "File", "file_name": "cnic.txt", "content": b"x", "attached_to_doctype": "CRM Lead", "attached_to_name": lead, "is_private": 1}).insert(ignore_permissions=True)
+		self.assertEqual([a.name for a in act.attachments("CRM Lead", lead)], [f.name])
+		act.remove_attachment("CRM Lead", lead, f.name)
+		self.assertEqual(act.attachments("CRM Lead", lead), [])

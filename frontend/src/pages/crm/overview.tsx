@@ -15,7 +15,7 @@ import { Empty, ErrorState, InlineError, Loading } from "@/components/common/sta
 import { CRM_COLORS, KanbanBoard } from "@/components/crm/kanban-board";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
-import { SelectInput, TextArea } from "@/components/ui/field";
+import { SelectInput } from "@/components/ui/field";
 import { PageHeader } from "@/components/ui/page-header";
 import { Table, TD, TH, TR } from "@/components/ui/table";
 import { useAuth } from "@/hooks/useAuth";
@@ -47,36 +47,6 @@ const waLink = (m: string | null) => (m ? `https://wa.me/${m.replace(/\D/g, "")}
 const COLOR_HEX: Record<string, string> = { gray: "#94a3b8", blue: "#0ea5e9", amber: "#f59e0b", violet: "#8b5cf6", green: "#10b981", red: "#f43f5e",
   orange: "#f97316", teal: "#14b8a6", purple: "#a855f7", pink: "#ec4899", cyan: "#06b6d4", yellow: "#facc15", black: "#0f172a" };
 const SOURCE_COLORS = ["#d4af37", "#0ea5e9", "#10b981", "#8b5cf6", "#f97316", "#f43f5e", "#14b8a6", "#64748b"];
-
-// ------------------------------------------------------------------------------------------------ new lead
-function NewLeadDialog({ open, onClose, meta, onDone }: { open: boolean; onClose: () => void; meta?: Meta; onDone: () => void }) {
-  const [f, setF] = useState({ full_name: "", mobile: "", email: "", source: "Walk In", client_type: "Individual-Salaried", note: "" });
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState<unknown>(null);
-  const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
-  const save = async () => {
-    setBusy(true); setErr(null);
-    try { await apiCall(`${C}.create_lead`, f); onDone(); onClose(); setF({ ...f, full_name: "", mobile: "", email: "", note: "" }); }
-    catch (e) { setErr(e); } finally { setBusy(false); }
-  };
-  return (
-    <Dialog open={open} onClose={onClose} title="New lead"
-      footer={<><Button variant="ghost" onClick={onClose}>Cancel</Button><Button loading={busy} disabled={!f.full_name.trim() || !(f.mobile || f.email)} onClick={() => void save()}>Save lead</Button></>}>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="sm:col-span-2 text-sm font-medium">Name<input className="field mt-1" value={f.full_name} onChange={set("full_name")} placeholder="Person or business" autoFocus /></label>
-        <label className="text-sm font-medium">Mobile<input className="field mt-1" value={f.mobile} onChange={set("mobile")} placeholder="03xx-xxxxxxx" inputMode="tel" /></label>
-        <label className="text-sm font-medium">Email<input className="field mt-1" value={f.email} onChange={set("email")} type="email" /></label>
-        <label className="text-sm font-medium">Source
-          <SelectInput className="mt-1" value={f.source} onChange={set("source")}>{(meta?.sources ?? ["Walk In"]).map((s) => <option key={s}>{s}</option>)}</SelectInput></label>
-        <label className="text-sm font-medium">Client type
-          <SelectInput className="mt-1" value={f.client_type} onChange={set("client_type")}>
-            {["Individual-Salaried", "Individual-Business", "AOP", "Company", "Other"].map((s) => <option key={s}>{s}</option>)}</SelectInput></label>
-        <label className="sm:col-span-2 text-sm font-medium">Note<TextArea className="mt-1" rows={3} value={f.note} onChange={set("note")} placeholder="What do they need?" /></label>
-      </div>
-      <InlineError error={err} />
-    </Dialog>
-  );
-}
 
 // ------------------------------------------------------------------------------------------------ dashboard
 function Dashboard() {
@@ -305,16 +275,15 @@ function Pipeline({ meta }: { meta?: Meta }) {
 
 // ------------------------------------------------------------------------------------------------ page
 /** Shared header for the CRM app pages: title, Frappe CRM link and New lead. */
-function CrmHeader({ title, subtitle, icon, meta, onAdded }: { title: string; subtitle: string; icon: ReactNode; meta?: Meta; onAdded?: () => void }) {
-  const [adding, setAdding] = useState(false);
+function CrmHeader({ title, subtitle, icon, meta }: { title: string; subtitle: string; icon: ReactNode; meta?: Meta; onAdded?: () => void }) {
+  const navigate = useNavigate();
   return (
     <>
       <PageHeader title={title} subtitle={subtitle} icon={icon}
         actions={<>
           <a href={meta?.pipeline_view ? `/crm/deals/view/kanban?view=${meta.pipeline_view}` : "/crm"} className="inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-sm font-medium hover:bg-accent"><ExternalLink className="h-4 w-4" /> Frappe CRM</a>
-          <Button size="default" onClick={() => setAdding(true)}><Plus className="h-4 w-4" /> New lead</Button>
+          <Button size="default" onClick={() => navigate("/crm/leads/new")}><Plus className="h-4 w-4" /> New lead</Button>
         </>} />
-      <NewLeadDialog open={adding} onClose={() => setAdding(false)} meta={meta} onDone={() => onAdded?.()} />
     </>
   );
 }

@@ -39,7 +39,9 @@ def update(name: str, data: str | dict):
 	doc = frappe.get_doc("Lead Prospect", name)
 	doc.check_permission("write")
 	data = frappe.parse_json(data) if isinstance(data, str) else data
-	doc.update({k: v for k, v in data.items() if k in EDITABLE})
+	from frappe.utils.html_utils import sanitize_html
+
+	doc.update({k: (sanitize_html(v) if k == "notes" and v else v) for k, v in data.items() if k in EDITABLE})
 	doc.save()
 
 

@@ -3,25 +3,27 @@
  * follow-up, WhatsApp, email, meeting or call — and the full activity timeline. Everything is stored in Frappe CRM.
  */
 import {
-  ArrowLeft, ArrowRightLeft, BadgeCheck, CalendarClock, CalendarPlus, Check, CheckCircle2, CircleDot, ExternalLink, Mail, MessageCircle,
-  NotebookPen, Phone, PhoneCall, Send, Sparkles, Users, X, type LucideIcon,
+  ArrowLeft, ArrowRightLeft, BadgeCheck, CalendarClock, CalendarPlus, Check, CheckCircle2, CircleDot, Download, ExternalLink, FileText, Mail,
+  MessageCircle, NotebookPen, Paperclip, Phone, PhoneCall, Send, Sparkles, Trash2, Upload, Users, X, type LucideIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Empty, ErrorState, InlineError, Loading } from "@/components/common/states";
+import { RichText, RichTextEditor, htmlText } from "@/components/forms/rich-text-editor";
 import { CRM_COLORS } from "@/components/crm/kanban-board";
 import { Button } from "@/components/ui/button";
+import { ColorTabs, type TabTone } from "@/components/ui/color-tabs";
 import { Dialog } from "@/components/ui/dialog";
 import { SelectInput, TextArea } from "@/components/ui/field";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/cn";
 import { money } from "@/lib/format";
 import { useApi } from "@/lib/use-api";
-import { apiCall } from "@/services/frappe";
+import { apiCall, apiUpload } from "@/services/frappe";
 
 const A = "pakistan_tax_consultancy.api.crm_activity";
 type Kind = "note" | "task" | "email" | "whatsapp" | "event" | "status" | "created";
-interface Item { kind: Kind; at: string; by_name?: string; title?: string; body?: string; id?: string; status?: string; priority?: string;
+interface Item { kind: Kind; at: string; by_name?: string; title?: string; body?: string; html?: string; id?: string; status?: string; priority?: string;
   due?: string; assigned_name?: string; direction?: string; to?: string; category?: string }
 interface Detail {
   doctype: "CRM Lead" | "CRM Deal"; name: string; person: string; status: string; statuses: { name: string; color: string; type: string }[];
@@ -54,8 +56,8 @@ const KIND: Record<Kind, { icon: LucideIcon; tone: string; label: string }> = {
 };
 
 type Tool = "note" | "task" | "whatsapp" | "email" | "event";
-const TOOLS: [Tool, string, LucideIcon][] = [["note", "Note", NotebookPen], ["task", "Follow-up", CalendarClock], ["whatsapp", "WhatsApp", MessageCircle],
-  ["email", "Email", Mail], ["event", "Meeting / call", CalendarPlus]];
+const TOOLS: [Tool, string, LucideIcon, TabTone][] = [["note", "Note", NotebookPen, "amber"], ["task", "Follow-up", CalendarClock, "violet"],
+  ["whatsapp", "WhatsApp", MessageCircle, "whatsapp"], ["email", "Email", Mail, "sky"], ["event", "Meeting / call", CalendarPlus, "indigo"]];
 
 function Composer({ d, onDone, initial }: { d: Detail; onDone: () => void; initial?: Tool }) {
   const { me } = useAuth();
@@ -71,7 +73,7 @@ function Composer({ d, onDone, initial }: { d: Detail; onDone: () => void; initi
     setBusy(true); setErr(null); setOk(null);
     try {
       if (tool === "note") await apiCall(`${A}.add_note`, { ...ref, content: f.text });
-      if (tool === "task") await apiCall(`${A}.add_task`, { ...ref, title: f.title || f.text.split("\n")[0] || "Follow up", due_date: f.due.replace("T", " "), priority: f.priority, assigned_to: f.assigned_to, description: f.text });
+      if (tool === "task") await apiCall(`${A}.add_task`, { ...ref, title: f.title || htmlText(f.text).split("\n")[0] || "Follow up", due_date: f.due.replace("T", " "), priority: f.priority, assigned_to: f.assigned_to, description: f.text });
       if (tool === "whatsapp") await apiCall(`${A}.send_whatsapp`, { ...ref, message: f.text });
       if (tool === "email") await apiCall(`${A}.send_email`, { ...ref, subject: f.subject, message: f.text });
       if (tool === "event") await apiCall(`${A}.schedule`, { category: f.category, starts_on: f.due.replace("T", " "), subject: f.title, note: f.text, minutes: Number(f.minutes), ref_doctype: d.doctype, ref_name: d.name });
@@ -85,14 +87,9 @@ function Composer({ d, onDone, initial }: { d: Detail; onDone: () => void; initi
     : tool === "email" && !d.email_ready ? "Set up the outgoing email account first (Settings → Email)." : null;
   return (
     <div className="rounded-2xl border bg-card shadow-sm">
-      <div className="flex gap-1 overflow-x-auto border-b px-2 pt-2">
-        {TOOLS.map(([k, label, Icon]) => (
-          <button key={k} onClick={() => { setTool(k); setOk(null); setErr(null); }}
-            className={cn("-mb-px flex shrink-0 items-center gap-1.5 rounded-t-lg border-b-2 px-3 py-2 text-sm font-medium",
-              tool === k ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground")}>
-            <Icon className="h-4 w-4" />{label}
-          </button>
-        ))}
+      <div className="border-b p-2">
+        <ColorTabs value={tool} onChange={(k) => { setTool(k); setOk(null); setErr(null); }} className="border-0 bg-transparent p-0"
+          tabs={TOOLS.map(([key, label, icon, tone]) => ({ key, label, icon, tone }))} />
       </div>
       <div className="space-y-3 p-4">
         {blocked ? <p className="rounded-lg bg-muted/60 px-3 py-2 text-sm text-muted-foreground">{blocked}</p> : <>
@@ -115,13 +112,16 @@ function Composer({ d, onDone, initial }: { d: Detail; onDone: () => void; initi
               )}
             </div>
           )}
+          {tool === "email" && <EmailTemplatePicker d={d} onPick={(subject, body) => setF((x) => ({ ...x, subject, text: body }))} />}
           {tool === "email" && <input className="field" placeholder="Subject" value={f.subject} onChange={set("subject")} />}
-          <TextArea rows={tool === "note" || tool === "email" ? 4 : 2} value={f.text} onChange={set("text")}
-            placeholder={{ note: "What happened? What did they say?", task: "Details (optional)", whatsapp: `Message to ${d.contact.mobile ?? ""}`, email: `Message to ${d.contact.email ?? ""}`, event: "Agenda / notes (optional)" }[tool]} />
+          {tool === "whatsapp"
+            ? <TextArea rows={4} value={f.text} onChange={set("text")} placeholder={`Message to ${d.contact.mobile ?? ""}`} />
+            : <RichTextEditor key={tool} value={f.text} onChange={(html) => setF((x) => ({ ...x, text: html }))} minHeight={tool === "email" ? 220 : tool === "note" ? 140 : 90}
+                placeholder={{ note: "What happened? What did they say?", task: "Details (optional)", whatsapp: "", email: `Message to ${d.contact.email ?? ""}`, event: "Agenda / notes (optional)" }[tool]} />}
           {tool === "whatsapp" && <p className="text-xs text-muted-foreground">Free text reaches the person only within 24 hours of their last WhatsApp message; it also appears in the team inbox.</p>}
           <div className="flex flex-wrap items-center gap-3">
             <Button loading={busy} onClick={() => void submit()}
-              disabled={(tool === "note" || tool === "whatsapp") ? !f.text.trim() : tool === "email" ? !f.subject.trim() || !f.text.trim() : tool === "task" ? !(f.title.trim() || f.text.trim()) || !f.due : !f.due}>
+              disabled={(tool === "note" || tool === "whatsapp") ? !htmlText(f.text) : tool === "email" ? !f.subject.trim() || !htmlText(f.text) : tool === "task" ? !(f.title.trim() || htmlText(f.text)) || !f.due : !f.due}>
               {!busy && <Send className="h-4 w-4" />}{{ note: "Save note", task: "Schedule follow-up", whatsapp: "Send WhatsApp", email: "Send email", event: "Add to calendar" }[tool]}
             </Button>
             {ok && <span className="flex items-center gap-1 text-sm text-emerald-600"><CheckCircle2 className="h-4 w-4" />{ok}</span>}
@@ -151,7 +151,8 @@ function Timeline({ items, onTask, onEvent }: { items: Item[]; onTask: (id: stri
                 {i.status && i.kind !== "whatsapp" && i.kind !== "email" && <span className={cn("rounded-full px-1.5 py-px text-[10px] font-semibold", done ? "bg-emerald-500/15 text-emerald-600" : "bg-muted")}>{i.status}</span>}
               </div>
               {i.title && <p className={cn("mt-1 text-sm font-medium", done && "line-through opacity-60")}>{i.title}</p>}
-              {i.body && <p className="mt-1 whitespace-pre-wrap break-words text-sm text-muted-foreground">{i.body}</p>}
+              {i.html ? <RichText html={i.html} className="mt-1 break-words text-muted-foreground" />
+                : i.body && <p className="mt-1 whitespace-pre-wrap break-words text-sm text-muted-foreground">{i.body}</p>}
               {(i.kind === "task" || i.kind === "event") && i.due && (
                 <p className={cn("mt-1 flex items-center gap-1 text-xs", !done && overdue(i.due) ? "font-semibold text-rose-600" : "text-muted-foreground")}>
                   <CalendarClock className="h-3.5 w-3.5" />{i.kind === "task" ? "Due" : "At"} {when(i.due)}{i.assigned_name ? ` · ${i.assigned_name}` : ""}
@@ -177,6 +178,77 @@ function Timeline({ items, onTask, onEvent }: { items: Item[]; onTask: (id: stri
   );
 }
 
+function EmailTemplatePicker({ d, onPick }: { d: Detail; onPick: (subject: string, body: string) => void }) {
+  const list = useApi<{ templates: { name: string; subject: string }[] }>("pakistan_tax_consultancy.api.email_templates.templates");
+  const [err, setErr] = useState<unknown>(null);
+  if (!list.data?.templates.length) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <FileText className="h-4 w-4 text-muted-foreground" />
+      <SelectInput aria-label="Email template" className="h-9 max-w-sm flex-1" value="" onChange={(e) => {
+        const name = e.target.value;
+        if (name) void apiCall<{ subject: string; body: string }>("pakistan_tax_consultancy.api.email_templates.render", { template: name, doctype: d.doctype, name: d.name })
+          .then((r) => onPick(r.subject, r.body)).catch(setErr);
+      }}>
+        <option value="">Use a template…</option>{list.data.templates.map((t) => <option key={t.name} value={t.name}>{t.name}</option>)}
+      </SelectInput>
+      <InlineError error={err} />
+    </div>
+  );
+}
+
+interface Attachment { name: string; file_name: string; file_url: string; file_size: number | null; is_private: number; owner_name: string; creation: string }
+const size = (n: number | null) => (!n ? "" : n > 1_048_576 ? `${(n / 1_048_576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
+
+/** Files attached to the lead / deal (private by default) — upload, open, remove. */
+function Attachments({ doctype, name }: { doctype: string; name: string }) {
+  const { data, isLoading, mutate } = useApi<Attachment[]>(`${A}.attachments`, { doctype, name });
+  const input = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [drag, setDrag] = useState(false);
+  const [err, setErr] = useState<unknown>(null);
+  const upload = async (files: FileList | null) => {
+    if (!files?.length) return;
+    setBusy(true); setErr(null);
+    try {
+      for (const file of Array.from(files)) await apiUpload("upload_file", file, { doctype, docname: name, is_private: "1", folder: "Home/Attachments" });
+      void mutate();
+    } catch (e) { setErr(e); } finally { setBusy(false); }
+  };
+  return (
+    <div className="space-y-4">
+      <div onDragOver={(e) => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)}
+        onDrop={(e) => { e.preventDefault(); setDrag(false); void upload(e.dataTransfer.files); }}
+        className={cn("flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center transition-colors",
+          drag ? "border-primary bg-primary/5" : "border-border bg-card")}>
+        <Upload className="h-7 w-7 text-muted-foreground" />
+        <p className="text-sm font-medium">Drop files here, or</p>
+        <Button size="sm" loading={busy} onClick={() => input.current?.click()}>{!busy && <Paperclip className="h-4 w-4" />} Choose files</Button>
+        <p className="text-xs text-muted-foreground">CNIC copies, salary certificates, proposals… stored privately with this record.</p>
+        <input ref={input} type="file" multiple hidden onChange={(e) => { void upload(e.target.files); e.target.value = ""; }} />
+      </div>
+      <InlineError error={err} />
+      {isLoading ? <Loading /> : !data?.length ? <Empty title="No attachments yet" /> : (
+        <ul className="divide-y overflow-hidden rounded-2xl border bg-card">
+          {data.map((f) => (
+            <li key={f.name} className="flex items-center gap-3 px-4 py-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><FileText className="h-4 w-4" /></span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{f.file_name}</p>
+                <p className="text-xs text-muted-foreground">{[size(f.file_size), f.owner_name, when(f.creation)].filter(Boolean).join(" · ")}</p>
+              </div>
+              <a className="rounded-md border p-2 hover:bg-accent" href={f.file_url} target="_blank" rel="noopener" aria-label={`Open ${f.file_name}`}><Download className="h-4 w-4" /></a>
+              <button className="rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive" aria-label={`Remove ${f.file_name}`}
+                onClick={() => { if (window.confirm(`Remove ${f.file_name}?`)) void apiCall(`${A}.remove_attachment`, { doctype, name, file: f.name }).then(() => mutate()).catch(setErr); }}>
+                <Trash2 className="h-4 w-4" /></button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export function CrmRecordPage({ doctype }: { doctype: "CRM Lead" | "CRM Deal" }) {
   const { name = "" } = useParams();
   const navigate = useNavigate();
@@ -184,6 +256,7 @@ export function CrmRecordPage({ doctype }: { doctype: "CRM Lead" | "CRM Deal" })
   const [err, setErr] = useState<unknown>(null);
   const [lost, setLost] = useState<string | null>(null);
   const [filter, setFilter] = useState<Kind | "all">("all");
+  const [tab, setTab] = useState<"activity" | "attachments">("activity");
   if (isLoading) return <Loading />;
   if (error || !d) return <div className="page-container"><ErrorState error={error} onRetry={() => void mutate()} /></div>;
   const run = (p: Promise<unknown>) => p.then(() => mutate()).catch(setErr);
@@ -230,22 +303,31 @@ export function CrmRecordPage({ doctype }: { doctype: "CRM Lead" | "CRM Deal" })
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0 space-y-5">
+          <ColorTabs value={tab} onChange={setTab} tabs={[
+            { key: "activity", label: "Activity", icon: NotebookPen, tone: "gold", count: d.timeline.length },
+            { key: "attachments", label: "Attachments", icon: Paperclip, tone: "sky" },
+          ]} />
+          {tab === "attachments" ? <Attachments doctype={doctype} name={name} /> : <>
           <Composer d={d} onDone={() => void mutate()} />
           <section className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-lg font-semibold">Activity</h2>
               <div className="flex flex-wrap gap-1">
-                {(["all", "note", "task", "whatsapp", "email", "event"] as const).map((k) => (
-                  <button key={k} onClick={() => setFilter(k)} className={cn("rounded-full px-2.5 py-1 text-xs font-medium",
-                    filter === k ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground")}>
-                    {k === "all" ? "All" : KIND[k].label}</button>
-                ))}
+                {(["all", "note", "task", "whatsapp", "email", "event"] as const).map((k) => {
+                  const n = k === "all" ? d.timeline.length : d.timeline.filter((i) => i.kind === k).length;
+                  return (
+                    <button key={k} onClick={() => setFilter(k)} className={cn("flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold transition",
+                      filter === k ? (k === "all" ? "bg-foreground text-background" : KIND[k].tone + " ring-1 ring-current") : "bg-muted text-muted-foreground hover:text-foreground")}>
+                      {k !== "all" && (() => { const I = KIND[k].icon; return <I className="h-3 w-3" />; })()}{k === "all" ? "All" : KIND[k].label}{n ? ` ${n}` : ""}</button>
+                  );
+                })}
               </div>
             </div>
             <Timeline items={items}
               onTask={(id, s) => void run(apiCall(`${A}.set_task_status`, { task: id, status: s }))}
               onEvent={(id, s) => void run(apiCall(`${A}.set_event_status`, { event: id, status: s }))} />
           </section>
+          </>}
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-20">

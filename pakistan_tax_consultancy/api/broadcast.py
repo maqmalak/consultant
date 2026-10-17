@@ -18,6 +18,10 @@ def _guard(manage=False):
 
 
 # ---------------------------------------------------------------- templates
+def templates_fields():
+	return {"Tax Client": ["client_name", "business_name", "city"], "CRM Lead": ["first_name", "last_name", "lead_name", "organization"],
+		"CRM Deal": ["first_name", "last_name", "lead_name", "organization_name"]}
+
 @frappe.whitelist(methods=["GET"])
 def templates():
 	_guard()
@@ -25,8 +29,8 @@ def templates():
 		"message", "footer", "reference_doctype", "header_text", "modified"], order_by="status asc, template_label asc")
 	for r in rows:
 		r.variables = frappe.get_all("Template Variable", {"parent": r.name}, ["variable_name", "variable_field", "variable_example"], order_by="idx")
-	fields = {dt: [f.fieldname for f in frappe.get_meta(dt).fields if f.fieldtype in ("Data", "Select", "Link", "Date", "Small Text")
-		and not f.hidden][:60] for dt in TEMPLATE_DOCTYPES}
+	# only harmless personalisation fields: never CNIC, NTN, bank details or internal notes in a WhatsApp message
+	fields = templates_fields()
 	return {"templates": rows, "fields": fields, "mock": is_mock(), "account": svc.default_account(), "audiences": svc.AUDIENCES}
 
 
@@ -41,6 +45,7 @@ def create_template(label: str, category: str, body: str, reference_doctype: str
 
 	if reference_doctype not in TEMPLATE_DOCTYPES:
 		frappe.throw(_("Choose who it is for: client, lead or deal."))
+	allowed = templates_fields()[reference_doctype]
 	if category not in ("Utility", "Marketing"):
 		frappe.throw(_("Category must be Utility or Marketing."))
 	if not (label or "").strip() or not (body or "").strip():
@@ -51,6 +56,8 @@ def create_template(label: str, category: str, body: str, reference_doctype: str
 	variables = frappe.parse_json(variables) if isinstance(variables, str) else (variables or {})
 	used = re.findall(r"\{\{\s*([a-z_][a-z0-9_]*)\s*\}\}", body)
 	missing = [v for v in used if not variables.get(v)]
+	if any(variables.get(v) not in allowed for v in used if variables.get(v)):
+		frappe.throw(_("Only these fields can fill a template: {0}").format(", ".join(allowed)))
 	if missing:
 		frappe.throw(_("Choose which field fills {0}.").format(", ".join("{{" + m + "}}" for m in missing)))
 	install_mock()
@@ -173,3 +180,50 @@ def cancel(name: str):
 	doc = frappe.get_doc("WhatsApp Broadcast", name)
 	if doc.status in ("Queued", "Running"):
 		doc.db_set("status", "Cancelled")
+
+
+@frappe.whitelist(methods=["GET"])
+def insights(name: str):
+	"""One broadcast: delivery funnel (sent → delivered → read), replies after it went out, why people were skipped or
+	failed, sends per minute, and every recipient with their message status."""
+	_guard()
+	doc = frappe.get_doc("WhatsApp Broadcast", name)
+	t = frappe.db.get_value("WhatsApp Template", doc.template, ["template_label", "message", "footer", "template_type", "reference_doctype"], as_dict=True) or {}
+	msgs = {m.name: m for m in frappe.get_all("WhatsApp Message", {"name": ("in", [r.whatsapp_message for r in doc.recipients if r.whatsapp_message] or [""])},
+		["name", "status", "creation", "to"])}
+	state = {}
+	for m in msgs.values():
+		state[(m.status or "Sent").title()] = state.get((m.status or "Sent").title(), 0) + 1
+	read = state.get("Read", 0)
+	delivered = state.get("Delivered", 0) + read
+	since = doc.started_on or doc.creation
+	replied, recipients = 0, []
+	for r in doc.recipients:
+		m = msgs.get(r.whatsapp_message) if r.whatsapp_message else None
+		reply = None
+		if m:
+			reply = frappe.db.get_value("WhatsApp Message", {"to": m.to, "direction": "Incoming", "creation": (">", since)},
+				["message", "creation"], as_dict=True, order_by="creation asc")
+			replied += 1 if reply else 0
+		recipients.append({"name": r.party_name, "party_type": r.party_type, "party": r.party, "phone": r.phone, "status": r.status,
+			"reason": r.error, "message_status": (m.status if m else None), "sent_at": m.creation if m else None,
+			"reply": (reply.message or "")[:160] if reply else None, "replied_at": reply.creation if reply else None})
+	reasons = {}
+	for r in doc.recipients:
+		if r.status in ("Skipped", "Failed"):
+			key = f"{r.status}: {(r.error or 'unknown')[:80]}"
+			reasons[key] = reasons.get(key, 0) + 1
+	per_minute = {}
+	for m in msgs.values():
+		k = str(m.creation)[:16]
+		per_minute[k] = per_minute.get(k, 0) + 1
+	sent = doc.sent_count or 0
+	duration = (frappe.utils.time_diff_in_seconds(doc.completed_on, doc.started_on) if doc.completed_on and doc.started_on else None)
+	return {**{f: doc.get(f) for f in FIELDS}, "rate_per_minute": doc.rate_per_minute, "lead_status": doc.lead_status, "lead_source": doc.lead_source,
+		"deal_status": doc.deal_status, "tax_year": doc.tax_year, "template_info": t, "mock": is_mock(),
+		"funnel": {"recipients": doc.total_recipients, "sent": sent, "delivered": delivered, "read": read, "replied": replied},
+		"rates": {"delivery": round(100 * delivered / sent) if sent else None, "read": round(100 * read / sent) if sent else None,
+			"reply": round(100 * replied / sent) if sent else None, "reach": round(100 * sent / doc.total_recipients) if doc.total_recipients else None},
+		"message_states": state, "reasons": sorted(({"reason": k, "count": v} for k, v in reasons.items()), key=lambda x: -x["count"]),
+		"timeline": [{"minute": k[11:], "count": v} for k, v in sorted(per_minute.items())], "duration_seconds": duration,
+		"recipients": recipients}

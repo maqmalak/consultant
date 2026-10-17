@@ -8,6 +8,7 @@ writes the same records Frappe CRM uses, so /crm shows them too.
 import frappe
 from frappe import _
 from frappe.utils import add_to_date, cint, escape_html, get_datetime, getdate, now_datetime, strip_html
+from frappe.utils.html_utils import sanitize_html
 
 from pakistan_tax_consultancy.api.crm import _guard, _names, _person
 
@@ -48,13 +49,13 @@ def detail(doctype: str, name: str):
 	for dt, dn in related:
 		r = {"reference_doctype": dt, "reference_docname": dn}
 		for n in frappe.get_all("FCRM Note", r, ["name", "title", "content", "owner", "creation"]):
-			items.append({"kind": "note", "at": n.creation, "by": n.owner, "title": n.title, "body": strip_html(n.content or ""), "id": n.name})
+			items.append({"kind": "note", "at": n.creation, "by": n.owner, "title": n.title, "html": sanitize_html(n.content or ""), "id": n.name})
 		for t in frappe.get_all("CRM Task", r, ["name", "title", "description", "status", "priority", "due_date", "assigned_to", "owner", "creation"]):
-			items.append({"kind": "task", "at": t.creation, "by": t.owner, "title": t.title, "body": strip_html(t.description or ""), "id": t.name,
+			items.append({"kind": "task", "at": t.creation, "by": t.owner, "title": t.title, "html": sanitize_html(t.description or ""), "id": t.name,
 				"status": t.status, "priority": t.priority, "due": t.due_date, "assigned_to": t.assigned_to})
 		for c in frappe.get_all("Communication", {"reference_doctype": dt, "reference_name": dn, "communication_medium": "Email"}, ["name", "subject", "content", "sender",
 				"recipients", "sent_or_received", "creation", "delivery_status"]):
-			items.append({"kind": "email", "at": c.creation, "by": c.sender, "title": c.subject, "body": strip_html(c.content or "")[:2000],
+			items.append({"kind": "email", "at": c.creation, "by": c.sender, "title": c.subject, "html": sanitize_html(c.content or ""),
 				"id": c.name, "direction": c.sent_or_received, "to": c.recipients, "status": c.delivery_status})
 		for m in frappe.get_all("WhatsApp Message", r, ["name", "message", "direction", "status", "creation", "owner"]):
 			items.append({"kind": "whatsapp", "at": m.creation, "by": m.owner, "body": strip_html(m.message or ""), "id": m.name,
@@ -62,7 +63,7 @@ def detail(doctype: str, name: str):
 		for e in frappe.get_all("Event Participants", {"reference_doctype": dt, "reference_docname": dn, "parenttype": "Event"}, pluck="parent"):
 			ev = frappe.db.get_value("Event", e, ["name", "subject", "event_category", "starts_on", "status", "owner", "creation", "description"], as_dict=True)
 			if ev:
-				items.append({"kind": "event", "at": ev.creation, "by": ev.owner, "title": ev.subject, "body": strip_html(ev.description or ""),
+				items.append({"kind": "event", "at": ev.creation, "by": ev.owner, "title": ev.subject, "html": sanitize_html(ev.description or ""),
 					"id": ev.name, "category": ev.event_category, "due": ev.starts_on, "status": ev.status})
 		for log in frappe.get_all("CRM Status Change Log", {"parenttype": dt, "parent": dn}, ["from", "to", "from_date", "to_date", "owner", "creation"]):
 			if log.get("from") and log.get("to"):
@@ -98,6 +99,16 @@ def detail(doctype: str, name: str):
 	}
 
 
+def rich(value):
+	"""Rich text from the editor (Quill HTML), sanitised; plain text (API callers) keeps its line breaks."""
+	value = (value or "").strip()
+	if not value:
+		return ""
+	if "<" not in value:
+		return escape_html(value).replace("\n", "<br>")
+	return sanitize_html(value)
+
+
 def _email_ready():
 	return bool(frappe.db.exists("Email Account", {"enable_outgoing": 1, "default_outgoing": 1}))
 
@@ -108,8 +119,11 @@ def add_note(doctype: str, name: str, content: str, title: str | None = None):
 	_doc(doctype, name, "write")
 	if not (content or "").strip():
 		frappe.throw(_("Write the note first."))
-	note = frappe.get_doc({"doctype": "FCRM Note", "title": (title or content.strip().split("\n")[0])[:120],
-		"content": escape_html(content.strip()).replace("\n", "<br>"), "reference_doctype": doctype, "reference_docname": name})
+	html = rich(content)
+	if not strip_html(html).strip():
+		frappe.throw(_("Write the note first."))
+	note = frappe.get_doc({"doctype": "FCRM Note", "title": (title or strip_html(html).strip().split("\n")[0])[:120],
+		"content": html, "reference_doctype": doctype, "reference_docname": name})
 	note.insert()
 	return note.name
 
@@ -123,7 +137,7 @@ def add_task(doctype: str, name: str, title: str, due_date: str, priority: str =
 		frappe.throw(_("Give the follow-up a title and a due date."))
 	task = frappe.get_doc({"doctype": "CRM Task", "title": title.strip()[:140], "due_date": get_datetime(due_date),
 		"priority": priority if priority in ("Low", "Medium", "High") else "Medium", "status": "Todo",
-		"assigned_to": assigned_to or frappe.session.user, "description": escape_html(description or ""),
+		"assigned_to": assigned_to or frappe.session.user, "description": rich(description),
 		"reference_doctype": doctype, "reference_docname": name})
 	task.insert()
 	return task.name
@@ -170,9 +184,9 @@ def send_email(doctype: str, name: str, subject: str, message: str, to: str | No
 		frappe.throw(_("This record has no email address."))
 	if not _email_ready():
 		frappe.throw(_("Set up the outgoing email account first (Settings → Email)."))
-	if not (subject or "").strip() or not (message or "").strip():
+	if not (subject or "").strip() or not strip_html(message or "").strip():
 		frappe.throw(_("Write a subject and a message."))
-	res = make(doctype=doctype, name=name, subject=subject.strip(), content=escape_html(message.strip()).replace("\n", "<br>"),
+	res = make(doctype=doctype, name=name, subject=subject.strip(), content=rich(message),
 		recipients=to, send_email=1, communication_medium="Email")
 	return res.get("name") if isinstance(res, dict) else res
 
@@ -279,10 +293,10 @@ def schedule(category: str, starts_on: str, subject: str | None = None, note: st
 			frappe.throw(_("Cannot link to {0}").format(ref_doctype))
 		frappe.get_doc(ref_doctype, ref_name).check_permission("read")
 		label = _labels([(ref_doctype, ref_name)]).get((ref_doctype, ref_name))
-	title = (subject or "").strip() or ((note or "").strip().split("\n")[0][:120]) or f"{'Reminder' if category == 'Event' else category}{' — ' + label if label else ''}"
+	title = (subject or "").strip() or (strip_html(note or "").strip().split("\n")[0][:120]) or f"{'Reminder' if category == 'Event' else category}{' — ' + label if label else ''}"
 	ev = frappe.get_doc({"doctype": "Event", "subject": title[:140], "event_category": category, "event_type": "Public", "status": "Open",
 		"starts_on": start, "ends_on": add_to_date(start, minutes=max(15, min(cint(minutes) or 60, 600))), "send_reminder": 1,
-		"description": escape_html(note or "").replace("\n", "<br>") or None,
+		"description": rich(note) or None,
 		"event_participants": [{"reference_doctype": ref_doctype, "reference_docname": ref_name}] if ref_doctype and ref_name else []})
 	ev.insert()
 	return ev.name
@@ -316,3 +330,24 @@ def follow_ups(scope: str = "mine", status: str = "open"):
 		r.assigned_name = people.get(r.assigned_to)
 		r.description = strip_html(r.description or "")
 	return rows
+
+
+# ---------------------------------------------------------------- attachments (lead / deal)
+@frappe.whitelist(methods=["GET"])
+def attachments(doctype: str, name: str):
+	_doc(doctype, name)
+	rows = frappe.get_all("File", {"attached_to_doctype": doctype, "attached_to_name": name, "is_folder": 0},
+		["name", "file_name", "file_url", "file_size", "is_private", "owner", "creation"], order_by="creation desc")
+	people = _names([r.owner for r in rows])
+	for r in rows:
+		r.owner_name = people.get(r.owner) or r.owner
+	return rows
+
+
+@frappe.whitelist(methods=["POST"])
+def remove_attachment(doctype: str, name: str, file: str):
+	_doc(doctype, name, "write")
+	f = frappe.get_doc("File", file)
+	if f.attached_to_doctype != doctype or f.attached_to_name != name:
+		frappe.throw(_("Not an attachment of this record."), frappe.PermissionError)
+	f.delete(ignore_permissions=True)

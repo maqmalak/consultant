@@ -11,6 +11,7 @@ import { Empty, ErrorState, InlineError, Loading } from "@/components/common/sta
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { SelectInput, TextArea } from "@/components/ui/field";
+import { RichText, RichTextEditor } from "@/components/forms/rich-text-editor";
 import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/cn";
 import { useApi } from "@/lib/use-api";
@@ -39,7 +40,7 @@ function EditDialog({ p, onClose, onSaved }: { p: Prospect | null; onClose: () =
     try { await apiCall(`${F}.update`, { name: p.name, data: f }); setF({}); onSaved(); onClose(); } catch (e) { setErr(e); } finally { setBusy(false); }
   };
   return (
-    <Dialog open={!!p} onClose={() => { setF({}); onClose(); }} title="Check the details"
+    <Dialog open={!!p} onClose={() => { setF({}); onClose(); }} title="Check the details" size="lg"
       footer={<><Button variant="ghost" onClick={() => { setF({}); onClose(); }}>Cancel</Button><Button loading={busy} onClick={() => void save()}>Save</Button></>}>
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="sm:col-span-2 text-sm font-medium">Business<input className="field mt-1" value={v.company_name ?? ""} onChange={set("company_name")} /></label>
@@ -48,7 +49,7 @@ function EditDialog({ p, onClose, onSaved }: { p: Prospect | null; onClose: () =
         <label className="text-sm font-medium">City<input className="field mt-1" value={v.city ?? ""} onChange={set("city")} /></label>
         <label className="text-sm font-medium">Client type<SelectInput className="mt-1" value={v.client_type} onChange={set("client_type")}>{CLIENT_TYPES.map((c) => <option key={c}>{c}</option>)}</SelectInput></label>
         <label className="sm:col-span-2 text-sm font-medium">Address<TextArea className="mt-1" rows={2} value={v.address ?? ""} onChange={set("address")} /></label>
-        <label className="sm:col-span-2 text-sm font-medium">Notes<TextArea className="mt-1" rows={2} value={v.notes ?? ""} onChange={set("notes")} placeholder="Why they may need tax help" /></label>
+        <div className="sm:col-span-2 text-sm font-medium">Notes<div className="mt-1"><RichTextEditor value={v.notes ?? ""} onChange={(html) => setF((x) => ({ ...x, notes: html }))} minHeight={120} placeholder="Why they may need tax help" /></div></div>
       </div>
       <InlineError error={err} />
     </Dialog>
@@ -239,6 +240,7 @@ export function LeadFinderPage() {
                 </p>
               )}
               {p.summary && !p.category && <p className="mt-2 line-clamp-3 text-xs text-muted-foreground">{p.summary}</p>}
+              {p.notes && <RichText html={p.notes} className="mt-2 line-clamp-3 rounded-lg bg-muted/50 px-2.5 py-1.5 text-xs" />}
               <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-3">
                 {p.status === "Converted" && p.converted_lead
                   ? <Link className="inline-flex h-8 items-center gap-1 rounded-md bg-emerald-500/15 px-2.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300" to={`/crm/leads/${p.converted_lead}`}>Open lead →</Link>

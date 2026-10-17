@@ -31,6 +31,11 @@ import { InboxPage } from "@/pages/staff/inbox";
 import { StaffVaultPage } from "@/pages/staff/vault";
 import { CrmShell } from "@/components/layout/crm-shell";
 import { BroadcastPage } from "@/pages/crm/broadcast";
+import { BroadcastDetailPage } from "@/pages/crm/broadcast-detail";
+import { EmailTemplateEditor, EmailTemplatesPage } from "@/pages/crm/email-templates";
+import { NewLeadPage } from "@/pages/crm/lead-new";
+import { CrmMastersPage } from "@/pages/crm/masters";
+import { WhatsAppTemplateEditor } from "@/pages/crm/wa-template";
 import { CrmCalendarPage } from "@/pages/crm/calendar";
 import { LeadFinderPage } from "@/pages/crm/finder";
 import { FollowUpsPage } from "@/pages/crm/follow-ups";
@@ -76,6 +81,7 @@ export default function App() {
       <Route path="/crm" element={<RequireAuth><RequireStaff roles={[SM, ADMIN, CONSULTANT, FIELD, ROLES.REVIEWER]}><CrmShell /></RequireStaff></RequireAuth>}>
         <Route index element={<CrmDashboardPage />} />
         <Route path="leads" element={<CrmLeadsPage />} />
+        <Route path="leads/new" element={<NewLeadPage />} />
         <Route path="leads/:name" element={<CrmRecordPage doctype="CRM Lead" />} />
         <Route path="deals/:name" element={<CrmRecordPage doctype="CRM Deal" />} />
         <Route path="pipeline" element={<CrmPipelinePage />} />
@@ -83,6 +89,11 @@ export default function App() {
         <Route path="calendar" element={<CrmCalendarPage />} />
         <Route path="finder" element={<LeadFinderPage />} />
         <Route path="broadcast" element={<BroadcastPage />} />
+        <Route path="broadcast/templates/new" element={<WhatsAppTemplateEditor />} />
+        <Route path="broadcast/:name" element={<BroadcastDetailPage />} />
+        <Route path="email-templates" element={<EmailTemplatesPage />} />
+        <Route path="email-templates/:name" element={<EmailTemplateEditor />} />
+        <Route path="masters" element={<CrmMastersPage />} />
       </Route>
 
       <Route element={<RequireAuth><RequireClient><ClientShell /></RequireClient></RequireAuth>}>

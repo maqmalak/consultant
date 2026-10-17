@@ -7,7 +7,8 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { InlineError } from "@/components/common/states";
 import { Button } from "@/components/ui/button";
-import { SelectInput, TextArea } from "@/components/ui/field";
+import { SelectInput } from "@/components/ui/field";
+import { RichTextEditor } from "@/components/forms/rich-text-editor";
 import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/cn";
 import { useApi } from "@/lib/use-api";
@@ -130,7 +131,7 @@ export function CrmCalendarPage() {
                   {(options.data ?? []).map((o) => <option key={o.doctype + o.name} value={`${o.doctype}::${o.name}`}>{o.label}</option>)}
                 </SelectInput></label>
               <label className="block text-xs font-medium text-muted-foreground">Note
-                <TextArea className="mt-1" rows={3} placeholder="Agenda, next step, reminder text" value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} /></label>
+                <div className="mt-1"><RichTextEditor value={f.note} onChange={(html) => setF((x) => ({ ...x, note: html }))} minHeight={110} placeholder="Agenda, next step, reminder text" /></div></label>
               {ok && <p className="text-xs font-medium text-emerald-600">{ok}</p>}
               <InlineError error={err} />
               <Button className="w-full" loading={busy} onClick={() => void schedule()}>{!busy && <CalendarPlus className="h-4 w-4" />} Schedule activity</Button>
