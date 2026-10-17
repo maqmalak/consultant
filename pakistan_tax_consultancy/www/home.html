@@ -204,7 +204,7 @@
     <li class="group relative">
       <div class="relative z-10 mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f3d77a] via-[#d4af37] to-[#9c7a22] text-[#141416] shadow-lg shadow-[#d4af37]/30 ring-4 ring-background transition group-hover:scale-110">
         <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{{ icon }}</svg>
-        <span class="absolute -end-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#141416] text-[11px] font-bold text-[#f3d77a] ring-2 ring-background">{{ loop.index }}</span>
+        <span class="absolute -end-2.5 -top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-[#141416] text-xs font-bold text-[#f3d77a] shadow-md shadow-black/40 ring-2 ring-[#f3d77a]">{{ loop.index }}</span>
       </div>
       <div class="mt-6 h-[calc(100%-5rem)] rounded-3xl border bg-card p-6 text-center shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:border-[#d4af37]/50 group-hover:shadow-xl">
         <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">{{ _("Step") }} {{ loop.index }}</p>
