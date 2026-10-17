@@ -210,6 +210,10 @@ def conversation_for_profile(profile, msg=None):
 		c = frappe.db.get_value("Tax Client", conv.tax_client, ["client_name", "assigned_consultant", "whatsapp_opt_in"], as_dict=True)
 		conv.contact_name = c.client_name
 		conv.agent = conv.agent or c.assigned_consultant
+	elif conv.lead and (not conv.contact_name or conv.contact_name.replace("+", "").isdigit()):
+		# a number-only chat linked to a CRM lead shows the lead's name
+		name = frappe.db.get_value("CRM Lead", conv.lead, "lead_name")
+		conv.contact_name = name or conv.contact_name
 	conv.agent = conv.agent or default_agent()
 	return conv
 

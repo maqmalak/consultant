@@ -11,6 +11,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Empty, ErrorState, InlineError, Loading } from "@/components/common/states";
 import { RichText, RichTextEditor, htmlText } from "@/components/forms/rich-text-editor";
 import { CRM_COLORS } from "@/components/crm/kanban-board";
+import { WhatsAppButton } from "@/components/crm/whatsapp-open";
 import { Button } from "@/components/ui/button";
 import { ColorTabs, type TabTone } from "@/components/ui/color-tabs";
 import { Dialog } from "@/components/ui/dialog";
@@ -284,7 +285,7 @@ export function CrmRecordPage({ doctype }: { doctype: "CRM Lead" | "CRM Deal" })
           <p className="mt-0.5 text-sm text-muted-foreground">{[d.organization !== d.person ? d.organization : null, d.client_type, d.source && `via ${d.source}`].filter(Boolean).join(" · ")}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {tel && <a href={`tel:${tel}`} className="inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium hover:bg-accent"><Phone className="h-3.5 w-3.5" />{d.contact.mobile}</a>}
-            {tel && <a href={`https://wa.me/${tel.replace(/\D/g, "")}`} target="_blank" rel="noopener" className="inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium text-[#128C7E] hover:bg-accent dark:text-[#25D366]"><MessageCircle className="h-3.5 w-3.5" />WhatsApp</a>}
+            {tel && <WhatsAppButton doctype={doctype} name={name} label="WhatsApp" className="h-8 rounded-full border px-3 text-xs font-medium" />}
             {d.contact.email && <a href={`mailto:${d.contact.email}`} className="inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium hover:bg-accent"><Mail className="h-3.5 w-3.5" />{d.contact.email}</a>}
           </div>
         </div>

@@ -3,16 +3,18 @@
  * Everything else — activity, notes, calls, email, tasks — opens in the full Frappe CRM at /crm.
  */
 import {
-  ArrowRightLeft, BadgeCheck, CalendarClock, ExternalLink, Handshake, MessageCircle, Plus, Search, Target, TrendingUp, Trophy, UserPlus, Users,
+  ArrowRightLeft, BadgeCheck, CalendarClock, ExternalLink, Handshake, Kanban, List, Plus, Search, Target, TrendingUp, Trophy, UserPlus, Users,
 } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { ColorTabs } from "@/components/ui/color-tabs";
 import { ChartCard } from "@/components/charts/chart-card";
 import { DonutChart } from "@/components/charts/charts";
 import { StateBadge } from "@/components/common/state-badge";
 import { StatCard } from "@/components/common/stat-card";
 import { Empty, ErrorState, InlineError, Loading } from "@/components/common/states";
 import { CRM_COLORS, KanbanBoard } from "@/components/crm/kanban-board";
+import { WhatsAppButton } from "@/components/crm/whatsapp-open";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { SelectInput } from "@/components/ui/field";
@@ -43,7 +45,6 @@ interface Dash {
 const day = (v: string) => new Date(v.replace(" ", "T")).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 const age = (v: string) => { const d = Math.floor((Date.now() - new Date(v.replace(" ", "T")).getTime()) / 86_400_000); return d <= 0 ? "today" : `${d}d`; };
 const crmUrl = (doctype: "leads" | "deals", name: string) => `/crm/${doctype}/${encodeURIComponent(name)}`;
-const waLink = (m: string | null) => (m ? `https://wa.me/${m.replace(/\D/g, "")}` : null);
 const COLOR_HEX: Record<string, string> = { gray: "#94a3b8", blue: "#0ea5e9", amber: "#f59e0b", violet: "#8b5cf6", green: "#10b981", red: "#f43f5e",
   orange: "#f97316", teal: "#14b8a6", purple: "#a855f7", pink: "#ec4899", cyan: "#06b6d4", yellow: "#facc15", black: "#0f172a" };
 const SOURCE_COLORS = ["#d4af37", "#0ea5e9", "#10b981", "#8b5cf6", "#f97316", "#f43f5e", "#14b8a6", "#64748b"];
@@ -169,7 +170,7 @@ function Leads({ meta, onPipeline }: { meta?: Meta; onPipeline: () => void }) {
               <TD className="text-sm text-muted-foreground">{day(l.creation)}</TD>
               <TD className="text-end">
                 <div className="flex justify-end gap-1.5">
-                  {waLink(l.mobile_no) && <a className="rounded-md border p-1.5 text-[#128C7E] hover:bg-accent dark:text-[#25D366]" href={waLink(l.mobile_no)!} target="_blank" rel="noopener" aria-label="WhatsApp"><MessageCircle className="h-4 w-4" /></a>}
+                  {l.mobile_no && <WhatsAppButton doctype="CRM Lead" name={l.name} className="rounded-md border p-1.5" />}
                   {l.converted
                     ? l.deal ? <Link className="inline-flex h-8 items-center gap-1 rounded-md bg-emerald-500/15 px-2.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300" to={crmUrl("deals", l.deal)}>Deal ✓</Link>
                       : <span className="text-xs text-muted-foreground">Converted</span>
@@ -288,6 +289,107 @@ function CrmHeader({ title, subtitle, icon, meta }: { title: string; subtitle: s
   );
 }
 
+// ------------------------------------------------------------------------------------------------ leads board
+/** Leads grouped by status; drag a card (or use Move to…) to change it. Converted leads live on as deals. */
+function LeadsBoard({ meta }: { meta?: Meta }) {
+  const [q, setQ] = useState("");
+  const { data, error, isLoading, mutate } = useApi<Lead[]>(`${C}.leads`, { q: q || undefined, limit: 500 });
+  const [err, setErr] = useState<unknown>(null);
+  const statuses = (meta?.statuses ?? []).filter((s) => s.name !== "Converted");
+  const move = async (l: Lead, status: string) => {
+    setErr(null);
+    void mutate((rows) => rows?.map((x) => (x.name === l.name ? { ...x, status } : x)), { revalidate: false });
+    try { await apiCall("pakistan_tax_consultancy.api.crm_activity.set_status", { doctype: "CRM Lead", name: l.name, status }); } catch (e) { setErr(e); }
+    void mutate();
+  };
+  if (error) return <ErrorState error={error} onRetry={() => void mutate()} />;
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative w-full sm:w-64"><Search className="absolute start-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <input aria-label="Search leads" className="field h-9 ps-8 text-sm" placeholder="Name or mobile" value={q} onChange={(e) => setQ(e.target.value)} /></div>
+        <p className="ms-auto text-xs text-muted-foreground">Drag a lead to change its status · "To deal" on a lead's page moves it to the deals pipeline.</p>
+      </div>
+      <InlineError error={err} />
+      <KanbanBoard columns={statuses.map((s) => ({ value: s.name, color: s.color, compact: s.type === "Lost" }))} rows={data ?? []} groupField="status"
+        rowKey={(l) => l.name} loading={isLoading} noun="lead" emptyHint="Leads from the website, WhatsApp and bookings appear here." onCardMove={(l, s) => move(l, s)}
+        renderCompact={(l) => (
+          <div className="rounded-lg border bg-card px-2.5 py-2 shadow-sm"><Link className="block truncate text-sm font-medium hover:text-primary" to={crmUrl("leads", l.name)} draggable={false}>{l.person}</Link>
+            <p className="truncate text-[11px] text-muted-foreground">{l.source ?? ""}</p></div>
+        )}
+        renderCard={(l) => (
+          <div className="rounded-xl border bg-card p-3 shadow-sm transition hover:border-primary/40 hover:shadow">
+            <div className="flex items-start justify-between gap-2">
+              <Link className="min-w-0 font-medium leading-tight hover:text-primary" to={crmUrl("leads", l.name)} draggable={false}>{l.person}</Link>
+              <span className="shrink-0 text-[11px] text-muted-foreground">{age(l.creation)}</span>
+            </div>
+            <p className="mt-1 truncate text-xs text-muted-foreground">{[l.organization, l.ptc_client_type].filter(Boolean).join(" · ")}</p>
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">{l.mobile_no ?? l.email ?? ""}</p>
+            <select aria-label={`Move ${l.person} to`} value="" draggable={false} onMouseDown={(e) => e.stopPropagation()}
+              onChange={(e) => e.target.value && void move(l, e.target.value)}
+              className="mt-2 h-7 w-full cursor-pointer rounded-md border bg-background px-1.5 text-xs text-muted-foreground hover:text-foreground">
+              <option value="">Move to…</option>{statuses.filter((s) => s.name !== l.status).map((s) => <option key={s.name}>{s.name}</option>)}
+            </select>
+            <div className="mt-2 flex items-center justify-between gap-2 text-xs">
+              <span className="rounded-full bg-muted px-2 py-0.5">{l.source ?? "—"}</span>
+              <span className="flex items-center gap-1.5">{l.mobile_no && <WhatsAppButton doctype="CRM Lead" name={l.name} className="rounded-md p-1" />}<span className="truncate text-muted-foreground">{l.owner_name ?? ""}</span></span>
+            </div>
+          </div>
+        )} />
+    </div>
+  );
+}
+
+// ------------------------------------------------------------------------------------------------ deals list
+function DealsList() {
+  const [q, setQ] = useState("");
+  const [stage, setStage] = useState("");
+  const { data, error, isLoading, mutate } = useApi<{ statuses: Stage[]; deals: Deal[] }>(`${C}.pipeline`, { q: q || undefined });
+  if (isLoading) return <Loading />;
+  if (error || !data) return <ErrorState error={error} onRetry={() => void mutate()} />;
+  const color = Object.fromEntries(data.statuses.map((s) => [s.name, s.color]));
+  const rows = data.deals.filter((d) => !stage || d.status === stage);
+  const total = rows.reduce((n, d) => n + (d.deal_value || d.expected_deal_value || 0), 0);
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative w-full sm:w-64"><Search className="absolute start-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <input aria-label="Search deals" className="field h-9 ps-8 text-sm" placeholder="Name or mobile" value={q} onChange={(e) => setQ(e.target.value)} /></div>
+        <div className="flex flex-wrap gap-1.5">
+          <button onClick={() => setStage("")} className={cn("rounded-full px-3 py-1 text-xs font-medium", !stage ? "bg-foreground text-background" : "bg-muted text-muted-foreground")}>All {data.deals.length}</button>
+          {data.statuses.map((s) => {
+            const n = data.deals.filter((d) => d.status === s.name).length;
+            return <button key={s.name} onClick={() => setStage(s.name)} className={cn("flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium",
+              stage === s.name ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:text-foreground")}>
+              <span className={cn("h-2 w-2 rounded-full", CRM_COLORS[s.color] ?? CRM_COLORS.gray)} />{s.name} {n || ""}</button>;
+          })}
+        </div>
+        <span className="ms-auto text-sm text-muted-foreground">{rows.length} deals · <b className="text-foreground">{money(total, { compact: true })}</b></span>
+      </div>
+      {!rows.length ? <Empty title="No deals" hint="Turn a lead into a deal from its page." /> : (
+        <Table>
+          <thead><tr><TH>Deal</TH><TH>Stage</TH><TH>Package</TH><TH className="text-end">Value</TH><TH>Next step</TH><TH>Owner</TH><TH>Updated</TH><TH className="text-end">{""}</TH></tr></thead>
+          <tbody>{rows.map((d) => (
+            <TR key={d.name}>
+              <TD><Link className="font-medium hover:text-primary" to={crmUrl("deals", d.name)}>{d.person}</Link><span className="block text-xs text-muted-foreground">{d.mobile_no ?? d.name}</span></TD>
+              <TD><span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2 py-0.5 text-xs font-semibold"><span className={cn("h-2 w-2 rounded-full", CRM_COLORS[color[d.status]] ?? CRM_COLORS.gray)} />{d.status}</span></TD>
+              <TD className="text-sm">{d.service_package ?? "—"}</TD>
+              <TD className="text-end tabular-nums">{money(d.deal_value || d.expected_deal_value || 0)}</TD>
+              <TD className="max-w-[14rem] truncate text-sm text-muted-foreground">{d.next_step ?? "—"}</TD>
+              <TD className="text-sm">{d.owner_name ?? "—"}</TD>
+              <TD className="text-sm text-muted-foreground">{day(d.modified)}</TD>
+              <TD className="text-end"><div className="flex justify-end gap-1.5">
+                {d.mobile_no && <WhatsAppButton doctype="CRM Deal" name={d.name} className="rounded-md border p-1.5" />}
+                {d.tax_client && <Link className="rounded-full bg-emerald-500/15 px-2 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300" to={`/staff/clients/${d.tax_client}`}>Client ✓</Link>}
+              </div></TD>
+            </TR>
+          ))}</tbody>
+        </Table>
+      )}
+    </div>
+  );
+}
+
 export function CrmDashboardPage() {
   const meta = useApi<Meta>(`${C}.lead_statuses`);
   const [stamp, setStamp] = useState(0);
@@ -303,21 +405,28 @@ export function CrmDashboardPage() {
 export function CrmLeadsPage() {
   const meta = useApi<Meta>(`${C}.lead_statuses`);
   const navigate = useNavigate();
-  const [stamp, setStamp] = useState(0);
+  const [params, setParams] = useSearchParams();
+  const view = params.get("view") === "board" ? "board" : "list";
   return (
-    <div className="page-container space-y-5">
-      <CrmHeader title="Leads" subtitle="Everyone who asked about our services" icon={<Users className="h-5 w-5" />} meta={meta.data} onAdded={() => setStamp((s) => s + 1)} />
-      <Leads key={stamp} meta={meta.data} onPipeline={() => navigate("/crm/pipeline")} />
+    <div className={cn("page-container space-y-5", view === "board" && "max-w-none")}>
+      <CrmHeader title="Leads" subtitle="Everyone who asked about our services" icon={<Users className="h-5 w-5" />} meta={meta.data} />
+      <ColorTabs value={view} onChange={(v) => setParams(v === "board" ? { view: v } : {})} className="w-fit" tabs={[
+        { key: "list", label: "List", icon: List, tone: "gold" }, { key: "board", label: "Board", icon: Kanban, tone: "violet" }]} />
+      {view === "board" ? <LeadsBoard meta={meta.data} /> : <Leads meta={meta.data} onPipeline={() => navigate("/crm/pipeline")} />}
     </div>
   );
 }
 
 export function CrmPipelinePage() {
   const meta = useApi<Meta>(`${C}.lead_statuses`);
+  const [params, setParams] = useSearchParams();
+  const view = params.get("view") === "list" ? "list" : "board";
   return (
     <div className="page-container max-w-none space-y-5">
-      <CrmHeader title="Pipeline" subtitle="Drag a deal to its next stage" icon={<Target className="h-5 w-5" />} meta={meta.data} />
-      <Pipeline meta={meta.data} />
+      <CrmHeader title="Deals" subtitle={view === "board" ? "Drag a deal to its next stage" : "Every deal, by stage"} icon={<Target className="h-5 w-5" />} meta={meta.data} />
+      <ColorTabs value={view} onChange={(v) => setParams(v === "list" ? { view: v } : {})} className="w-fit" tabs={[
+        { key: "board", label: "Pipeline", icon: Kanban, tone: "violet" }, { key: "list", label: "List", icon: List, tone: "gold" }]} />
+      {view === "board" ? <Pipeline meta={meta.data} /> : <DealsList />}
     </div>
   );
 }

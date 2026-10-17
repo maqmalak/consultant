@@ -18,7 +18,7 @@ export const CRM_COLORS: Record<string, string> = {
 
 const MIME = "application/x-kanban-card";
 
-export function KanbanBoard<T extends Record<string, any>>({ columns, rows, groupField, rowKey, renderCard, renderCompact, onCardMove, loading, emptyHint }: {
+export function KanbanBoard<T extends Record<string, any>>({ columns, rows, groupField, rowKey, renderCard, renderCompact, onCardMove, loading, emptyHint, noun = "deal" }: {
   columns: KanbanColumnDef[];
   rows: T[];
   groupField: keyof T;
@@ -29,6 +29,8 @@ export function KanbanBoard<T extends Record<string, any>>({ columns, rows, grou
   onCardMove: (row: T, column: string) => void | Promise<void>;
   loading?: boolean;
   emptyHint?: string;
+  /** What a card is ("deal", "lead") for the empty-state texts. */
+  noun?: string;
 }) {
   const [dragging, setDragging] = useState<string | null>(null);
   const [over, setOver] = useState<string | null>(null);
@@ -50,7 +52,7 @@ export function KanbanBoard<T extends Record<string, any>>({ columns, rows, grou
   };
 
   if (loading) return <Loading />;
-  if (!rows.length) return <Empty title="No deals yet" hint={emptyHint} />;
+  if (!rows.length) return <Empty title={`No ${noun}s yet`} hint={emptyHint} />;
   return (
     <div className="flex gap-3 overflow-x-auto pb-3">
       {columns.map((col) => {
@@ -84,7 +86,7 @@ export function KanbanBoard<T extends Record<string, any>>({ columns, rows, grou
                   {col.compact && renderCompact ? renderCompact(row) : renderCard(row)}
                 </div>
               ))}
-              {!items.length && <p className="rounded-xl border border-dashed px-2 py-6 text-center text-xs text-muted-foreground">Drop a deal here</p>}
+              {!items.length && <p className="rounded-xl border border-dashed px-2 py-6 text-center text-xs text-muted-foreground">Drop a {noun} here</p>}
             </div>
           </div>
         );

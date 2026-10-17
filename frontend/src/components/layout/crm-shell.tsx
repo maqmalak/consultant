@@ -12,7 +12,7 @@ import { ThemeCustomizer } from "./theme-provider";
 export const CRM_NAV = [
   { path: "/crm", label: "Dashboard", icon: LayoutDashboard, end: true },
   { path: "/crm/leads", label: "Leads", icon: Users },
-  { path: "/crm/pipeline", label: "Pipeline", icon: Target },
+  { path: "/crm/pipeline", label: "Deals", icon: Target },
   { path: "/crm/follow-ups", label: "Follow-ups", icon: ListTodo, badge: true },
   { path: "/crm/calendar", label: "Calendar", icon: CalendarDays },
   { path: "/crm/finder", label: "Lead Finder", icon: Radar },

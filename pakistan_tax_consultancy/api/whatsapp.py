@@ -126,6 +126,32 @@ def open_conversation(tax_client: str):
 
 
 @frappe.whitelist(methods=["POST"])
+def open_crm_conversation(doctype: str, name: str):
+	"""The team-inbox chat for a CRM lead / deal's mobile (created if they never messaged), so WhatsApp buttons in the CRM
+	open our inbox instead of wa.me."""
+	_guard()
+	if doctype not in ("CRM Lead", "CRM Deal"):
+		frappe.throw(_("Not a CRM record."))
+	doc = frappe.get_doc(doctype, name)
+	doc.check_permission("read")
+	mobile = doc.get("mobile_no") or doc.get("phone")
+	if not mobile:
+		frappe.throw(_("This record has no mobile number."))
+	conv = inbox.conversation_for_profile(inbox.profile_for(mobile))
+	lead = name if doctype == "CRM Lead" else doc.get("lead")
+	if lead and not conv.tax_client and frappe.get_meta("Client Conversation").get_field("lead"):
+		conv.lead = lead
+	person = " ".join(filter(None, [doc.get("first_name"), doc.get("last_name")])) or doc.get("lead_name")
+	if person and not conv.tax_client:
+		conv.contact_name = person
+	conv.agent = conv.agent or doc.get("lead_owner") or doc.get("deal_owner") or frappe.session.user
+	conv.status = "Open"
+	conv.flags.ignore_permissions = True
+	conv.save()
+	return conv.name
+
+
+@frappe.whitelist(methods=["POST"])
 def mark_read(conversation: str):
 	_guard()
 	frappe.get_doc("Client Conversation", conversation).check_permission("read")
