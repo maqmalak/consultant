@@ -29,7 +29,7 @@ function Sidebar() {
           if (!items.length) return null;
           return (
             <div key={g.title}>
-              <p className="mb-1 px-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-sidebar-muted">{g.title}</p>
+              <p className="mb-1 px-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-sidebar-muted" title={g.title}>{g.short ?? g.title}</p>
               <div className="space-y-0.5">
                 {items.map((i) => (
                   <NavLink key={i.path} to={i.path} className={link}><i.icon className="h-4 w-4 shrink-0" />{i.label}</NavLink>

@@ -28,6 +28,8 @@ export interface NavItem {
 
 export interface NavGroup {
   title: string;
+  /** Shorter label for the narrow sidebar (the home page shows `title`). */
+  short?: string;
   items: NavItem[];
 }
 
@@ -58,6 +60,7 @@ export const STAFF_NAV: NavGroup[] = [
   },
   {
     title: "Client Communication & Collaboration",
+    short: "Communication",
     items: [
       { path: "/crm", label: "CRM", hint: "Leads · Pipeline · Calendar", icon: Handshake, roles: [SM, ADMIN, CONSULTANT, REVIEWER, FIELD], hue: "orange" },
       { path: "/staff/inbox", label: "WhatsApp Inbox", hint: "Team chats with clients", icon: MessageCircle, roles: [SM, ADMIN, CONSULTANT, REVIEWER, FIELD], hue: "green" },
