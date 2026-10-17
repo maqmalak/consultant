@@ -110,6 +110,7 @@ export interface ChecklistItem {
   category: string | null;
   hint: string | null;
   has_file: boolean;
+  requested_reason?: string | null;
 }
 
 export interface ReturnSummary {
