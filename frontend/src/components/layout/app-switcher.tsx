@@ -93,7 +93,7 @@ export function AppSwitcher() {
   return (
     <div className="flex items-center gap-2">
       <Launcher current={current} />
-      <nav aria-label="Switch app" className="relative grid grid-cols-2 rounded-xl border border-white/5 bg-[#141416] p-1 shadow-inner dark:bg-black/40">
+      <nav aria-label="Switch app" className="relative grid grid-cols-2 rounded-xl border bg-gradient-to-br from-[#d4af37]/15 via-[#d4af37]/5 to-transparent p-1 shadow-sm">
         {/* sliding highlight */}
         <span aria-hidden className="absolute inset-y-1 start-1 w-[calc(50%-0.25rem)] rounded-lg bg-gradient-to-br from-[#f3d77a] via-[#d4af37] to-[#b8912a] shadow-[0_4px_14px_-4px_rgba(212,175,55,0.8)] transition-transform duration-300 ease-out"
           style={{ transform: `translateX(${(rtl ? -1 : 1) * index * 100}%)` }} />
@@ -102,7 +102,7 @@ export function AppSwitcher() {
           return (
             <button key={a.key} type="button" onClick={() => !on && navigate(a.to)} aria-current={on ? "page" : undefined} title={a.hint}
               className={cn("relative z-10 flex items-center justify-center gap-2 rounded-lg px-2.5 py-1.5 text-sm font-semibold transition-colors sm:px-3.5",
-                on ? "text-[#141416]" : "text-white/60 hover:text-white")}>
+                on ? "text-[#141416]" : "text-muted-foreground hover:text-foreground")}>
               <a.icon className="h-4 w-4" />
               <span className="hidden sm:inline">{a.label}</span>
             </button>
