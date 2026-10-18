@@ -1,0 +1,1931 @@
+{
+ "firm": {
+  "address": "Office P.442/D, Mezzanine Floor, Adjacent to Unze London, Hurrian Wala Chowk, Faisalabad 38000",
+  "email": "faizan@vvsconsultants.pk",
+  "firm_name": "Vision Vault Solutions",
+  "partner_name": "Faizan Chaudhary",
+  "phone": "+92 321 8605360",
+  "tagline": "VVS Consultants \u00b7 Audit & Taxation"
+ },
+ "counts": {
+  "Clients": 54,
+  "Tax Returns": 52,
+  "Engagements": 47,
+  "Tax Documents": 376,
+  "Generated PDFs": 19,
+  "Tax Calculations": 46,
+  "Scenarios": 5,
+  "Site Visits": 43,
+  "Consultations": 13,
+  "Payment Proofs": 34,
+  "Audit Events": 742,
+  "CRM Leads": 55,
+  "CRM Deals": 9,
+  "WhatsApp Messages": 18,
+  "WhatsApp Templates": 4,
+  "Lead Prospects": 15,
+  "Sales Invoices": 29,
+  "Payment Entries": 29,
+  "Services": 6,
+  "Packages": 4,
+  "Document Types": 18,
+  "Tax Years": 2,
+  "Slab Settings": 8,
+  "Staff users": 13,
+  "Client logins": 51
+ },
+ "states": [
+  {
+   "state": "Documents Pending",
+   "count": 10
+  },
+  {
+   "state": "Draft",
+   "count": 7
+  },
+  {
+   "state": "Pending Review",
+   "count": 4
+  },
+  {
+   "state": "Under Review",
+   "count": 3
+  },
+  {
+   "state": "Changes Required",
+   "count": 2
+  },
+  {
+   "state": "Reviewed",
+   "count": 2
+  },
+  {
+   "state": "Awaiting Client Confirmation",
+   "count": 5
+  },
+  {
+   "state": "Approved",
+   "count": 3
+  },
+  {
+   "state": "Submitted to FBR",
+   "count": 3
+  },
+  {
+   "state": "Filing Error",
+   "count": 1
+  },
+  {
+   "state": "Acknowledged",
+   "count": 12
+  },
+  {
+   "state": "Closed",
+   "count": 0
+  }
+ ],
+ "transitions": [
+  {
+   "from": "Documents Pending",
+   "action": "Documents Complete",
+   "to": "Draft",
+   "roles": [
+    "Tax Consultant",
+    "Tax Admin"
+   ],
+   "self": 1
+  },
+  {
+   "from": "Draft",
+   "action": "Submit for Review",
+   "to": "Pending Review",
+   "roles": [
+    "Tax Consultant",
+    "Tax Admin"
+   ],
+   "self": 1
+  },
+  {
+   "from": "Pending Review",
+   "action": "Start Review",
+   "to": "Under Review",
+   "roles": [
+    "Tax Reviewer",
+    "Tax Admin"
+   ],
+   "self": 1
+  },
+  {
+   "from": "Under Review",
+   "action": "Request Changes",
+   "to": "Changes Required",
+   "roles": [
+    "Tax Reviewer",
+    "Tax Admin"
+   ],
+   "self": 1
+  },
+  {
+   "from": "Changes Required",
+   "action": "Resume Preparation",
+   "to": "Draft",
+   "roles": [
+    "Tax Consultant",
+    "Tax Admin"
+   ],
+   "self": 1
+  },
+  {
+   "from": "Under Review",
+   "action": "Mark Reviewed",
+   "to": "Reviewed",
+   "roles": [
+    "Tax Reviewer",
+    "Tax Admin"
+   ],
+   "self": 1
+  },
+  {
+   "from": "Reviewed",
+   "action": "Send to Client",
+   "to": "Awaiting Client Confirmation",
+   "roles": [
+    "Tax Reviewer",
+    "Tax Admin"
+   ],
+   "self": 1
+  },
+  {
+   "from": "Awaiting Client Confirmation",
+   "action": "Client Question",
+   "to": "Changes Required",
+   "roles": [
+    "Client"
+   ],
+   "self": 1
+  },
+  {
+   "from": "Awaiting Client Confirmation",
+   "action": "Approve",
+   "to": "Approved",
+   "roles": [
+    "Tax Approver",
+    "Tax Admin"
+   ],
+   "self": 0
+  },
+  {
+   "from": "Approved",
+   "action": "Mark Submitted on IRIS",
+   "to": "Submitted to FBR",
+   "roles": [
+    "Filing Officer",
+    "Tax Admin"
+   ],
+   "self": 1
+  },
+  {
+   "from": "Submitted to FBR",
+   "action": "Record Acknowledgment",
+   "to": "Acknowledged",
+   "roles": [
+    "Filing Officer",
+    "Tax Admin"
+   ],
+   "self": 1
+  },
+  {
+   "from": "Submitted to FBR",
+   "action": "Report Filing Error",
+   "to": "Filing Error",
+   "roles": [
+    "Filing Officer",
+    "Tax Admin"
+   ],
+   "self": 1
+  },
+  {
+   "from": "Filing Error",
+   "action": "Retry Filing",
+   "to": "Submitted to FBR",
+   "roles": [
+    "Filing Officer",
+    "Tax Admin"
+   ],
+   "self": 1
+  },
+  {
+   "from": "Acknowledged",
+   "action": "Close",
+   "to": "Closed",
+   "roles": [
+    "Tax Admin"
+   ],
+   "self": 1
+  },
+  {
+   "from": "Reviewed",
+   "action": "Reopen for Review",
+   "to": "Pending Review",
+   "roles": [
+    "Tax Consultant",
+    "Tax Admin",
+    "Tax Reviewer",
+    "Tax Approver"
+   ],
+   "self": 1
+  },
+  {
+   "from": "Awaiting Client Confirmation",
+   "action": "Reopen for Review",
+   "to": "Pending Review",
+   "roles": [
+    "Tax Consultant",
+    "Tax Admin",
+    "Tax Reviewer",
+    "Tax Approver"
+   ],
+   "self": 1
+  },
+  {
+   "from": "Approved",
+   "action": "Reopen for Review",
+   "to": "Pending Review",
+   "roles": [
+    "Tax Consultant",
+    "Tax Admin",
+    "Tax Reviewer",
+    "Tax Approver",
+    "Filing Officer"
+   ],
+   "self": 1
+  }
+ ],
+ "insights": {
+  "kpis": {
+   "clients": 54,
+   "new_clients_month": 9,
+   "new_clients_prev": 4,
+   "returns": 51,
+   "in_progress": 40,
+   "filed": 11,
+   "filed_pct": 22,
+   "avg_days_to_file": 31.5,
+   "collected_month": 10000.0,
+   "collected_prev": 69000.0,
+   "billed": 544000.0,
+   "collected": 320500.0,
+   "outstanding": 223500.0,
+   "visit_conversion": 73,
+   "payable": 24923632.5,
+   "refund": 402820.0,
+   "needs_attention": 3
+  },
+  "trend": [
+   {
+    "month": "2026-05",
+    "label": "May",
+    "new_clients": 3.0,
+    "returns_started": 3.0,
+    "returns_filed": 0.0,
+    "visits": 8.0,
+    "conversions": 3.0,
+    "collections": 9000.0
+   },
+   {
+    "month": "2026-06",
+    "label": "Jun",
+    "new_clients": 4.0,
+    "returns_started": 4.0,
+    "returns_filed": 0.0,
+    "visits": 6.0,
+    "conversions": 3.0,
+    "collections": 20000.0
+   },
+   {
+    "month": "2026-07",
+    "label": "Jul",
+    "new_clients": 7.0,
+    "returns_started": 6.0,
+    "returns_filed": 0.0,
+    "visits": 6.0,
+    "conversions": 2.0,
+    "collections": 39000.0
+   },
+   {
+    "month": "2026-08",
+    "label": "Aug",
+    "new_clients": 27.0,
+    "returns_started": 24.0,
+    "returns_filed": 1.0,
+    "visits": 7.0,
+    "conversions": 2.0,
+    "collections": 173500.0
+   },
+   {
+    "month": "2026-09",
+    "label": "Sep",
+    "new_clients": 4.0,
+    "returns_started": 8.0,
+    "returns_filed": 7.0,
+    "visits": 8.0,
+    "conversions": 3.0,
+    "collections": 69000.0
+   },
+   {
+    "month": "2026-10",
+    "label": "Oct",
+    "new_clients": 9.0,
+    "returns_started": 7.0,
+    "returns_filed": 4.0,
+    "visits": 8.0,
+    "conversions": 3.0,
+    "collections": 10000.0
+   }
+  ],
+  "funnel": [
+   {
+    "state": "Documents Pending",
+    "count": 51
+   },
+   {
+    "state": "Draft",
+    "count": 41
+   },
+   {
+    "state": "Pending Review",
+    "count": 34
+   },
+   {
+    "state": "Under Review",
+    "count": 28
+   },
+   {
+    "state": "Reviewed",
+    "count": 25
+   },
+   {
+    "state": "Awaiting Client Confirmation",
+    "count": 23
+   },
+   {
+    "state": "Approved",
+    "count": 18
+   },
+   {
+    "state": "Submitted to FBR",
+    "count": 14
+   },
+   {
+    "state": "Acknowledged",
+    "count": 11
+   }
+  ],
+  "stages": [
+   {
+    "state": "Documents Pending",
+    "count": 10,
+    "avg_days": 45.9,
+    "late": 8,
+    "sla_days": 10
+   },
+   {
+    "state": "Draft",
+    "count": 7,
+    "avg_days": 55.6,
+    "late": 6,
+    "sla_days": 5
+   },
+   {
+    "state": "Pending Review",
+    "count": 4,
+    "avg_days": 47.9,
+    "late": 4,
+    "sla_days": 3
+   },
+   {
+    "state": "Under Review",
+    "count": 3,
+    "avg_days": 26.2,
+    "late": 3,
+    "sla_days": 3
+   },
+   {
+    "state": "Reviewed",
+    "count": 2,
+    "avg_days": 46.6,
+    "late": 2,
+    "sla_days": 1
+   },
+   {
+    "state": "Awaiting Client Confirmation",
+    "count": 5,
+    "avg_days": 24.7,
+    "late": 4,
+    "sla_days": 5
+   },
+   {
+    "state": "Approved",
+    "count": 3,
+    "avg_days": 30.0,
+    "late": 3,
+    "sla_days": 2
+   },
+   {
+    "state": "Submitted to FBR",
+    "count": 3,
+    "avg_days": 55.3,
+    "late": 3,
+    "sla_days": 3
+   },
+   {
+    "state": "Changes Required",
+    "count": 2,
+    "avg_days": 82.4,
+    "late": 2,
+    "sla_days": 3
+   },
+   {
+    "state": "Filing Error",
+    "count": 1,
+    "avg_days": 105.2,
+    "late": 1,
+    "sla_days": 1
+   }
+  ],
+  "step_time": [
+   {
+    "state": "Documents Pending",
+    "avg_days": 13.2,
+    "n": 41
+   },
+   {
+    "state": "Draft",
+    "avg_days": 6.7,
+    "n": 34
+   },
+   {
+    "state": "Pending Review",
+    "avg_days": 2.0,
+    "n": 31
+   },
+   {
+    "state": "Under Review",
+    "avg_days": 1.4,
+    "n": 28
+   },
+   {
+    "state": "Reviewed",
+    "avg_days": 1.7,
+    "n": 24
+   },
+   {
+    "state": "Awaiting Client Confirmation",
+    "avg_days": 3.5,
+    "n": 19
+   },
+   {
+    "state": "Approved",
+    "avg_days": 1.5,
+    "n": 15
+   },
+   {
+    "state": "Submitted to FBR",
+    "avg_days": 2.8,
+    "n": 12
+   }
+  ],
+  "team": [
+   {
+    "user": "consultant@demo.taxportal.example",
+    "name": "Bilal Consultant",
+    "open": 22,
+    "filed": 6,
+    "avg_days": 25.0,
+    "payable": 10641632.5
+   },
+   {
+    "user": "consultant2@demo.taxportal.example",
+    "name": "Hina Consultant",
+    "open": 18,
+    "filed": 5,
+    "avg_days": 39.2,
+    "payable": 14282000.0
+   }
+  ],
+  "people": [
+   {
+    "user": "approver@demo.taxportal.example",
+    "name": "Nadia Approver",
+    "reviewed": 0,
+    "approved": 18,
+    "filed": 0
+   },
+   {
+    "user": "filing@demo.taxportal.example",
+    "name": "Omar Filing",
+    "reviewed": 0,
+    "approved": 0,
+    "filed": 11
+   },
+   {
+    "user": "reviewer@demo.taxportal.example",
+    "name": "Kamran Reviewer",
+    "reviewed": 26,
+    "approved": 0,
+    "filed": 0
+   }
+  ],
+  "mix": {
+   "client_type": [
+    {
+     "name": "Individual-Salaried",
+     "count": 25
+    },
+    {
+     "name": "Individual-Business",
+     "count": 16
+    },
+    {
+     "name": "AOP",
+     "count": 5
+    },
+    {
+     "name": "Company",
+     "count": 5
+    }
+   ],
+   "city": [
+    {
+     "name": "Faisalabad",
+     "count": 23
+    },
+    {
+     "name": "Lahore",
+     "count": 11
+    },
+    {
+     "name": "Karachi",
+     "count": 5
+    },
+    {
+     "name": "Rawalpindi",
+     "count": 5
+    },
+    {
+     "name": "Islamabad",
+     "count": 4
+    },
+    {
+     "name": "Other",
+     "count": 3
+    }
+   ],
+   "source": [
+    {
+     "name": "Self Registration",
+     "count": 19
+    },
+    {
+     "name": "Office",
+     "count": 17
+    },
+    {
+     "name": "Field Visit",
+     "count": 15
+    }
+   ],
+   "packages": [
+    {
+     "name": "Express Filing",
+     "count": 16,
+     "fees": 156500.0
+    },
+    {
+     "name": "Consultant Plus",
+     "count": 16,
+     "fees": 320000.0
+    },
+    {
+     "name": "Basic Filing",
+     "count": 15,
+     "fees": 67500.0
+    }
+   ]
+  }
+ },
+ "example": {
+  "name": "TAX-RET-2026-00006",
+  "client": "Usman Ghani (test)",
+  "tax_year": "2026",
+  "taxpayer_type": "Salaried Individual",
+  "income": [
+   {
+    "income_category": "Salary",
+    "tax_treatment": "Normal",
+    "gross_amount": 2640000.0,
+    "exempt_amount": 0.0,
+    "taxable_amount": 2640000.0,
+    "tax_rate_percent": 0.0
+   },
+   {
+    "income_category": "Salary",
+    "tax_treatment": "Normal",
+    "gross_amount": 360000.0,
+    "exempt_amount": 0.0,
+    "taxable_amount": 360000.0,
+    "tax_rate_percent": 0.0
+   },
+   {
+    "income_category": "Profit on Debt",
+    "tax_treatment": "Separate Block",
+    "gross_amount": 96000.0,
+    "exempt_amount": 0.0,
+    "taxable_amount": 96000.0,
+    "tax_rate_percent": 15.0
+   },
+   {
+    "income_category": "Profit on Debt",
+    "tax_treatment": "Separate Block",
+    "gross_amount": 21000.0,
+    "exempt_amount": 0.0,
+    "taxable_amount": 21000.0,
+    "tax_rate_percent": 15.0
+   }
+  ],
+  "deductions": [
+   {
+    "deduction_type": "Zakat",
+    "amount": 31250.0
+   }
+  ],
+  "credits": [
+   {
+    "credit_type": "Charitable Donation",
+    "credit_rule": null,
+    "eligible_amount": 50000.0,
+    "credit_amount": 4930.0
+   }
+  ],
+  "withholding": [
+   {
+    "section": "WHT-00005",
+    "amount": 198000.0
+   },
+   {
+    "section": "WHT-00005",
+    "amount": 18000.0
+   },
+   {
+    "section": "WHT-00006",
+    "amount": 14400.0
+   },
+   {
+    "section": "WHT-00006",
+    "amount": 3150.0
+   },
+   {
+    "section": "WHT-00009",
+    "amount": 25000.0
+   }
+  ],
+  "result": {
+   "gross_income": 3117000.0,
+   "exempt_income": 0.0,
+   "normal_income": 3000000.0,
+   "total_deductions": 31250.0,
+   "taxable_income": 2968750.0,
+   "normal_tax": 292812.5,
+   "separate_tax": 17550.0,
+   "total_tax_credits": 4930.0,
+   "tax_liability": 305432.5,
+   "total_tax_withheld": 258550.0,
+   "total_advance_tax": 0,
+   "tax_paid": 258550.0,
+   "net_payable": 46882.5,
+   "refund_due": 0.0
+  },
+  "slab": {
+   "from_amount": 2200000.0,
+   "to_amount": 3200000.0,
+   "fixed_tax": 116000.0,
+   "rate_percent": 23.0
+  },
+  "slabs": [
+   {
+    "from_amount": 0.0,
+    "to_amount": 600000.0,
+    "fixed_tax": 0.0,
+    "rate_percent": 0.0
+   },
+   {
+    "from_amount": 600000.0,
+    "to_amount": 1200000.0,
+    "fixed_tax": 0.0,
+    "rate_percent": 1.0
+   },
+   {
+    "from_amount": 1200000.0,
+    "to_amount": 2200000.0,
+    "fixed_tax": 6000.0,
+    "rate_percent": 11.0
+   },
+   {
+    "from_amount": 2200000.0,
+    "to_amount": 3200000.0,
+    "fixed_tax": 116000.0,
+    "rate_percent": 23.0
+   },
+   {
+    "from_amount": 3200000.0,
+    "to_amount": 4100000.0,
+    "fixed_tax": 346000.0,
+    "rate_percent": 30.0
+   },
+   {
+    "from_amount": 4100000.0,
+    "to_amount": null,
+    "fixed_tax": 616000.0,
+    "rate_percent": 35.0
+   }
+  ],
+  "rules": "DEMO \u2014 NOT VALIDATED",
+  "ack": "TEST-IRIS-2026-000006",
+  "state": "Acknowledged"
+ },
+ "packages": [
+  {
+   "package_name": "Basic Filing",
+   "service": "Income Tax Return Filing",
+   "price": 4500.0,
+   "turnaround": "3\u20135 working days"
+  },
+  {
+   "package_name": "Express Filing",
+   "service": "Income Tax Return Filing",
+   "price": 10000.0,
+   "turnaround": "24\u201348 hours"
+  },
+  {
+   "package_name": "Consultant Plus",
+   "service": "Income Tax Return Filing",
+   "price": 20000.0,
+   "turnaround": "By appointment"
+  },
+  {
+   "package_name": "NTN Registration",
+   "service": "NTN Registration",
+   "price": 2000.0,
+   "turnaround": "1\u20132 working days"
+  }
+ ],
+ "roles": [
+  {
+   "role": "System Manager",
+   "description": "Technical administrator (ERPNext). Full access everywhere.",
+   "scope": "all",
+   "scope_label": "All clients and their records",
+   "editable": false,
+   "count": 0,
+   "members": []
+  },
+  {
+   "role": "Tax Admin",
+   "description": "Runs the firm: settings, team, payments, every client and return.",
+   "scope": "all",
+   "scope_label": "All clients and their records",
+   "editable": false,
+   "count": 1,
+   "members": [
+    {
+     "user": "admin@demo.taxportal.example",
+     "full_name": "Ayesha Admin"
+    }
+   ]
+  },
+  {
+   "role": "Tax Consultant",
+   "description": "Prepares returns for the clients assigned to them.",
+   "scope": "consultant",
+   "scope_label": "Clients assigned to them (and returns assigned to them)",
+   "editable": true,
+   "count": 2,
+   "members": [
+    {
+     "user": "consultant2@demo.taxportal.example",
+     "full_name": "Hina Consultant"
+    },
+    {
+     "user": "consultant@demo.taxportal.example",
+     "full_name": "Bilal Consultant"
+    }
+   ]
+  },
+  {
+   "role": "Tax Reviewer",
+   "description": "Checks prepared returns and sends them back or on for approval.",
+   "scope": "all",
+   "scope_label": "All clients and their records",
+   "editable": true,
+   "count": 1,
+   "members": [
+    {
+     "user": "reviewer@demo.taxportal.example",
+     "full_name": "Kamran Reviewer"
+    }
+   ]
+  },
+  {
+   "role": "Tax Approver",
+   "description": "Gives the final approval before filing (never their own work).",
+   "scope": "all",
+   "scope_label": "All clients and their records",
+   "editable": true,
+   "count": 1,
+   "members": [
+    {
+     "user": "approver@demo.taxportal.example",
+     "full_name": "Nadia Approver"
+    }
+   ]
+  },
+  {
+   "role": "Filing Officer",
+   "description": "Files approved returns on FBR IRIS and records the acknowledgment.",
+   "scope": "all",
+   "scope_label": "All clients and their records",
+   "editable": true,
+   "count": 1,
+   "members": [
+    {
+     "user": "filing@demo.taxportal.example",
+     "full_name": "Omar Filing"
+    }
+   ]
+  },
+  {
+   "role": "Field Officer",
+   "description": "Registers prospects and clients met in the field.",
+   "scope": "field",
+   "scope_label": "Clients and visits they registered",
+   "editable": true,
+   "count": 1,
+   "members": [
+    {
+     "user": "field@demo.taxportal.example",
+     "full_name": "Saad Field"
+    }
+   ]
+  },
+  {
+   "role": "Client",
+   "description": "A taxpayer using the client portal.",
+   "scope": "client",
+   "scope_label": "Only their own profile, returns and documents \u2014 never internal review work",
+   "editable": false,
+   "count": 50,
+   "members": []
+  }
+ ],
+ "matrix": [
+  {
+   "doctype": "Tax Client",
+   "area": "Clients & work",
+   "rules": {
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Filing Officer": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Field Officer": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Tax Approver": [
+     "read"
+    ],
+    "Client": [
+     "read",
+     "write"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Consultant": [
+     "read",
+     "write",
+     "create"
+    ]
+   }
+  },
+  {
+   "doctype": "Tax Engagement",
+   "area": "Clients & work",
+   "rules": {
+    "Tax Approver": [
+     "read"
+    ],
+    "Filing Officer": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Field Officer": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Client": [
+     "read"
+    ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Tax Consultant": [
+     "read",
+     "write",
+     "create"
+    ]
+   }
+  },
+  {
+   "doctype": "Site Visit",
+   "area": "Clients & work",
+   "rules": {
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Consultant": [
+     "read",
+     "write"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Field Officer": [
+     "read",
+     "write",
+     "create"
+    ]
+   }
+  },
+  {
+   "doctype": "Consultation Request",
+   "area": "Clients & work",
+   "rules": {
+    "Tax Consultant": [
+     "read",
+     "write"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ]
+   }
+  },
+  {
+   "doctype": "Lead Prospect",
+   "area": "Clients & work",
+   "rules": {
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Sales User": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Sales Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ]
+   }
+  },
+  {
+   "doctype": "Tax Return",
+   "area": "Returns",
+   "rules": {
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Reviewer": [
+     "read",
+     "write"
+    ],
+    "Tax Approver": [
+     "read",
+     "write"
+    ],
+    "Tax Consultant": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Client": [
+     "read"
+    ],
+    "Filing Officer": [
+     "read",
+     "write"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create"
+    ]
+   }
+  },
+  {
+   "doctype": "Tax Calculation",
+   "area": "Returns",
+   "rules": {
+    "Tax Admin": [
+     "read"
+    ],
+    "Tax Reviewer": [
+     "read",
+     "write"
+    ],
+    "Client": [
+     "read"
+    ],
+    "Tax Approver": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Filing Officer": [
+     "read"
+    ],
+    "Tax Consultant": [
+     "read",
+     "write",
+     "create"
+    ]
+   }
+  },
+  {
+   "doctype": "Tax Scenario",
+   "area": "Returns",
+   "rules": {
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Approver": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Tax Consultant": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ]
+   }
+  },
+  {
+   "doctype": "Tax Review",
+   "area": "Returns",
+   "rules": {
+    "Tax Approver": [
+     "read"
+    ],
+    "Tax Consultant": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Reviewer": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Tax Admin": [
+     "read"
+    ]
+   }
+  },
+  {
+   "doctype": "Tax Approval",
+   "area": "Returns",
+   "rules": {
+    "Filing Officer": [
+     "read"
+    ],
+    "Tax Consultant": [
+     "read"
+    ],
+    "Tax Approver": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ]
+   }
+  },
+  {
+   "doctype": "Filing Record",
+   "area": "Returns",
+   "rules": {
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Filing Officer": [
+     "read",
+     "write",
+     "create"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Approver": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read"
+    ],
+    "Tax Consultant": [
+     "read"
+    ],
+    "Client": [
+     "read"
+    ]
+   }
+  },
+  {
+   "doctype": "Review Comment",
+   "area": "Returns",
+   "rules": {
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Consultant": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Tax Approver": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Filing Officer": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Reviewer": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Client": [
+     "read"
+    ]
+   }
+  },
+  {
+   "doctype": "Tax Document",
+   "area": "Documents & messages",
+   "rules": {
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Client": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Filing Officer": [
+     "read"
+    ],
+    "Tax Consultant": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Field Officer": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Tax Approver": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ]
+   }
+  },
+  {
+   "doctype": "Generated Document",
+   "area": "Documents & messages",
+   "rules": {
+    "Filing Officer": [
+     "read"
+    ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Tax Consultant": [
+     "read",
+     "write",
+     "create"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Client": [
+     "read"
+    ],
+    "Tax Approver": [
+     "read"
+    ],
+    "Field Officer": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ]
+   }
+  },
+  {
+   "doctype": "Client Message",
+   "area": "Documents & messages",
+   "rules": {
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Client": [
+     "read",
+     "create"
+    ],
+    "Tax Consultant": [
+     "read",
+     "write",
+     "create"
+    ]
+   }
+  },
+  {
+   "doctype": "Client Conversation",
+   "area": "Documents & messages",
+   "rules": {
+    "Tax Reviewer": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Consultant": [
+     "read",
+     "write"
+    ],
+    "Field Officer": [
+     "read"
+    ]
+   }
+  },
+  {
+   "doctype": "WhatsApp Broadcast",
+   "area": "Documents & messages",
+   "rules": {
+    "Sales Manager": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Tax Consultant": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ]
+   }
+  },
+  {
+   "doctype": "Payment Proof",
+   "area": "Money",
+   "rules": {
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Client": [
+     "read",
+     "create"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Consultant": [
+     "read"
+    ]
+   }
+  },
+  {
+   "doctype": "Tax Year",
+   "area": "Rules & content",
+   "rules": {
+    "Tax Admin": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Tax Consultant": [
+     "read"
+    ],
+    "Filing Officer": [
+     "read"
+    ],
+    "Field Officer": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Tax Approver": [
+     "read"
+    ]
+   }
+  },
+  {
+   "doctype": "Tax Slab Setting",
+   "area": "Rules & content",
+   "rules": {
+    "Field Officer": [
+     "read"
+    ],
+    "Tax Consultant": [
+     "read"
+    ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Approver": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Filing Officer": [
+     "read"
+    ]
+   }
+  },
+  {
+   "doctype": "Tax Credit Rule",
+   "area": "Rules & content",
+   "rules": {
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Filing Officer": [
+     "read"
+    ],
+    "Field Officer": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Consultant": [
+     "read"
+    ],
+    "Tax Approver": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create"
+    ]
+   }
+  },
+  {
+   "doctype": "Tax Regime",
+   "area": "Rules & content",
+   "rules": {
+    "Tax Consultant": [
+     "read"
+    ],
+    "Filing Officer": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Field Officer": [
+     "read"
+    ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Tax Approver": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create"
+    ]
+   }
+  },
+  {
+   "doctype": "Withholding Tax Section",
+   "area": "Rules & content",
+   "rules": {
+    "Tax Approver": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Field Officer": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Filing Officer": [
+     "read"
+    ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Tax Consultant": [
+     "read"
+    ]
+   }
+  },
+  {
+   "doctype": "Document Type",
+   "area": "Rules & content",
+   "rules": {
+    "Field Officer": [
+     "read"
+    ],
+    "Tax Approver": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Tax Consultant": [
+     "read"
+    ],
+    "Filing Officer": [
+     "read"
+    ]
+   }
+  },
+  {
+   "doctype": "Document Requirement Rule",
+   "area": "Rules & content",
+   "rules": {
+    "Tax Admin": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Tax Consultant": [
+     "read"
+    ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Field Officer": [
+     "read"
+    ],
+    "Tax Approver": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Filing Officer": [
+     "read"
+    ]
+   }
+  },
+  {
+   "doctype": "Service",
+   "area": "Rules & content",
+   "rules": {
+    "Tax Admin": [
+     "read",
+     "write",
+     "create"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Field Officer": [
+     "read"
+    ],
+    "Tax Consultant": [
+     "read"
+    ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Filing Officer": [
+     "read"
+    ],
+    "Tax Approver": [
+     "read"
+    ]
+   }
+  },
+  {
+   "doctype": "Service Package",
+   "area": "Rules & content",
+   "rules": {
+    "Tax Reviewer": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Approver": [
+     "read"
+    ],
+    "Field Officer": [
+     "read"
+    ],
+    "Tax Consultant": [
+     "read"
+    ],
+    "Filing Officer": [
+     "read"
+    ]
+   }
+  },
+  {
+   "doctype": "Promo Code",
+   "area": "Rules & content",
+   "rules": {
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ]
+   }
+  },
+  {
+   "doctype": "Tax Update",
+   "area": "Rules & content",
+   "rules": {
+    "Field Officer": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Consultant": [
+     "read"
+    ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Filing Officer": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Approver": [
+     "read"
+    ]
+   }
+  },
+  {
+   "doctype": "FAQ",
+   "area": "Rules & content",
+   "rules": {
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Tax Approver": [
+     "read"
+    ],
+    "Filing Officer": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Field Officer": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Consultant": [
+     "read"
+    ]
+   }
+  },
+  {
+   "doctype": "Testimonial",
+   "area": "Rules & content",
+   "rules": {
+    "Tax Approver": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Filing Officer": [
+     "read"
+    ],
+    "Field Officer": [
+     "read"
+    ],
+    "Tax Consultant": [
+     "read"
+    ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ]
+   }
+  },
+  {
+   "doctype": "Quick Reply",
+   "area": "Rules & content",
+   "rules": {
+    "Tax Reviewer": [
+     "read"
+    ],
+    "System Manager": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Field Officer": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
+    "Tax Consultant": [
+     "read"
+    ]
+   }
+  },
+  {
+   "doctype": "OTP Request",
+   "area": "Other",
+   "rules": {
+    "System Manager": [
+     "read",
+     "delete"
+    ]
+   }
+  },
+  {
+   "doctype": "Tax Audit Event",
+   "area": "Other",
+   "rules": {
+    "System Manager": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read"
+    ]
+   }
+  }
+ ],
+ "reports": [
+  "Returns by Status",
+  "Review and Approval Aging",
+  "Consultant Workload",
+  "Missing Documents",
+  "Filing Status and Errors",
+  "Tax Payable and Refund Summary",
+  "Fees and Collections",
+  "Client Master",
+  "Site Visits and Follow-ups",
+  "Consultation Requests Report"
+ ]
+}
