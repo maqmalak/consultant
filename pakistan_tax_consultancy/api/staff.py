@@ -363,11 +363,27 @@ def verify_document(tax_document: str, decision: str, reason: str | None = None)
 
 
 @frappe.whitelist(methods=["POST"])
-def upload_document(tax_document: str):
+def upload_document(tax_document: str, received_via: str | None = None):
+	"""Staff upload a file the client gave them; `received_via` says how (WhatsApp, Email, In person, Courier)."""
 	from pakistan_tax_consultancy.services.files import upload_tax_document
 
 	require_staff()
-	return upload_tax_document(tax_document)
+	return upload_tax_document(tax_document, received_via)
+
+
+@frappe.whitelist(methods=["GET"])
+def client_whatsapp_files(tax_client: str):
+	"""Files the client sent on WhatsApp, newest first, to attach to their checklist."""
+	from pakistan_tax_consultancy.services import on_behalf
+
+	return on_behalf.whatsapp_files(tax_client)
+
+
+@frappe.whitelist(methods=["POST"])
+def attach_from_whatsapp(tax_document: str, message: str):
+	from pakistan_tax_consultancy.services import on_behalf
+
+	return on_behalf.attach_from_whatsapp(tax_document, message)
 
 
 @frappe.whitelist(methods=["POST"])

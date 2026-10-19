@@ -54,7 +54,10 @@ def attach_private(doctype: str, name: str, fieldname: str, filename: str, conte
 	return f.file_url
 
 
-def upload_tax_document(tax_document: str) -> dict:
+RECEIVED_VIA = ("WhatsApp", "Email", "In person", "Courier")
+
+
+def upload_tax_document(tax_document: str, received_via: str | None = None) -> dict:
 	from pakistan_tax_consultancy.audit import log_event
 	from pakistan_tax_consultancy.permissions import can_access_client, get_scope
 
@@ -71,8 +74,10 @@ def upload_tax_document(tax_document: str) -> dict:
 	doc.uploaded_by = frappe.session.user
 	doc.upload_date = getdate()
 	doc.is_client_upload = 1 if scope == "client" else 0
+	doc.received_via = "Portal" if scope == "client" else (received_via if received_via in RECEIVED_VIA else None)
+	doc.whatsapp_message = None
 	doc.save(ignore_permissions=True)
-	log_event("Update", doc, details={"upload": filename, "bytes": len(content)})
+	log_event("Update", doc, details={"upload": filename, "bytes": len(content), "received_via": doc.received_via})
 	return {"name": doc.name, "status": doc.status}
 
 

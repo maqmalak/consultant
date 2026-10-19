@@ -176,6 +176,13 @@
    "read": 1,
    "report": 1,
    "role": "Field Officer"
+  },
+  {
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Data Entry Officer"
   }
  ],
  "row_format": "Dynamic",

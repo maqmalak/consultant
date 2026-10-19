@@ -5,7 +5,7 @@
  */
 import {
   AlertTriangle, CalendarClock, Calculator, Check, CheckCircle2, CircleDashed, Download, ExternalLink, FileCheck2, FileText, IdCard, MapPin, Package,
-  Phone, PhoneCall, Save, SlidersHorizontal, UserCheck, UserPen, X, type LucideIcon,
+  ImageIcon, MessageCircle, Phone, PhoneCall, Save, SlidersHorizontal, UserCheck, UserPen, X, type LucideIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Field, SelectInput, TextArea, TextInput } from "@/components/ui/field";
 import { useAuth } from "@/hooks/useAuth";
-import { downloadUrl, M, staff, type ChecklistItem } from "@/lib/api";
+import { downloadUrl, M, staff, type ChecklistItem, type WhatsAppFile } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { money } from "@/lib/format";
 import { useApi } from "@/lib/use-api";
@@ -367,7 +367,7 @@ export function ReturnWizard() {
             </>
           )}
 
-          {step === "documents" && <DocumentsStep name={doc.name} items={ov?.checklist ?? []} onChange={() => void overview.mutate()} />}
+          {step === "documents" && <DocumentsStep name={doc.name} taxClient={doc.tax_client} clientName={doc.client_name} items={ov?.checklist ?? []} onChange={() => void overview.mutate()} />}
           {step === "calculation" && <CalculationStep doc={doc} ov={ov} dirty={dirty} save={save} onDone={async () => { await mutate(); void overview.mutate(); }} />}
           {step === "validation" && (
             <Section title="Validation checklist">
@@ -394,33 +394,99 @@ export function ReturnWizard() {
   );
 }
 
-function DocumentsStep({ name, items, onChange }: { name: string; items: ChecklistItem[]; onChange: () => void }) {
-  const [rejecting, setRejecting] = useState<ChecklistItem | null>(null);
+const VERIFY_ROLES = ["System Manager", "Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer"];
+const RECEIVED_VIA = ["WhatsApp", "Email", "In person", "Courier"];
+const VIA_TONE: Record<string, string> = { WhatsApp: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400", Portal: "bg-sky-500/15 text-sky-700 dark:text-sky-400",
+  Email: "bg-violet-500/15 text-violet-700 dark:text-violet-400", "In person": "bg-amber-500/15 text-amber-700 dark:text-amber-400", Courier: "bg-slate-500/15 text-slate-600 dark:text-slate-300" };
+
+/** Files the client sent on WhatsApp — pick one to attach to a checklist item. */
+function WhatsAppPicker({ item, taxClient, onClose, onDone }: { item: ChecklistItem; taxClient: string; onClose: () => void; onDone: () => void }) {
+  const { data, error, isLoading } = useApi<WhatsAppFile[]>(`${M.STAFF}.client_whatsapp_files`, { tax_client: taxClient });
+  const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState<unknown>(null);
   return (
-    <Section title="Documents" hint="Verify each upload against the return. Rejections go back to the client with your reason.">
+    <Dialog open onClose={onClose} title={`Attach from WhatsApp — ${item.document_type}`} size="lg">
+      <div className="space-y-3">
+        <p className="text-sm text-muted-foreground">Files this client sent to the firm's WhatsApp, newest first. Only PDF, JPG and PNG can be attached.</p>
+        <InlineError error={err || error} />
+        {isLoading ? <Loading /> : !data?.length ? (
+          <div className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+            <MessageCircle className="mx-auto mb-2 h-6 w-6 text-emerald-500" />
+            No files from this client on WhatsApp yet. Ask them to send a photo or PDF to the firm's number.
+          </div>
+        ) : (
+          <ul className="max-h-[55vh] space-y-2 overflow-y-auto">
+            {data.map((f) => (
+              <li key={f.message} className="flex items-center gap-3 rounded-xl border bg-background/60 px-3 py-2.5">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                  {(f.mime_type ?? f.file_name).includes("pdf") ? <FileText className="h-5 w-5" /> : <ImageIcon className="h-5 w-5" />}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold">{f.file_name}</span>
+                  <span className="block truncate text-xs text-muted-foreground">{f.ago}{f.size ? ` · ${Math.max(1, Math.round(f.size / 1024))} KB` : ""}{f.caption ? ` · “${f.caption}”` : ""}</span>
+                  {f.used_for && <span className="mt-0.5 inline-block rounded bg-muted px-1.5 text-[11px] text-muted-foreground">already attached to {f.used_for}</span>}
+                </span>
+                <Button size="sm" disabled={!f.supported} loading={busy === f.message} title={f.supported ? undefined : "Only PDF, JPG or PNG"}
+                  onClick={async () => {
+                    setBusy(f.message);
+                    setErr(null);
+                    try { await staff.attachFromWhatsapp(item.name, f.message); onDone(); onClose(); } catch (e) { setErr(e); } finally { setBusy(null); }
+                  }}>Attach</Button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </Dialog>
+  );
+}
+
+function DocumentsStep({ name, taxClient, clientName, items, onChange }: { name: string; taxClient: string; clientName: string; items: ChecklistItem[]; onChange: () => void }) {
+  const { hasRole } = useAuth();
+  const canVerify = hasRole(...VERIFY_ROLES);
+  const [rejecting, setRejecting] = useState<ChecklistItem | null>(null);
+  const [picking, setPicking] = useState<ChecklistItem | null>(null);
+  const [via, setVia] = useState("WhatsApp");
+  const [err, setErr] = useState<unknown>(null);
+  return (
+    <Section title="Documents" hint={canVerify ? "Verify each upload against the return. Rejections go back to the client with your reason."
+      : "Attach what the client sent you; a consultant or reviewer verifies it."}>
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-3 py-2.5 text-sm">
+        <MessageCircle className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+        <p className="min-w-0 flex-1">{clientName} sent documents on WhatsApp or by hand? Use <b>From WhatsApp</b>, or upload and say how you got it.</p>
+        <label className="flex items-center gap-2 text-xs font-medium text-muted-foreground">Uploads received via
+          <select className="field h-8 w-auto py-0 text-sm" value={via} onChange={(e) => setVia(e.target.value)}>
+            {RECEIVED_VIA.map((v) => <option key={v}>{v}</option>)}
+          </select>
+        </label>
+      </div>
       <InlineError error={err} />
       <ul className="divide-y rounded-lg border">
         {items.map((d) => (
           <li key={d.name} className="flex flex-col gap-2 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-sm">
               <span className="font-medium">{d.document_type}</span> <span className="text-xs text-muted-foreground">{d.is_required ? "required" : "optional"}</span>
+              {d.has_file && (d.received_via || d.is_client_upload) ? <span className={cn("ms-2 rounded-full px-2 py-0.5 text-[11px] font-semibold", VIA_TONE[d.received_via || "Portal"])}>
+                {d.received_via === "Portal" || (!d.received_via && d.is_client_upload) ? "client uploaded" : `via ${d.received_via}`}</span> : null}
               {d.rejection_reason && <p className="text-xs text-destructive">{d.rejection_reason}</p>}
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <StateBadge state={d.status} />
               {d.has_file && <a className="rounded-md p-1.5 text-muted-foreground hover:bg-accent" aria-label="Download" target="_blank" rel="noopener"
                 href={downloadUrl("Tax Document", d.name, "file", true)}><Download className="h-4 w-4" /></a>}
-              {d.status === "Pending" && <>
+              {d.status === "Pending" && canVerify && <>
                 <Button size="sm" variant="success" onClick={() => staff.verifyDocument(d.name, "Verified").then(onChange).catch(setErr)}><FileCheck2 className="h-4 w-4" /> Verify</Button>
                 <Button size="sm" variant="outline" onClick={() => setRejecting(d)}><X className="h-4 w-4" /> Reject</Button>
               </>}
-              {d.status !== "Verified" && <FileUpload label="Upload for client" camera={false} onUpload={(b, n) => staff.uploadDocument(d.name, b, n)} onDone={onChange} />}
+              {d.status !== "Verified" && <>
+                <Button size="sm" variant="outline" onClick={() => setPicking(d)}><MessageCircle className="h-4 w-4 text-emerald-600" /> From WhatsApp</Button>
+                <FileUpload label="Upload for client" camera={false} onUpload={(b, n) => staff.uploadDocument(d.name, b, n, via)} onDone={onChange} />
+              </>}
             </div>
           </li>
         ))}
         {!items.length && <li className="px-3 py-6 text-center text-sm text-muted-foreground">No checklist items — check the questionnaire.</li>}
       </ul>
+      {picking && <WhatsAppPicker item={picking} taxClient={taxClient} onClose={() => setPicking(null)} onDone={onChange} />}
       {rejecting && <RejectDialog title={`Reject ${rejecting.document_type}`} onClose={() => setRejecting(null)}
         onReject={(reason) => staff.verifyDocument(rejecting.name, "Rejected", reason).then(onChange)} />}
       <p className="text-xs text-muted-foreground">Return {name}</p>
@@ -721,7 +787,9 @@ function QuestionnaireCard({ doc, editable, canEnter, change, rebuild, onDone }:
 
 /** Every team role may act for a client; the server applies record scope. */
 const ON_BEHALF_ROLES = ["System Manager", "Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer", "Field Officer", "Data Entry Officer"];
-const DETAILS_STATES = ["Documents Pending", "Draft", "Changes Required"];
+const PREPARATION_STATES = ["Documents Pending", "Draft", "Changes Required"];
+/** The team may change client data until the return is submitted to FBR (later changes are flagged to the consultant). */
+const DETAILS_STATES = [...PREPARATION_STATES, "Pending Review", "Under Review", "Reviewed", "Awaiting Client Confirmation", "Approved"];
 
 /** What the client typed in "My details" (or staff entered for them), with one click to copy it into the schedules. */
 function ClientDetailsPanel({ doc, editable, canEnter, onDone }: { doc: Doc; editable: boolean; canEnter: boolean; onDone: () => Promise<void> }) {
@@ -739,7 +807,8 @@ function ClientDetailsPanel({ doc, editable, canEnter, onDone }: { doc: Doc; edi
       {canEnter && (
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-sky-500/30 bg-sky-500/5 px-3 py-2.5">
           <UserPen className="h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400" />
-          <p className="min-w-0 flex-1 text-sm">Client told you by phone, WhatsApp or in person? Enter it for them.</p>
+          <p className="min-w-0 flex-1 text-sm">Client told you by phone, WhatsApp or in person? Enter it for them.
+            {!PREPARATION_STATES.includes(doc.workflow_state) && <span className="block text-xs text-muted-foreground">The return is “{doc.workflow_state}” — a change now is flagged to the consultant to check.</span>}</p>
           <Button size="sm" variant="outline" onClick={() => setEntering(true)}>{sections.length || extras.length ? "Edit for client" : "Enter for client"}</Button>
         </div>
       )}

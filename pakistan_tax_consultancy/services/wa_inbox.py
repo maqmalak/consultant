@@ -15,7 +15,8 @@ from frappe.utils import cint, now_datetime, strip_html
 
 ACCOUNT = "VVS WhatsApp"
 APP = "pakistan_tax_consultancy"
-STAFF_ROLES = {"System Manager", "Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer", "Field Officer"}
+STAFF_ROLES = {"System Manager", "Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer", "Field Officer",
+	"Data Entry Officer"}
 _installed = False
 
 

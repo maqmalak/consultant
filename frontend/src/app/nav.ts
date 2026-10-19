@@ -70,7 +70,7 @@ export const STAFF_NAV: NavGroup[] = [
     short: "Communication",
     items: [
       { path: "/crm", label: "CRM", hint: "Leads · Pipeline · Calendar", icon: Handshake, roles: [SM, ADMIN, CONSULTANT, REVIEWER, FIELD], hue: "orange" },
-      { path: "/staff/inbox", label: "WhatsApp Inbox", hint: "Team chats with clients", icon: MessageCircle, roles: [SM, ADMIN, CONSULTANT, REVIEWER, FIELD], hue: "green" },
+      { path: "/staff/inbox", label: "WhatsApp Inbox", hint: "Team chats with clients", icon: MessageCircle, roles: [SM, ADMIN, CONSULTANT, REVIEWER, FIELD, DATA], hue: "green" },
       { path: "/staff/vault", label: "Document Vault", hint: "Files · Generate letters", icon: ShieldCheck, roles: STAFF, hue: "amber" },
       { path: "/staff/payments", label: "Payments to Verify", hint: "Proofs → invoice", icon: Wallet, roles: [SM, ADMIN], hue: "lime" },
       { path: "/staff/consultations", label: "Consultations", hint: "Website bookings", icon: PhoneCall, roles: [SM, ADMIN, CONSULTANT], hue: "purple" },

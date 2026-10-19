@@ -1,5 +1,5 @@
 /** Typed wrappers around the app's whitelisted methods (pakistan_tax_consultancy.api.*). */
-import { apiCall, apiUpload } from "@/services/frappe";
+import { apiCall, apiGet, apiUpload } from "@/services/frappe";
 
 const PUB = "pakistan_tax_consultancy.api.public";
 const AUTH = "pakistan_tax_consultancy.api.auth";
@@ -98,6 +98,9 @@ export interface ClientDashboard {
   filing_deadline: string | null;
 }
 
+export interface WhatsAppFile { message: string; caption: string; file_name: string; size: number; mime_type: string | null; at: string; ago: string;
+  supported: boolean; used_for: string | null }
+
 export interface ChecklistItem {
   name: string;
   document_type: string;
@@ -111,6 +114,7 @@ export interface ChecklistItem {
   hint: string | null;
   has_file: boolean;
   requested_reason?: string | null;
+  received_via?: string | null;
 }
 
 export interface ReturnSummary {
@@ -242,8 +246,10 @@ export const staff = {
       : apiCall(`${STAFF}.confirm_for_client`, { tax_return, method, note }),
   uploadReceipt: (tax_return: string, file: File, iris_acknowledgment_no: string) =>
     apiUpload(`${STAFF}.upload_receipt`, file, { tax_return, iris_acknowledgment_no }),
-  uploadDocument: (tax_document: string, file: File | Blob, filename?: string) =>
-    apiUpload(`${STAFF}.upload_document`, file, { tax_document }, filename),
+  uploadDocument: (tax_document: string, file: File | Blob, filename?: string, received_via?: string) =>
+    apiUpload(`${STAFF}.upload_document`, file, { tax_document, ...(received_via ? { received_via } : {}) }, filename),
+  clientWhatsappFiles: (tax_client: string) => apiGet<WhatsAppFile[]>(`${STAFF}.client_whatsapp_files`, { tax_client }),
+  attachFromWhatsapp: (tax_document: string, message: string) => apiCall(`${STAFF}.attach_from_whatsapp`, { tax_document, message }),
   createReturn: (tax_client: string, tax_year: string) =>
     apiCall<string>(`${STAFF}.create_return`, { tax_client, tax_year }),
   verifyDocument: (tax_document: string, decision: "Verified" | "Rejected", reason?: string) =>

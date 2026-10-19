@@ -20,6 +20,8 @@
   "uploaded_by",
   "upload_date",
   "is_client_upload",
+  "received_via",
+  "whatsapp_message",
   "sb_verify",
   "status",
   "verified_by",
@@ -125,6 +127,22 @@
    "fieldname": "is_client_upload",
    "fieldtype": "Check",
    "label": "Is Client Upload",
+   "read_only": 1
+  },
+  {
+   "description": "Where the file came from when staff uploaded it for the client",
+   "fieldname": "received_via",
+   "fieldtype": "Select",
+   "label": "Received Via",
+   "options": "\nPortal\nWhatsApp\nEmail\nIn person\nCourier",
+   "read_only": 1
+  },
+  {
+   "depends_on": "whatsapp_message",
+   "fieldname": "whatsapp_message",
+   "fieldtype": "Link",
+   "label": "WhatsApp Message",
+   "options": "WhatsApp Message",
    "read_only": 1
   },
   {

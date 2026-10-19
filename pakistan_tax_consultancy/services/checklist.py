@@ -65,7 +65,7 @@ def generate_checklist(doc) -> int:
 def checklist(tax_return: str) -> list[dict]:
 	rows = frappe.get_all("Tax Document", filters={"tax_return": tax_return},
 		fields=["name", "document_type", "document_name", "status", "is_required", "rejection_reason", "file", "requested_reason",
-			"upload_date", "is_client_upload", "modified"],
+			"upload_date", "is_client_upload", "received_via", "modified"],
 		order_by="is_required desc, document_type asc")
 	hints = {d.name: d for d in frappe.get_all("Document Type", fields=["name", "category", "client_hint"])}
 	for r in rows:
@@ -76,13 +76,17 @@ def checklist(tax_return: str) -> list[dict]:
 	return rows
 
 
+# a Data Entry Officer uploads for the client but never verifies
+VERIFY_ROLES = {"System Manager", "Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer"}
+
+
 def verify(tax_document: str, decision: str, reason: str | None = None) -> dict:
 	from pakistan_tax_consultancy.audit import log_event
 	from pakistan_tax_consultancy.permissions import can_access_client, get_scope
 	from pakistan_tax_consultancy.services import notify
 
-	if get_scope() not in ("all", "consultant"):
-		frappe.throw(_("Only staff can verify documents."), frappe.PermissionError)
+	if get_scope() not in ("all", "consultant") or not (VERIFY_ROLES & set(frappe.get_roles()) or frappe.session.user == "Administrator"):
+		frappe.throw(_("Only consultants, reviewers and admins can verify documents."), frappe.PermissionError)
 	doc = frappe.get_doc("Tax Document", tax_document)
 	if not can_access_client(doc.tax_client):
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
