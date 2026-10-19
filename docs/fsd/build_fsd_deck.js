@@ -151,6 +151,50 @@ async function svgPng(file, width) {
 
   // ================================================================== 1 cover
   pres.addSection({ title: "Introduction" });
+  // ================================================================== 0 cover letter
+  {
+    const s = content("Introduction", "COVER LETTER  ·  " + today.toUpperCase(), "E-Filing Portal: FSD and two demo videos",
+      "To: " + D.firm.partner_name + ", Partner — " + D.firm.firm_name + ", Faisalabad");
+    const L = M, LW = 7.35;
+    txt(s, "Dear Sir,", { x: L, y: 1.85, w: LW, h: 0.3, fontSize: 13, bold: true, color: C.text2 });
+    txt(s, "With reference to our last meeting about the E-Filing project, I am pleased to share the progress so far. The portal is built and running on our demo site, and this document explains how it works. It supports two ways of working, so every client is covered whether or not they use the internet themselves:",
+      { x: L, y: 2.2, w: LW, h: 1.05, fontSize: 12, color: C.text1 });
+    const ways = [["Our team files for the client", "Client shares information by phone, WhatsApp, email or an office visit; our team enters it, attaches documents from WhatsApp and records the client's approval.", "Video 1", fa.FaHeadset, HEX.dk2, HEX.accent2],
+      ["The client files online", "Client requests a login on our website, enters their own details and documents, pays the fee and confirms the summary in the portal.", "Video 2", fa.FaLaptop, HEX.accent2, HEX.dk2]];
+    for (const [i, [t, d, v, Ic, bg, fg]] of ways.entries()) {
+      const y = 3.35 + i * 1.12;
+      card(s, L, y, LW, 1.0, { shadow: false });
+      await iconCircle(s, Ic, L + 0.18, y + 0.2, 0.6, bg, fg);
+      txt(s, t, { x: L + 0.95, y: y + 0.12, w: 4.8, h: 0.3, fontSize: 13, bold: true, color: C.text2 });
+      chip(s, v, L + LW - 1.05, y + 0.14, 0.85, HEX.accent1, HEX.lt1, 9);
+      txt(s, d, { x: L + 0.95, y: y + 0.44, w: LW - 1.15, h: 0.52, fontSize: 11, color: C.text1 });
+    }
+    txt(s, "Both routes share the same controls: review, client confirmation, four-eyes approval, and filing only after the IRIS acknowledgment. All figures shown are demo data.",
+      { x: L, y: 5.6, w: LW, h: 0.45, fontSize: 10.5, italic: true, color: MUTED });
+    txt(s, "I would be glad to arrange a live demonstration. Looking forward to your feedback.",
+      { x: L, y: 6.12, w: LW, h: 0.28, fontSize: 11.5, color: C.text1 });
+    txt(s, [{ text: "Best regards,  " }, { text: "MicroMax Erp Pvt Ltd", options: { bold: true, color: HEX.accent1 } }],
+      { x: L, y: 6.5, w: LW, h: 0.28, fontSize: 11.5, color: C.text1 });
+    // enclosures
+    const RX = 8.25, RW = W - M - RX;
+    card(s, RX, 1.85, RW, 3.55);
+    txt(s, "ENCLOSED", { x: RX + 0.25, y: 2.0, w: 3, h: 0.25, fontSize: 10, bold: true, color: HEX.accent1, charSpacing: 2 });
+    const enc = [[fa.FaFilePowerpoint, "Functional Specification (FSD)", "This document · 25 slides · PowerPoint + PDF · DFD level 0 and 1, roles, workflow, controls"],
+      [fa.FaCirclePlay, "Video 1 · Team-assisted filing", "VVS_Tax_Return_Full_Process.mp4 · 4 min 32 s"],
+      [fa.FaCirclePlay, "Video 2 · Client journey online", "VVS_Client_Journey_Website_to_Filed.mp4 · 4 min 40 s"]];
+    for (const [i, [Ic, t, d]] of enc.entries()) {
+      const y = 2.38 + i * 0.98;
+      await iconCircle(s, Ic, RX + 0.25, y, 0.52, i === 0 ? HEX.accent2 : HEX.dk2, i === 0 ? HEX.dk2 : HEX.accent2);
+      txt(s, t, { x: RX + 0.92, y: y - 0.02, w: RW - 1.1, h: 0.3, fontSize: 12, bold: true, color: C.text2 });
+      txt(s, d, { x: RX + 0.92, y: y + 0.28, w: RW - 1.1, h: 0.6, fontSize: 10, color: MUTED });
+    }
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: RX, y: 5.6, w: RW, h: 1.3, rectRadius: 0.08, fill: { color: HEX.dk2 }, line: { color: HEX.dk2, width: 0 } });
+    txt(s, "NEEDS YOUR INPUT", { x: RX + 0.25, y: 5.72, w: 3, h: 0.25, fontSize: 10, bold: true, color: HEX.accent2, charSpacing: 2 });
+    txt(s, "Tax rates, WhatsApp and SMS accounts, email, package prices, payment details, turnaround targets and the TY2026 deadline — listed on the last slide.",
+      { x: RX + 0.25, y: 6.0, w: RW - 0.45, h: 0.85, fontSize: 11, color: HEX.lt1 });
+    s.addNotes("Cover letter to the partner. Summarises the two ways of working, lists the enclosures and points to the decisions on the last slide.");
+  }
+
   {
     const s = pres.addSlide({ masterName: "VVS_COVER", sectionTitle: "Introduction" });
     s.addImage({ data: MARK, x: M, y: 0.55, w: 0.62, h: 0.62 });
