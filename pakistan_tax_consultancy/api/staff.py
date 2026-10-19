@@ -248,6 +248,22 @@ def import_client_details(tax_return: str):
 
 
 @frappe.whitelist(methods=["POST"])
+def save_client_details(tax_return: str, details: str | dict):
+	"""Enter or edit "What the client told us" on the client's behalf (Data Entry Officer, consultant, admin)."""
+	from pakistan_tax_consultancy.services import on_behalf
+
+	return on_behalf.save_details(tax_return, details)
+
+
+@frappe.whitelist(methods=["POST"])
+def confirm_for_client(tax_return: str, method: str, note: str):
+	"""Record that the client approved the return summary by phone, WhatsApp, in person …"""
+	from pakistan_tax_consultancy.services import on_behalf
+
+	return on_behalf.confirm(tax_return, method, note)
+
+
+@frappe.whitelist(methods=["POST"])
 def start_review(tax_return: str):
 	"""Create (or return) the Tax Review with the standard checklist for the reviewer to tick."""
 	doc = frappe.get_doc("Tax Return", tax_return)
@@ -614,7 +630,7 @@ def update_consultation(name: str, status: str | None = None, assigned_to: str |
 @frappe.whitelist(methods=["GET"])
 def staff_users():
 	require_staff()
-	roles = ("Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer", "Field Officer", "Tax Admin")
+	roles = ("Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer", "Field Officer", "Data Entry Officer", "Tax Admin")
 	users = frappe.get_all("Has Role", filters={"role": ("in", roles), "parenttype": "User"}, fields=["parent", "role"])
 	out = {}
 	for u in users:

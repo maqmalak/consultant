@@ -99,7 +99,7 @@ export function UserMenu({ staff }: { staff: boolean }) {
   const box = useOutside(open, () => setOpen(false));
   const name = me?.full_name || me?.user || "";
   const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
-  const role = (me?.roles ?? []).find((r) => ["Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer", "Field Officer", "System Manager"].includes(r));
+  const role = (me?.roles ?? []).find((r) => ["Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer", "Field Officer", "Data Entry Officer", "System Manager"].includes(r));
   // a full reload after sign-out drops every cached screen of the previous user; sign out even if the call fails
   const signOut = (switching = false) => {
     setOpen(false);

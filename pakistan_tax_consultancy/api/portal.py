@@ -229,7 +229,7 @@ def save_details(tax_return: str, details: str | dict):
 		frappe.throw(_("Your return is already in review; message your consultant to change your details."))
 	data = clean(frappe.parse_json(details) if isinstance(details, str) else details)
 	frappe.db.set_value("Tax Return", doc.name, {"client_details": frappe.as_json(data),
-		"client_details_updated_on": now_datetime()}, update_modified=False)
+		"client_details_updated_on": now_datetime(), "client_details_entered_by": None}, update_modified=False)
 	return data
 
 
@@ -271,6 +271,7 @@ def confirm(tax_return: str):
 	doc.client_confirmed_on = now_datetime()
 	doc.client_confirmed_by = frappe.session.user
 	doc.client_confirmed_ip = getattr(frappe.local, "request_ip", None)
+	doc.client_confirmed_via = "Portal"
 	doc.save(ignore_permissions=True)
 	log_event("Approval", doc, details={"client_confirmed": True, "content_hash": doc.content_hash})
 	from pakistan_tax_consultancy.services.notify import send, users_with_role

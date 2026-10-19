@@ -52,7 +52,7 @@ export function StaffShell() {
   const location = useLocation();
   useEffect(() => { setOpen(false); }, [location.pathname]);
   const role = (me?.roles ?? []).find((r) => ["Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver",
-    "Filing Officer", "Field Officer", "System Manager"].includes(r));
+    "Filing Officer", "Field Officer", "Data Entry Officer", "System Manager"].includes(r));
   return (
     <div className="flex min-h-screen bg-background">
       <aside className="fixed inset-y-0 start-0 z-30 hidden w-64 border-e border-white/5 lg:block"><Sidebar /></aside>

@@ -26,6 +26,7 @@ STAFF = [
 	("approver", "Nadia Approver", ["Tax Approver"]),
 	("filing", "Omar Filing", ["Filing Officer"]),
 	("field", "Saad Field", ["Field Officer"]),
+	("dataentry", "Zara Data Entry", ["Data Entry Officer"]),
 ]
 
 CLIENTS = [

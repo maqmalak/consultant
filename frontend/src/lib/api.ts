@@ -232,6 +232,12 @@ export const staff = {
   addComment: (tax_return: string, comment: string, visible_to_client = 0) =>
     apiCall(`${STAFF}.add_comment`, { tax_return, comment, visible_to_client }),
   regenerateChecklist: (tax_return: string) => apiCall(`${STAFF}.regenerate_checklist`, { tax_return }),
+  saveClientDetails: (tax_return: string, details: Record<string, unknown>) =>
+    apiCall<Record<string, unknown>>(`${STAFF}.save_client_details`, { tax_return, details }),
+  /** Record the client's approval taken by phone / WhatsApp / in person; `proof` is optional. */
+  confirmForClient: (tax_return: string, method: string, note: string, proof?: File | null) =>
+    proof ? apiUpload(`${STAFF}.confirm_for_client`, proof, { tax_return, method, note })
+      : apiCall(`${STAFF}.confirm_for_client`, { tax_return, method, note }),
   uploadReceipt: (tax_return: string, file: File, iris_acknowledgment_no: string) =>
     apiUpload(`${STAFF}.upload_receipt`, file, { tax_return, iris_acknowledgment_no }),
   uploadDocument: (tax_document: string, file: File | Blob, filename?: string) =>

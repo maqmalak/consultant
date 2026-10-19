@@ -311,6 +311,17 @@
    "read": 1,
    "report": 1,
    "role": "Client"
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "role": "Data Entry Officer",
+   "report": 1
+  },
+  {
+   "permlevel": 2,
+   "read": 1,
+   "role": "Data Entry Officer"
   }
  ],
  "row_format": "Dynamic",

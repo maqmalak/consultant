@@ -15,7 +15,7 @@ from pakistan_tax_consultancy.utils.validators import normalize_cnic, normalize_
 
 CLIENT_TYPES = ("Individual-Salaried", "Individual-Business", "AOP", "Company", "Other")
 STAFF_ROLES = ("System Manager", "Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer",
-	"Field Officer")
+	"Field Officer", "Data Entry Officer")
 
 
 def _mobile(value):

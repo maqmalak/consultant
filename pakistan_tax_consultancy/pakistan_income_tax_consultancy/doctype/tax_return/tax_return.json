@@ -33,6 +33,7 @@
   "sb_client_details",
   "client_details",
   "client_details_updated_on",
+  "client_details_entered_by",
   "cb_client_details",
   "client_details_imported_on",
   "client_details_imported_by",
@@ -96,6 +97,10 @@
   "cb_client_ok",
   "client_confirmed_by",
   "client_confirmed_ip",
+  "client_confirmed_via",
+  "client_confirmation_method",
+  "client_confirmation_note",
+  "client_confirmation_proof",
   "sb_filing",
   "fbr_submission_status",
   "iris_acknowledgment_no",
@@ -271,6 +276,14 @@
    "fieldname": "client_details_updated_on",
    "fieldtype": "Datetime",
    "label": "Client Details Updated On",
+   "read_only": 1
+  },
+  {
+   "description": "Empty when the client typed it in the portal",
+   "fieldname": "client_details_entered_by",
+   "fieldtype": "Link",
+   "label": "Entered By (Staff)",
+   "options": "User",
    "read_only": 1
   },
   {
@@ -657,6 +670,35 @@
    "read_only": 1
   },
   {
+   "fieldname": "client_confirmed_via",
+   "fieldtype": "Select",
+   "label": "Confirmed Via",
+   "options": "\nPortal\nOn behalf",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.client_confirmed_via=='On behalf'",
+   "fieldname": "client_confirmation_method",
+   "fieldtype": "Select",
+   "label": "How the Client Confirmed",
+   "options": "\nPhone call\nWhatsApp\nIn person\nEmail\nSigned letter",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.client_confirmed_via=='On behalf'",
+   "fieldname": "client_confirmation_note",
+   "fieldtype": "Small Text",
+   "label": "Confirmation Note",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.client_confirmed_via=='On behalf'",
+   "fieldname": "client_confirmation_proof",
+   "fieldtype": "Attach",
+   "label": "Confirmation Proof",
+   "read_only": 1
+  },
+  {
    "collapsible": 1,
    "fieldname": "sb_filing",
    "fieldtype": "Section Break",
@@ -865,6 +907,18 @@
    "permlevel": 1,
    "read": 1,
    "role": "Client"
+  },
+  {
+   "permlevel": 0,
+   "read": 1,
+   "report": 1,
+   "print": 1,
+   "role": "Data Entry Officer"
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Data Entry Officer"
   }
  ],
  "row_format": "Dynamic",

@@ -12,7 +12,7 @@ fixtures = [
 	{"dt": "Role", "filters": [[
 		"role_name", "in", [
 			"Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver",
-			"Filing Officer", "Field Officer", "Client"
+			"Filing Officer", "Field Officer", "Data Entry Officer", "Client"
 		]
 	]]},
 	{"dt": "Workspace", "filters": [["module", "=", "Pakistan Income Tax Consultancy"]]},

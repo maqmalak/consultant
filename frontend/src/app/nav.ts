@@ -14,11 +14,12 @@ export const ROLES = {
   APPROVER: "Tax Approver",
   FILING_OFFICER: "Filing Officer",
   FIELD_OFFICER: "Field Officer",
+  DATA_ENTRY: "Data Entry Officer",
   CLIENT: "Client",
 } as const;
 
-const { SYSTEM_MANAGER: SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILING_OFFICER: FILER, FIELD_OFFICER: FIELD } = ROLES;
-export const STAFF = [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER, FIELD];
+const { SYSTEM_MANAGER: SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILING_OFFICER: FILER, FIELD_OFFICER: FIELD, DATA_ENTRY: DATA } = ROLES;
+export const STAFF = [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER, FIELD, DATA];
 const CRM = [SM, ADMIN, CONSULTANT, REVIEWER, FIELD];
 
 export interface NavItem {
@@ -45,8 +46,8 @@ export const STAFF_NAV: NavGroup[] = [
     title: "Workspace",
     items: [
       { path: "/staff/dashboard", label: "Dashboard", hint: "KPIs · Workload", icon: LayoutDashboard, roles: STAFF, hue: "blue" },
-      { path: "/staff/clients", label: "Clients", hint: "CNIC · NTN · Invite", icon: Users, roles: [SM, ADMIN, CONSULTANT, FIELD], hue: "violet" },
-      { path: "/staff/returns", label: "Tax Returns", hint: "Wizard · Draft → Filed", icon: FileText, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER], hue: "emerald" },
+      { path: "/staff/clients", label: "Clients", hint: "CNIC · NTN · Invite", icon: Users, roles: [SM, ADMIN, CONSULTANT, FIELD, DATA], hue: "violet" },
+      { path: "/staff/returns", label: "Tax Returns", hint: "Wizard · Draft → Filed", icon: FileText, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER, DATA], hue: "emerald" },
       { path: "/staff/visits", label: "Site Visits", hint: "Field registration", icon: MapPin, roles: [SM, ADMIN, CONSULTANT, FIELD], hue: "amber" },
       { path: "/staff/import", label: "Import Clients", hint: "CSV · Dry run", icon: Upload, roles: [SM, ADMIN, CONSULTANT], hue: "sky" },
     ],
@@ -55,9 +56,9 @@ export const STAFF_NAV: NavGroup[] = [
     title: "Queues",
     items: [
       { path: "/staff/queue/documents", label: "Verify Documents", hint: "Uploads to check", icon: FileCheck2, roles: [SM, ADMIN, CONSULTANT], hue: "teal" },
-      { path: "/staff/queue/preparation", label: "In Preparation", hint: "Docs · Draft · Changes", icon: FileUp, roles: [SM, ADMIN, CONSULTANT], hue: "orange" },
+      { path: "/staff/queue/preparation", label: "In Preparation", hint: "Docs · Draft · Changes", icon: FileUp, roles: [SM, ADMIN, CONSULTANT, DATA], hue: "orange" },
       { path: "/staff/queue/review", label: "Review Queue", hint: "Check & send back", icon: ClipboardCheck, roles: [SM, ADMIN, REVIEWER], hue: "indigo" },
-      { path: "/staff/queue/confirmation", label: "Client Confirmation", hint: "Waiting on client", icon: User, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER], hue: "pink" },
+      { path: "/staff/queue/confirmation", label: "Client Confirmation", hint: "Waiting on client", icon: User, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, DATA], hue: "pink" },
       { path: "/staff/queue/approval", label: "Approval Queue", hint: "Client confirmed", icon: BadgeCheck, roles: [SM, ADMIN, APPROVER], hue: "green" },
       { path: "/staff/queue/filing", label: "Filing Queue", hint: "File on IRIS", icon: Send, roles: [SM, ADMIN, FILER], hue: "cyan" },
       { path: "/staff/queue/submitted", label: "Awaiting Acknowledgment", hint: "Attach IRIS receipt", icon: FileCheck2, roles: [SM, ADMIN, FILER], hue: "sky" },

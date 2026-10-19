@@ -163,14 +163,16 @@ def guard_transition(doc, old_state, new_state, comment=None):
 			_fail(_("Complete the review checklist and verify the calculation first."))
 
 	if new_state == AWAITING_CLIENT:
-		if not frappe.db.get_value("Tax Client", doc.tax_client, "portal_user"):
-			_fail(_("The client has no portal account yet — send a portal invite first."))
+		# a client without a portal account confirms by phone / in person and staff record it (services/on_behalf.py)
 		doc.client_confirmed = 0
 		doc.client_confirmed_on = doc.client_confirmed_by = doc.client_confirmed_ip = None
+		doc.client_confirmed_via = doc.client_confirmation_method = doc.client_confirmation_note = doc.client_confirmation_proof = None
 
 	if new_state == APPROVED:
 		if not cint(doc.client_confirmed):
 			_fail(_("The client has not confirmed the return summary yet."))
+		if doc.client_confirmed_via == "On behalf" and doc.client_confirmed_by == frappe.session.user:
+			_fail(_("You recorded the client's confirmation, so someone else must approve this return."))
 		doc.approval_status = "Approved"
 		doc.approved_by = frappe.session.user
 		doc.approved_on = now_datetime()

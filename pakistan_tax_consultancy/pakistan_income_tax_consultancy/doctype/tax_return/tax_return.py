@@ -120,6 +120,8 @@ def create_revision(tax_return: str) -> str:
 	new.update({"return_type": "Revised", "amended_from": src.name, "workflow_state": None,
 		"approval_status": "Not Approved", "approved_by": None, "approved_on": None, "approved_content_hash": None,
 		"client_confirmed": 0, "client_confirmed_on": None, "client_confirmed_by": None, "client_confirmed_ip": None,
+		"client_confirmed_via": None, "client_confirmation_method": None, "client_confirmation_note": None,
+		"client_confirmation_proof": None, "client_details_entered_by": None,
 		"fbr_submission_status": "Not Submitted", "iris_acknowledgment_no": None, "submission_timestamp": None,
 		"fbr_receipt": None, "filing_date": None, "filing_error_notes": None, "latest_calculation": None,
 		"calculation_version": 0, "calc_input_hash": None})

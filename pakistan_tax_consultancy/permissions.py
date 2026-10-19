@@ -5,7 +5,7 @@ Wired in hooks.py via ``permission_query_conditions`` (list/report queries) and
 has; these hooks decide *which records*. Hooks can only deny, never grant.
 
 Scopes (broadest wins when a user has several roles):
-  all        System Manager, Tax Admin, Tax Reviewer, Tax Approver, Filing Officer
+  all        System Manager, Tax Admin, Tax Reviewer, Tax Approver, Filing Officer, Data Entry Officer (read-only)
   consultant Tax Consultant  -> Assigned Consultant or assignee (_assign)
   field      Field Officer   -> records they registered (field_officer / owner)
   client     Client -> Tax Client whose portal_user is them, plus linked records
@@ -15,7 +15,7 @@ Scopes (broadest wins when a user has several roles):
 import frappe
 from frappe import _
 
-ALL_SCOPE_ROLES = {"System Manager", "Tax Admin", "Tax Reviewer", "Tax Approver", "Filing Officer"}
+ALL_SCOPE_ROLES = {"System Manager", "Tax Admin", "Tax Reviewer", "Tax Approver", "Filing Officer", "Data Entry Officer"}
 CLIENT_LINKED = ("Tax Engagement", "Tax Document", "Tax Return", "Tax Calculation", "Tax Review",
 	"Tax Approval", "Filing Record", "Review Comment", "Payment Proof", "Client Message", "Generated Document")
 # what a client may see of their own records: never internal review work

@@ -5,7 +5,7 @@
  * are fixed so nobody locks the firm out or opens client data to the portal.
  */
 import {
-  BadgeCheck, Briefcase, Check, ClipboardCheck, Eye, FileCheck2, Lock, MapPin, RotateCcw, Search, Send, ShieldCheck, ShieldHalf, UserCog,
+  BadgeCheck, Briefcase, Check, ClipboardCheck, Eye, FileCheck2, Keyboard, Lock, MapPin, RotateCcw, Search, Send, ShieldCheck, ShieldHalf, UserCog,
   UserRound, Users, Wrench, X, type LucideIcon,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -33,6 +33,7 @@ const ROLE_LOOK: Record<string, { icon: LucideIcon; tile: string; dot: string }>
   "Tax Approver": { icon: BadgeCheck, tile: "from-emerald-400 to-emerald-600 text-white", dot: "bg-emerald-500" },
   "Filing Officer": { icon: Send, tile: "from-indigo-400 to-indigo-600 text-white", dot: "bg-indigo-500" },
   "Field Officer": { icon: MapPin, tile: "from-orange-400 to-orange-600 text-white", dot: "bg-orange-500" },
+  "Data Entry Officer": { icon: Keyboard, tile: "from-teal-400 to-teal-600 text-white", dot: "bg-teal-500" },
   Client: { icon: UserRound, tile: "from-rose-400 to-rose-600 text-white", dot: "bg-rose-500" },
 };
 const look = (role: string) => ROLE_LOOK[role] ?? ROLE_LOOK["Tax Consultant"];

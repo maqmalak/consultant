@@ -231,7 +231,7 @@ def save_lead_finder(data: str | dict):
 
 
 # ----------------------------------------------------------------------------------------------- team
-STAFF_ROLES = ("Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer", "Field Officer")
+STAFF_ROLES = ("Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer", "Field Officer", "Data Entry Officer")
 
 
 @frappe.whitelist(methods=["GET"])

@@ -5,7 +5,7 @@
  */
 import {
   AlertTriangle, CalendarClock, Calculator, Check, CheckCircle2, CircleDashed, Download, ExternalLink, FileCheck2, FileText, IdCard, MapPin, Package,
-  Phone, Save, SlidersHorizontal, X, type LucideIcon,
+  Phone, PhoneCall, Save, SlidersHorizontal, UserCheck, UserPen, X, type LucideIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -24,6 +24,7 @@ import { cn } from "@/lib/cn";
 import { money } from "@/lib/format";
 import { useApi } from "@/lib/use-api";
 import { apiCall, apiGet, humanizeError, http } from "@/services/frappe";
+import { MyDetails } from "../client/details";
 import { QUESTIONS } from "../client/return";
 import { RejectDialog } from "./queue";
 
@@ -311,7 +312,8 @@ export function ReturnWizard() {
           {step === "client" && (
             <>
               <ClientYearCard doc={doc} ov={ov} />
-              <ClientDetailsPanel doc={doc} editable={editable} onDone={async () => { await mutate(); void overview.mutate(); }} />
+              <ClientDetailsPanel doc={doc} editable={editable}
+                canEnter={DETAILS_STATES.includes(doc.workflow_state) && hasRole(...ON_BEHALF_ROLES)} onDone={async () => { await mutate(); void overview.mutate(); }} />
               <Section title="Questionnaire" hint="Answers decide the document checklist. Rebuild the checklist after changing them.">
                 <div className="grid gap-2 sm:grid-cols-2">
                   {QUESTIONS.map(([key, q]) => (
@@ -515,8 +517,7 @@ function WorkflowStep({ doc, ov, onDone }: { doc: Doc; ov: any; onDone: () => Pr
           </div>
         ) : <p className="text-sm text-muted-foreground">Nothing for you to do in “{doc.workflow_state}”.</p>}
         {doc.workflow_state === "Awaiting Client Confirmation" && (
-          <p className="text-sm">{doc.client_confirmed ? <span className="text-success">✔ Client confirmed on {new Date(doc.client_confirmed_on).toLocaleString("en-GB")}</span>
-            : "Waiting for the client to confirm in the portal."}</p>
+          <ClientConfirmation doc={doc} canRecord={hasRole(...ON_BEHALF_ROLES)} onDone={onDone} />
         )}
       </Section>
 
@@ -630,8 +631,73 @@ function FilingPanel({ doc, onDone }: { doc: Doc; onDone: () => Promise<void> })
   );
 }
 
-/** What the client typed in "My details", with one click to copy it into the schedules. */
-function ClientDetailsPanel({ doc, editable, onDone }: { doc: Doc; editable: boolean; onDone: () => Promise<void> }) {
+const CONFIRM_METHODS = ["Phone call", "WhatsApp", "In person", "Email", "Signed letter"];
+
+/** Awaiting the client: either they confirm in the portal, or staff record the approval they gave by phone, WhatsApp … */
+function ClientConfirmation({ doc, canRecord, onDone }: { doc: Doc; canRecord: boolean; onDone: () => Promise<void> }) {
+  const [open, setOpen] = useState(false);
+  const [method, setMethod] = useState(CONFIRM_METHODS[0]);
+  const [note, setNote] = useState("");
+  const [proof, setProof] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<unknown>(null);
+  if (doc.client_confirmed) {
+    const behalf = doc.client_confirmed_via === "On behalf";
+    return (
+      <div className="flex items-start gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-3 py-2.5 text-sm">
+        <UserCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+        <div className="min-w-0">
+          <p className="font-medium text-emerald-700 dark:text-emerald-400">Client confirmed on {new Date(doc.client_confirmed_on).toLocaleString("en-GB")}</p>
+          <p className="text-muted-foreground">{behalf
+            ? `Recorded for the client by ${doc.client_confirmed_by} · ${doc.client_confirmation_method}${doc.client_confirmation_note ? ` — “${doc.client_confirmation_note}”` : ""}`
+            : "In the client portal."}</p>
+          {behalf && doc.client_confirmation_proof && <a href={doc.client_confirmation_proof} target="_blank" rel="noreferrer" className="text-xs font-semibold text-primary hover:underline">View proof</a>}
+          {behalf && <p className="mt-1 text-xs text-muted-foreground">Whoever recorded it cannot also approve the return.</p>}
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-pink-500/30 bg-pink-500/5 px-3 py-2.5 text-sm">
+      <PhoneCall className="h-4 w-4 shrink-0 text-pink-600 dark:text-pink-400" />
+      <p className="min-w-0 flex-1">Waiting for the client to confirm in the portal{canRecord ? " — or record the approval they gave you." : "."}</p>
+      {canRecord && <Button size="sm" variant="outline" onClick={() => setOpen(true)}>Record client approval</Button>}
+      <Dialog open={open} onClose={() => setOpen(false)} title="Record the client's approval"
+        footer={<>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button loading={busy} disabled={note.trim().length < 10} onClick={async () => {
+            setBusy(true);
+            setErr(null);
+            try { await staff.confirmForClient(doc.name, method, note.trim(), proof); setOpen(false); await onDone(); }
+            catch (e) { setErr(e); } finally { setBusy(false); }
+          }}>Record approval</Button>
+        </>}>
+        <div className="space-y-4">
+          <p className="rounded-lg bg-muted/60 p-3 text-sm text-muted-foreground">
+            Only record this after the client has seen the summary — net tax {money(doc.net_tax_payable || 0)}{doc.refund_due ? `, refund ${money(doc.refund_due)}` : ""} — and clearly agreed.
+            Your name, the method and your note go into the audit trail.
+          </p>
+          <Field label="How did the client approve?" required>{(id) => (
+            <SelectInput id={id} value={method} onChange={(e) => setMethod(e.target.value)}>
+              {CONFIRM_METHODS.map((m) => <option key={m}>{m}</option>)}
+            </SelectInput>)}</Field>
+          <Field label="Note" required hint="Who you spoke to, when, and what they agreed to (at least 10 characters).">{(id) => (
+            <TextArea id={id} rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Called Mr Ahmed 0300… at 4 pm, read out the summary, he agreed to file." />)}</Field>
+          <Field label="Proof (optional)" hint="Screenshot of the WhatsApp message, signed letter … PDF, JPG or PNG.">{(id) => (
+            <input id={id} type="file" accept="application/pdf,image/png,image/jpeg" onChange={(e) => setProof(e.target.files?.[0] ?? null)} className="text-sm" />)}</Field>
+          <InlineError error={err} />
+        </div>
+      </Dialog>
+    </div>
+  );
+}
+
+const ON_BEHALF_ROLES = ["Data Entry Officer", "Tax Consultant", "Tax Admin", "System Manager"];
+const DETAILS_STATES = ["Documents Pending", "Draft", "Changes Required"];
+
+/** What the client typed in "My details" (or staff entered for them), with one click to copy it into the schedules. */
+function ClientDetailsPanel({ doc, editable, canEnter, onDone }: { doc: Doc; editable: boolean; canEnter: boolean; onDone: () => Promise<void> }) {
+  const [entering, setEntering] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<unknown>(null);
   const [done, setDone] = useState<number | null>(null);
@@ -639,7 +705,20 @@ function ClientDetailsPanel({ doc, editable, onDone }: { doc: Doc; editable: boo
   const sections = Object.entries(d).filter(([, v]) => Array.isArray(v) && (v as unknown[]).length) as [string, Record<string, unknown>[]][];
   const extras = (["cash_in_hand", "household_expenses_monthly", "notes"] as const).filter((k) => d[k]);
   return (
-    <Section title="What the client told us" hint={doc.client_details_updated_on ? `Entered in the portal · last change ${new Date(doc.client_details_updated_on).toLocaleString("en-GB")}${doc.client_details_imported_on ? ` · copied ${new Date(doc.client_details_imported_on).toLocaleString("en-GB")}` : ""}` : "The client has not entered anything yet — they can use “My details” in the portal."}>
+    <Section title="What the client told us" hint={doc.client_details_updated_on
+      ? `${doc.client_details_entered_by ? `Entered for the client by ${doc.client_details_entered_by}` : "Entered by the client in the portal"} · last change ${new Date(doc.client_details_updated_on).toLocaleString("en-GB")}${doc.client_details_imported_on ? ` · copied ${new Date(doc.client_details_imported_on).toLocaleString("en-GB")}` : ""}`
+      : canEnter ? "Nothing yet — the client can use “My details” in the portal, or enter what they told you." : "The client has not entered anything yet — they can use “My details” in the portal."}>
+      {canEnter && (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-sky-500/30 bg-sky-500/5 px-3 py-2.5">
+          <UserPen className="h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400" />
+          <p className="min-w-0 flex-1 text-sm">Client told you by phone, WhatsApp or in person? Enter it for them.</p>
+          <Button size="sm" variant="outline" onClick={() => setEntering(true)}>{sections.length || extras.length ? "Edit for client" : "Enter for client"}</Button>
+        </div>
+      )}
+      <Dialog open={entering} onClose={() => setEntering(false)} title={`What ${doc.client_name} told us`} size="xl">
+        <MyDetails onBehalf onSaved={() => void onDone()}
+          detail={{ name: doc.name, client_details: d, can_edit_answers: true, questions: Object.fromEntries(QUESTIONS.map(([k]) => [k, doc[k] ? 1 : 0])) }} />
+      </Dialog>
       {sections.length || extras.length ? (
         <>
           <div className="grid gap-3 sm:grid-cols-2">

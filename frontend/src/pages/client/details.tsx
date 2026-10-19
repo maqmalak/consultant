@@ -7,7 +7,7 @@ import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { InlineError } from "@/components/common/states";
 import { Button } from "@/components/ui/button";
-import { M, type ReturnDetail } from "@/lib/api";
+import { M, staff, type ReturnDetail } from "@/lib/api";
 import { money } from "@/lib/format";
 import { apiCall } from "@/services/frappe";
 
@@ -69,7 +69,10 @@ function Card({ icon: Icon, title, help, children }: { icon: typeof Briefcase; t
   );
 }
 
-export function MyDetails({ detail, onSaved }: { detail: ReturnDetail; onSaved: () => void }) {
+/** Also used by staff (`onBehalf`) to enter the details for a client who told them by phone or in person. */
+export function MyDetails({ detail, onSaved, onBehalf = false }: {
+  detail: Pick<ReturnDetail, "name" | "client_details" | "can_edit_answers" | "questions">; onSaved: () => void; onBehalf?: boolean;
+}) {
   const { t } = useTranslation();
   const [d, setD] = useState<Details>(() => ({ ...(detail.client_details ?? {}) }));
   const [busy, setBusy] = useState(false);
@@ -84,7 +87,7 @@ export function MyDetails({ detail, onSaved }: { detail: ReturnDetail; onSaved: 
     setBusy(true);
     setErr(null);
     try {
-      setD(await apiCall<Details>(`${M.PORTAL}.save_details`, { tax_return: detail.name, details: d }));
+      setD((onBehalf ? await staff.saveClientDetails(detail.name, d) : await apiCall<Details>(`${M.PORTAL}.save_details`, { tax_return: detail.name, details: d })) as Details);
       setSaved(true);
       onSaved();
     } catch (e) {
@@ -96,10 +99,17 @@ export function MyDetails({ detail, onSaved }: { detail: ReturnDetail; onSaved: 
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
-        <p className="font-medium">{t("Tell us about your year in your own words.")}</p>
-        <p className="mt-1 text-muted-foreground">{t("Approximate figures are fine — your consultant checks everything against your documents before anything is filed.")}</p>
-      </div>
+      {onBehalf ? (
+        <div className="rounded-lg border border-sky-500/30 bg-sky-500/5 p-4 text-sm">
+          <p className="font-medium">Entering on the client's behalf</p>
+          <p className="mt-1 text-muted-foreground">Type what the client told you by phone, WhatsApp or in person. Your name is recorded with the entry; nothing changes the return until it is copied in.</p>
+        </div>
+      ) : (
+        <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
+          <p className="font-medium">{t("Tell us about your year in your own words.")}</p>
+          <p className="mt-1 text-muted-foreground">{t("Approximate figures are fine — your consultant checks everything against your documents before anything is filed.")}</p>
+        </div>
+      )}
       {visible.map((sec) => {
         const list = rows(sec.key);
         return (
@@ -147,8 +157,8 @@ export function MyDetails({ detail, onSaved }: { detail: ReturnDetail; onSaved: 
       <InlineError error={err} />
       {editable ? (
         <div className="sticky bottom-20 z-10 flex items-center gap-3 rounded-lg border bg-background/95 p-3 shadow-lg backdrop-blur md:bottom-4">
-          <Button size="lg" loading={busy} onClick={() => void save()}>{t("Save my details")}</Button>
-          {saved && <span className="flex items-center gap-1 text-sm text-success"><CheckCircle2 className="h-4 w-4" /> {t("Saved — your consultant can see it")}</span>}
+          <Button size="lg" loading={busy} onClick={() => void save()}>{onBehalf ? "Save for the client" : t("Save my details")}</Button>
+          {saved && <span className="flex items-center gap-1 text-sm text-success"><CheckCircle2 className="h-4 w-4" /> {onBehalf ? "Saved" : t("Saved — your consultant can see it")}</span>}
         </div>
       ) : <p className="text-sm text-muted-foreground">{t("Your return is in review. Message your consultant to change these details.")}</p>}
     </div>

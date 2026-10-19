@@ -37,6 +37,12 @@
   },
   {
     "doctype": "Role",
+    "name": "Data Entry Officer",
+    "role_name": "Data Entry Officer",
+    "desk_access": 1
+  },
+  {
+    "doctype": "Role",
     "name": "Client",
     "role_name": "Client",
     "desk_access": 0
