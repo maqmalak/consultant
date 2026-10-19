@@ -53,6 +53,12 @@ class TestOnBehalf(IntegrationTestCase):
 		frappe.db.set_value("Tax Return", self.tr, "workflow_state", wf.UNDER_REVIEW)
 		self.assertRaises(frappe.ValidationError, staff.save_client_details, self.tr, "{}")
 
+	def test_answer_questionnaire_for_client(self):
+		frappe.set_user(USER)
+		before = frappe.db.get_value("Tax Return", self.tr, "owns_vehicle")
+		staff.save_answers_for_client(self.tr, frappe.as_json({"owns_vehicle": 0 if before else 1, "not_a_question": 1}))
+		self.assertEqual(frappe.db.get_value("Tax Return", self.tr, "owns_vehicle"), 0 if before else 1)
+
 	def test_every_team_role_can_act_but_not_clients(self):
 		filer = frappe.db.get_value("Has Role", {"role": "Filing Officer", "parenttype": "User", "parent": ("like", "%@demo.taxportal.example")}, "parent")
 		if filer:

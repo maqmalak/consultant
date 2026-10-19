@@ -256,6 +256,14 @@ def save_client_details(tax_return: str, details: str | dict):
 
 
 @frappe.whitelist(methods=["POST"])
+def save_answers_for_client(tax_return: str, answers: str | dict):
+	"""Answer the questionnaire for the client (any team member, within their record scope)."""
+	from pakistan_tax_consultancy.services import on_behalf
+
+	return on_behalf.save_answers(tax_return, answers)
+
+
+@frappe.whitelist(methods=["POST"])
 def confirm_for_client(tax_return: str, method: str, note: str):
 	"""Record that the client approved the return summary by phone, WhatsApp, in person …"""
 	from pakistan_tax_consultancy.services import on_behalf

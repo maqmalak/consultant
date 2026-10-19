@@ -157,6 +157,7 @@ export function ReturnWizard() {
 
   useEffect(() => { if (server && !dirty) setDoc(server); }, [server, dirty]);
   const editable = !!doc && EDITABLE.includes(doc.workflow_state) && hasRole("Tax Consultant", "Tax Admin", "System Manager");
+  const canEnter = !!doc && DETAILS_STATES.includes(doc.workflow_state) && hasRole(...ON_BEHALF_ROLES);
 
   const save = useCallback(async (d?: Doc) => {
     const current = d ?? doc;
@@ -312,23 +313,11 @@ export function ReturnWizard() {
           {step === "client" && (
             <>
               <ClientYearCard doc={doc} ov={ov} />
+              <QuestionnaireCard doc={doc} editable={editable} canEnter={canEnter} change={change}
+                rebuild={async () => { await save(); await staff.regenerateChecklist(doc.name); void overview.mutate(); }}
+                onDone={async () => { await mutate(); void overview.mutate(); }} />
               <ClientDetailsPanel doc={doc} editable={editable}
-                canEnter={DETAILS_STATES.includes(doc.workflow_state) && hasRole(...ON_BEHALF_ROLES)} onDone={async () => { await mutate(); void overview.mutate(); }} />
-              <Section title="Questionnaire" hint="Answers decide the document checklist. Rebuild the checklist after changing them.">
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {QUESTIONS.map(([key, q]) => (
-                    <label key={key} className={cn("flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm transition-colors",
-                      doc[key] ? "border-primary/60 bg-primary/10 font-medium text-foreground" : "text-muted-foreground",
-                      editable ? "cursor-pointer hover:border-primary/40" : "cursor-default")}>
-                      <input type="checkbox" disabled={!editable} checked={!!doc[key]} onChange={(e) => change({ [key]: e.target.checked ? 1 : 0 })} />
-                      <span className="flex-1">{q}</span>
-                      <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-bold", doc[key] ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>{doc[key] ? "Yes" : "No"}</span>
-                    </label>
-                  ))}
-                </div>
-                {editable && <Button size="sm" variant="outline" onClick={async () => { await save(); await staff.regenerateChecklist(doc.name); void overview.mutate(); }}>
-                  Save & rebuild checklist</Button>}
-              </Section>
+                canEnter={canEnter} onDone={async () => { await mutate(); void overview.mutate(); }} />
             </>
           )}
 
@@ -689,6 +678,44 @@ function ClientConfirmation({ doc, canRecord, onDone }: { doc: Doc; canRecord: b
         </div>
       </Dialog>
     </div>
+  );
+}
+
+/** The client's yes/no answers: decide the document checklist and which sections "What the client told us" shows.
+ * The preparer edits them with the return (autosave); other team members answer for the client and save explicitly. */
+function QuestionnaireCard({ doc, editable, canEnter, change, rebuild, onDone }: {
+  doc: Doc; editable: boolean; canEnter: boolean; change: (p: Partial<Doc>) => void; rebuild: () => Promise<void>; onDone: () => Promise<void>;
+}) {
+  const onBehalf = !editable && canEnter;
+  const [answers, setAnswers] = useState<Record<string, number>>(() => Object.fromEntries(QUESTIONS.map(([k]) => [k, doc[k] ? 1 : 0])));
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<unknown>(null);
+  const value = (k: string) => (onBehalf ? !!answers[k] : !!doc[k]);
+  const dirty = onBehalf && QUESTIONS.some(([k]) => (answers[k] ? 1 : 0) !== (doc[k] ? 1 : 0));
+  return (
+    <Section title="Questionnaire" hint="Answers decide the document checklist and the sections in “What the client told us”.">
+      <div className="grid gap-2 sm:grid-cols-2">
+        {QUESTIONS.map(([key, q]) => (
+          <label key={key} className={cn("flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm transition-colors",
+            value(key) ? "border-primary/60 bg-primary/10 font-medium text-foreground" : "text-muted-foreground",
+            editable || onBehalf ? "cursor-pointer hover:border-primary/40" : "cursor-default")}>
+            <input type="checkbox" disabled={!editable && !onBehalf} checked={value(key)}
+              onChange={(e) => (onBehalf ? setAnswers({ ...answers, [key]: e.target.checked ? 1 : 0 }) : change({ [key]: e.target.checked ? 1 : 0 }))} />
+            <span className="flex-1">{q}</span>
+            <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-bold", value(key) ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>{value(key) ? "Yes" : "No"}</span>
+          </label>
+        ))}
+      </div>
+      <InlineError error={err} />
+      {editable && <Button size="sm" variant="outline" onClick={() => void rebuild()}>Save & rebuild checklist</Button>}
+      {onBehalf && (
+        <Button size="sm" variant="outline" disabled={!dirty} loading={busy} onClick={async () => {
+          setBusy(true);
+          setErr(null);
+          try { await staff.saveAnswersForClient(doc.name, answers); await onDone(); } catch (e) { setErr(e); } finally { setBusy(false); }
+        }}>Save answers for client</Button>
+      )}
+    </Section>
   );
 }
 

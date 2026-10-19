@@ -43,6 +43,26 @@ def save_details(tax_return, details):
 	return data
 
 
+def save_answers(tax_return, answers):
+	"""The questionnaire answered for the client; rebuilds the document checklist like the portal does."""
+	from frappe.utils import cint
+
+	from pakistan_tax_consultancy.api.portal import QUESTIONS
+	from pakistan_tax_consultancy.services.checklist import generate_checklist
+
+	doc = _return(tax_return)
+	if doc.workflow_state not in DETAILS_STATES:
+		frappe.throw(_("The questionnaire can only be changed while the return is in preparation."))
+	answers = frappe.parse_json(answers) if isinstance(answers, str) else answers or {}
+	changed = {q: cint(answers[q]) for q in QUESTIONS if q in answers and cint(answers[q]) != cint(doc.get(q))}
+	for q, v in changed.items():
+		doc.set(q, 1 if v else 0)
+	doc.save(ignore_permissions=True)  # role and record scope checked above; only the yes/no answers change
+	required = generate_checklist(doc)
+	log_event("Update", doc, details={"questionnaire": "answered on behalf of the client", "changed": changed})
+	return {"required_documents": required}
+
+
 def confirm(tax_return, method, note):
 	"""An optional proof (call screenshot, signed letter …) arrives as the request's multipart file."""
 	doc = _return(tax_return)

@@ -232,6 +232,8 @@ export const staff = {
   addComment: (tax_return: string, comment: string, visible_to_client = 0) =>
     apiCall(`${STAFF}.add_comment`, { tax_return, comment, visible_to_client }),
   regenerateChecklist: (tax_return: string) => apiCall(`${STAFF}.regenerate_checklist`, { tax_return }),
+  saveAnswersForClient: (tax_return: string, answers: Record<string, number>) =>
+    apiCall<{ required_documents: number }>(`${STAFF}.save_answers_for_client`, { tax_return, answers }),
   saveClientDetails: (tax_return: string, details: Record<string, unknown>) =>
     apiCall<Record<string, unknown>>(`${STAFF}.save_client_details`, { tax_return, details }),
   /** Record the client's approval taken by phone / WhatsApp / in person; `proof` is optional. */
