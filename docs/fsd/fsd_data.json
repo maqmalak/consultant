@@ -8,36 +8,36 @@
   "tagline": "VVS Consultants \u00b7 Audit & Taxation"
  },
  "counts": {
-  "Clients": 54,
-  "Tax Returns": 52,
-  "Engagements": 47,
-  "Tax Documents": 376,
+  "Clients": 56,
+  "Tax Returns": 55,
+  "Engagements": 48,
+  "Tax Documents": 398,
   "Generated PDFs": 19,
-  "Tax Calculations": 46,
+  "Tax Calculations": 48,
   "Scenarios": 5,
   "Site Visits": 43,
   "Consultations": 13,
-  "Payment Proofs": 34,
-  "Audit Events": 742,
+  "Payment Proofs": 35,
+  "Audit Events": 790,
   "CRM Leads": 55,
   "CRM Deals": 9,
-  "WhatsApp Messages": 18,
+  "WhatsApp Messages": 44,
   "WhatsApp Templates": 4,
   "Lead Prospects": 15,
-  "Sales Invoices": 29,
-  "Payment Entries": 29,
+  "Sales Invoices": 30,
+  "Payment Entries": 30,
   "Services": 6,
   "Packages": 4,
   "Document Types": 18,
   "Tax Years": 2,
   "Slab Settings": 8,
   "Staff users": 13,
-  "Client logins": 51
+  "Client logins": 52
  },
  "states": [
   {
    "state": "Documents Pending",
-   "count": 10
+   "count": 11
   },
   {
    "state": "Draft",
@@ -77,7 +77,7 @@
   },
   {
    "state": "Acknowledged",
-   "count": 12
+   "count": 14
   },
   {
    "state": "Closed",
@@ -263,21 +263,21 @@
  ],
  "insights": {
   "kpis": {
-   "clients": 54,
-   "new_clients_month": 9,
+   "clients": 56,
+   "new_clients_month": 11,
    "new_clients_prev": 4,
-   "returns": 51,
-   "in_progress": 40,
-   "filed": 11,
-   "filed_pct": 22,
-   "avg_days_to_file": 31.5,
-   "collected_month": 10000.0,
+   "returns": 54,
+   "in_progress": 41,
+   "filed": 13,
+   "filed_pct": 24,
+   "avg_days_to_file": 26.6,
+   "collected_month": 20000.0,
    "collected_prev": 69000.0,
-   "billed": 544000.0,
-   "collected": 320500.0,
+   "billed": 554000.0,
+   "collected": 330500.0,
    "outstanding": 223500.0,
    "visit_conversion": 73,
-   "payable": 24923632.5,
+   "payable": 24984632.5,
    "refund": 402820.0,
    "needs_attention": 3
   },
@@ -335,120 +335,120 @@
    {
     "month": "2026-10",
     "label": "Oct",
-    "new_clients": 9.0,
-    "returns_started": 7.0,
-    "returns_filed": 4.0,
+    "new_clients": 11.0,
+    "returns_started": 10.0,
+    "returns_filed": 6.0,
     "visits": 8.0,
     "conversions": 3.0,
-    "collections": 10000.0
+    "collections": 20000.0
    }
   ],
   "funnel": [
    {
     "state": "Documents Pending",
-    "count": 51
+    "count": 54
    },
    {
     "state": "Draft",
-    "count": 41
+    "count": 43
    },
    {
     "state": "Pending Review",
-    "count": 34
+    "count": 36
    },
    {
     "state": "Under Review",
-    "count": 28
+    "count": 30
    },
    {
     "state": "Reviewed",
-    "count": 25
+    "count": 27
    },
    {
     "state": "Awaiting Client Confirmation",
-    "count": 23
+    "count": 25
    },
    {
     "state": "Approved",
-    "count": 18
+    "count": 20
    },
    {
     "state": "Submitted to FBR",
-    "count": 14
+    "count": 16
    },
    {
     "state": "Acknowledged",
-    "count": 11
+    "count": 13
    }
   ],
   "stages": [
    {
     "state": "Documents Pending",
-    "count": 10,
-    "avg_days": 45.9,
+    "count": 11,
+    "avg_days": 42.7,
     "late": 8,
     "sla_days": 10
    },
    {
     "state": "Draft",
     "count": 7,
-    "avg_days": 55.6,
+    "avg_days": 56.6,
     "late": 6,
     "sla_days": 5
    },
    {
     "state": "Pending Review",
     "count": 4,
-    "avg_days": 47.9,
+    "avg_days": 48.9,
     "late": 4,
     "sla_days": 3
    },
    {
     "state": "Under Review",
     "count": 3,
-    "avg_days": 26.2,
+    "avg_days": 27.2,
     "late": 3,
     "sla_days": 3
    },
    {
     "state": "Reviewed",
     "count": 2,
-    "avg_days": 46.6,
+    "avg_days": 47.6,
     "late": 2,
     "sla_days": 1
    },
    {
     "state": "Awaiting Client Confirmation",
     "count": 5,
-    "avg_days": 24.7,
+    "avg_days": 25.7,
     "late": 4,
     "sla_days": 5
    },
    {
     "state": "Approved",
     "count": 3,
-    "avg_days": 30.0,
+    "avg_days": 31.0,
     "late": 3,
     "sla_days": 2
    },
    {
     "state": "Submitted to FBR",
     "count": 3,
-    "avg_days": 55.3,
+    "avg_days": 56.3,
     "late": 3,
     "sla_days": 3
    },
    {
     "state": "Changes Required",
     "count": 2,
-    "avg_days": 82.4,
+    "avg_days": 83.4,
     "late": 2,
     "sla_days": 3
    },
    {
     "state": "Filing Error",
     "count": 1,
-    "avg_days": 105.2,
+    "avg_days": 106.2,
     "late": 1,
     "sla_days": 1
    }
@@ -456,43 +456,43 @@
   "step_time": [
    {
     "state": "Documents Pending",
-    "avg_days": 13.2,
-    "n": 41
+    "avg_days": 12.5,
+    "n": 43
    },
    {
     "state": "Draft",
-    "avg_days": 6.7,
-    "n": 34
+    "avg_days": 6.3,
+    "n": 36
    },
    {
     "state": "Pending Review",
-    "avg_days": 2.0,
-    "n": 31
+    "avg_days": 1.8,
+    "n": 33
    },
    {
     "state": "Under Review",
-    "avg_days": 1.4,
-    "n": 28
+    "avg_days": 1.3,
+    "n": 30
    },
    {
     "state": "Reviewed",
-    "avg_days": 1.7,
-    "n": 24
+    "avg_days": 1.5,
+    "n": 26
    },
    {
     "state": "Awaiting Client Confirmation",
-    "avg_days": 3.5,
-    "n": 19
+    "avg_days": 3.1,
+    "n": 21
    },
    {
     "state": "Approved",
-    "avg_days": 1.5,
-    "n": 15
+    "avg_days": 1.3,
+    "n": 17
    },
    {
     "state": "Submitted to FBR",
-    "avg_days": 2.8,
-    "n": 12
+    "avg_days": 2.4,
+    "n": 14
    }
   ],
   "team": [
@@ -500,9 +500,9 @@
     "user": "consultant@demo.taxportal.example",
     "name": "Bilal Consultant",
     "open": 22,
-    "filed": 6,
-    "avg_days": 25.0,
-    "payable": 10641632.5
+    "filed": 8,
+    "avg_days": 18.7,
+    "payable": 10702632.5
    },
    {
     "user": "consultant2@demo.taxportal.example",
@@ -511,6 +511,14 @@
     "filed": 5,
     "avg_days": 39.2,
     "payable": 14282000.0
+   },
+   {
+    "user": "Administrator",
+    "name": "Administrator",
+    "open": 1,
+    "filed": 0,
+    "avg_days": null,
+    "payable": 0.0
    }
   ],
   "people": [
@@ -518,7 +526,7 @@
     "user": "approver@demo.taxportal.example",
     "name": "Nadia Approver",
     "reviewed": 0,
-    "approved": 18,
+    "approved": 20,
     "filed": 0
    },
    {
@@ -526,12 +534,12 @@
     "name": "Omar Filing",
     "reviewed": 0,
     "approved": 0,
-    "filed": 11
+    "filed": 13
    },
    {
     "user": "reviewer@demo.taxportal.example",
     "name": "Kamran Reviewer",
-    "reviewed": 26,
+    "reviewed": 28,
     "approved": 0,
     "filed": 0
    }
@@ -540,11 +548,11 @@
    "client_type": [
     {
      "name": "Individual-Salaried",
-     "count": 25
+     "count": 27
     },
     {
      "name": "Individual-Business",
-     "count": 16
+     "count": 17
     },
     {
      "name": "AOP",
@@ -558,11 +566,11 @@
    "city": [
     {
      "name": "Faisalabad",
-     "count": 23
+     "count": 24
     },
     {
      "name": "Lahore",
-     "count": 11
+     "count": 12
     },
     {
      "name": "Karachi",
@@ -578,17 +586,17 @@
     },
     {
      "name": "Other",
-     "count": 3
+     "count": 4
     }
    ],
    "source": [
     {
      "name": "Self Registration",
-     "count": 19
+     "count": 20
     },
     {
      "name": "Office",
-     "count": 17
+     "count": 19
     },
     {
      "name": "Field Visit",
@@ -598,8 +606,8 @@
    "packages": [
     {
      "name": "Express Filing",
-     "count": 16,
-     "fees": 156500.0
+     "count": 17,
+     "fees": 166500.0
     },
     {
      "name": "Consultant Plus",
@@ -878,12 +886,26 @@
    ]
   },
   {
+   "role": "Data Entry Officer",
+   "description": "Only enters what the client told us and records the client's approval (every team member can also do this).",
+   "scope": "all",
+   "scope_label": "All clients and their records",
+   "editable": true,
+   "count": 1,
+   "members": [
+    {
+     "user": "dataentry@demo.taxportal.example",
+     "full_name": "Zara Data Entry"
+    }
+   ]
+  },
+  {
    "role": "Client",
    "description": "A taxpayer using the client portal.",
    "scope": "client",
    "scope_label": "Only their own profile, returns and documents \u2014 never internal review work",
    "editable": false,
-   "count": 50,
+   "count": 51,
    "members": []
   }
  ],
@@ -892,12 +914,6 @@
    "doctype": "Tax Client",
    "area": "Clients & work",
    "rules": {
-    "Tax Reviewer": [
-     "read"
-    ],
-    "Filing Officer": [
-     "read"
-    ],
     "Tax Admin": [
      "read",
      "write",
@@ -908,9 +924,6 @@
      "read",
      "write",
      "create"
-    ],
-    "Tax Approver": [
-     "read"
     ],
     "Client": [
      "read",
@@ -922,10 +935,22 @@
      "create",
      "delete"
     ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Data Entry Officer": [
+     "read"
+    ],
+    "Filing Officer": [
+     "read"
+    ],
     "Tax Consultant": [
      "read",
      "write",
      "create"
+    ],
+    "Tax Approver": [
+     "read"
     ]
    }
   },
@@ -933,22 +958,7 @@
    "doctype": "Tax Engagement",
    "area": "Clients & work",
    "rules": {
-    "Tax Approver": [
-     "read"
-    ],
-    "Filing Officer": [
-     "read"
-    ],
     "System Manager": [
-     "read",
-     "write",
-     "create",
-     "delete"
-    ],
-    "Field Officer": [
-     "read"
-    ],
-    "Tax Admin": [
      "read",
      "write",
      "create",
@@ -957,13 +967,31 @@
     "Client": [
      "read"
     ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
+    ],
     "Tax Reviewer": [
+     "read"
+    ],
+    "Filing Officer": [
      "read"
     ],
     "Tax Consultant": [
      "read",
      "write",
      "create"
+    ],
+    "Data Entry Officer": [
+     "read"
+    ],
+    "Field Officer": [
+     "read"
+    ],
+    "Tax Approver": [
+     "read"
     ]
    }
   },
@@ -1055,11 +1083,23 @@
      "create",
      "delete"
     ],
-    "Tax Reviewer": [
+    "Tax Admin": [
+     "read",
+     "write",
+     "create"
+    ],
+    "Field Officer": [
+     "read"
+    ],
+    "Filing Officer": [
      "read",
      "write"
     ],
     "Tax Approver": [
+     "read",
+     "write"
+    ],
+    "Tax Reviewer": [
      "read",
      "write"
     ],
@@ -1068,17 +1108,11 @@
      "write",
      "create"
     ],
-    "Client": [
+    "Data Entry Officer": [
      "read"
     ],
-    "Filing Officer": [
-     "read",
-     "write"
-    ],
-    "Tax Admin": [
-     "read",
-     "write",
-     "create"
+    "Client": [
+     "read"
     ]
    }
   },
@@ -1275,17 +1309,6 @@
    "doctype": "Tax Document",
    "area": "Documents & messages",
    "rules": {
-    "Tax Reviewer": [
-     "read"
-    ],
-    "Client": [
-     "read",
-     "write",
-     "create"
-    ],
-    "Filing Officer": [
-     "read"
-    ],
     "Tax Consultant": [
      "read",
      "write",
@@ -1296,8 +1319,20 @@
      "write",
      "create"
     ],
+    "Tax Reviewer": [
+     "read"
+    ],
     "Tax Approver": [
      "read"
+    ],
+    "Data Entry Officer": [
+     "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
     ],
     "System Manager": [
      "read",
@@ -1305,11 +1340,13 @@
      "create",
      "delete"
     ],
-    "Tax Admin": [
+    "Filing Officer": [
+     "read"
+    ],
+    "Client": [
      "read",
      "write",
-     "create",
-     "delete"
+     "create"
     ]
    }
   },
@@ -1385,16 +1422,7 @@
    "doctype": "Client Conversation",
    "area": "Documents & messages",
    "rules": {
-    "Tax Reviewer": [
-     "read"
-    ],
     "System Manager": [
-     "read",
-     "write",
-     "create",
-     "delete"
-    ],
-    "Tax Admin": [
      "read",
      "write",
      "create",
@@ -1404,8 +1432,20 @@
      "read",
      "write"
     ],
+    "Tax Reviewer": [
+     "read"
+    ],
+    "Data Entry Officer": [
+     "read"
+    ],
     "Field Officer": [
      "read"
+    ],
+    "Tax Admin": [
+     "read",
+     "write",
+     "create",
+     "delete"
     ]
    }
   },

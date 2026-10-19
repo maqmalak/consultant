@@ -36,7 +36,7 @@ pres.company = "MicroMax Erp Pvt Ltd";
 pres.title = "VVS Tax Consultancy Portal — Functional Specification Document";
 const C = pres.SchemeColor;
 const W = 13.333, H = 7.5, M = 0.55;
-const today = "18 Oct 2026";
+const today = "19 Oct 2026";
 
 const money = (v, d = 0) => "Rs " + Number(v || 0).toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d });
 const num = (v) => Number(v || 0).toLocaleString("en-US");
@@ -51,7 +51,7 @@ async function svgPng(file, width) {
 
 (async () => {
   const MARK = await svgPng("vvs-mark.svg", 256);
-  const footer = "VVS Tax Consultancy Portal  ·  Functional Specification Document v1.0";
+  const footer = "VVS Tax Consultancy Portal  ·  Functional Specification Document v1.1";
 
   // ------------------------------------------------------------------ layouts
   pres.defineSlideMaster({ title: "VVS_COVER", background: { color: HEX.dk2 }, objects: [] });
@@ -156,7 +156,7 @@ async function svgPng(file, width) {
     s.addImage({ data: MARK, x: M, y: 0.55, w: 0.62, h: 0.62 });
     txt(s, D.firm.firm_name, { x: M + 0.78, y: 0.6, w: 5, h: 0.3, fontSize: 14, bold: true, color: HEX.lt1, fontFace: "Cambria" });
     txt(s, D.firm.tagline, { x: M + 0.78, y: 0.9, w: 5, h: 0.25, fontSize: 10, color: "C9C3B3" });
-    txt(s, "FUNCTIONAL SPECIFICATION DOCUMENT  ·  VERSION 1.0", { x: M, y: 1.75, w: 7.2, h: 0.3, fontSize: 12, bold: true, color: HEX.accent2, charSpacing: 2 });
+    txt(s, "FUNCTIONAL SPECIFICATION DOCUMENT  ·  VERSION 1.1", { x: M, y: 1.75, w: 7.2, h: 0.3, fontSize: 12, bold: true, color: HEX.accent2, charSpacing: 2 });
     txt(s, "Tax Consultancy Portal", { x: M, y: 2.1, w: 7.4, h: 0.85, fontSize: 40, bold: true, color: HEX.lt1, fontFace: "Cambria" });
     txt(s, "Client portal, staff workspace and CRM for income tax returns on FBR IRIS — functional design, data flow diagrams (level 0 and 1), workflow, controls and live data, on ERPNext v16 with a React front end.",
       { x: M, y: 3.0, w: 6.8, h: 1.1, fontSize: 15, color: "D8D2C2" });
@@ -186,12 +186,12 @@ async function svgPng(file, width) {
     const s = content("Introduction", "DOCUMENT CONTROL", "About this document", "Scope, audience and how the specification is organised");
     card(s, M, 1.9, 6.0, 2.6);
     txt(s, "Document information", { x: M + 0.2, y: 2.03, w: 5.6, h: 0.3, fontSize: 14, bold: true, color: C.text2 });
-    table(s, [[TH("Item"), TH("Detail")], ["Document", "Functional Specification — VVS Tax Portal"], ["Version / date", "1.0  ·  " + today],
+    table(s, [[TH("Item"), TH("Detail")], ["Document", "Functional Specification — VVS Tax Portal"], ["Version / date", "1.1  ·  " + today],
       ["System", "ERPNext v16 · Frappe CRM · WhatsApp · React"], ["Audience", "Partner, admin, consultants, implementers"],
       ["Data source", "Live records, site 'consultant' (fake clients)"]], { x: M + 0.2, y: 2.4, w: 5.6, colW: [1.45, 4.15], fontSize: 11 });
     card(s, M, 4.7, 6.0, 2.2);
     txt(s, "Contents", { x: M + 0.2, y: 4.82, w: 5.6, h: 0.3, fontSize: 14, bold: true, color: C.text2 });
-    const toc = ["System at a glance", "Actors & roles", "DFD level 0 — context", "DFD level 1 — processes", "Client journey & workflow", "Onboarding & verification codes",
+    const toc = ["System at a glance", "Actors & roles", "DFD level 0 — context", "DFD level 1 — processes", "Two ways to file · workflow", "Onboarding & verification codes",
       "CRM & lead generation", "Documents · tax · simulator", "Controls · billing · insights", "Security · next steps"];
     toc.forEach((t, i) => {
       const x = M + 0.2 + (i % 2) * 2.85, y = 5.2 + Math.floor(i / 2) * 0.33;
@@ -240,14 +240,14 @@ async function svgPng(file, width) {
   {
     const s = content("Introduction", "ACTORS & ROLES", "Who uses the system — and whose records they see", "Role decides what kind of access; scope decides which records (enforced on the server for every list and document)");
     const icons = { "System Manager": fa.FaWrench, "Tax Admin": fa.FaUserShield, "Tax Consultant": fa.FaBriefcase, "Tax Reviewer": fa.FaClipboardCheck,
-      "Tax Approver": fa.FaCircleCheck, "Filing Officer": fa.FaPaperPlane, "Field Officer": fa.FaLocationDot, Client: fa.FaUser };
+      "Tax Approver": fa.FaCircleCheck, "Filing Officer": fa.FaPaperPlane, "Field Officer": fa.FaLocationDot, "Data Entry Officer": fa.FaKeyboard, Client: fa.FaUser };
     const scopeCol = { all: HEX.accent4, consultant: HEX.accent3, field: HEX.accent5, client: HEX.accent6 };
     const roles = D.roles.filter((r) => r.role !== "System Manager");
     for (const [i, r] of roles.entries()) {
       const x = M + (i % 4) * 3.07, y = 1.9 + Math.floor(i / 4) * 2.5;
       card(s, x, y, 2.87, 2.3);
       await iconCircle(s, icons[r.role] || fa.FaUser, x + 0.2, y + 0.2, 0.6, r.role === "Tax Admin" ? HEX.accent2 : HEX.dk2, r.role === "Tax Admin" ? HEX.dk2 : HEX.accent2);
-      txt(s, r.role, { x: x + 0.95, y: y + 0.22, w: 1.85, h: 0.3, fontSize: 14, bold: true, color: C.text2 });
+      txt(s, r.role === "Data Entry Officer" ? "Data Entry" : r.role, { x: x + 0.95, y: y + 0.22, w: 1.85, h: 0.3, fontSize: 14, bold: true, color: C.text2 });
       txt(s, r.role === "Client" ? `${num(r.count)} portal logins` : `${r.count} user${r.count === 1 ? "" : "s"}`, { x: x + 0.95, y: y + 0.52, w: 1.85, h: 0.25, fontSize: 10, color: MUTED });
       txt(s, r.description, { x: x + 0.2, y: y + 0.95, w: 2.5, h: 0.8, fontSize: 11, color: C.text1 });
       const scope = { all: "All clients", consultant: "Assigned clients", field: "Own registrations", client: "Own records only" }[r.scope];
@@ -377,6 +377,88 @@ async function svgPng(file, width) {
     txt(s, "Returns that have reached each step (cumulative)", { x: M + 0.25, y: 6.45, w: 8, h: 0.25, fontSize: 10, italic: true, color: MUTED });
   }
 
+  // ================================================================== 8b two ways to file
+  {
+    const s = content("Functional modules", "TWO WAYS TO FILE", "We file for the client — or the client files online",
+      "Both routes feed the same controlled pipeline: review, client confirmation, four-eyes approval and the IRIS acknowledgment");
+    const cols = [
+      { title: "Team-assisted", sub: "We file on the client's behalf", video: "Video 1", Ic: fa.FaHeadset, bg: HEX.dk2, fg: HEX.accent2,
+        chips: ["Phone", "WhatsApp", "Email", "Office visit"],
+        steps: ["Front desk registers the client and opens the return", "Client sends documents on WhatsApp — attached straight from the chat",
+          "Data entry records what the client told us and answers the questionnaire", "Consultant verifies documents, prepares the return, calculates tax",
+          "Client approves the summary by phone — staff record method, note and proof"] },
+      { title: "Self-service", sub: "The client files from the website", video: "Video 2", Ic: fa.FaLaptop, bg: HEX.accent2, fg: HEX.dk2,
+        chips: ["Website", "Mobile", "24 / 7"],
+        steps: ["Visits the website → Start Filing → login verified with a 6-digit code", "Chooses a package and answers simple Yes / No questions",
+          "Describes her year in everyday words and uploads her documents", "Pays the fee (Bank, Raast, JazzCash, Easypaisa) with a screenshot",
+          "Reads the summary and clicks “Confirm my return” in the portal"] },
+    ];
+    const cw = (W - 2 * M - 0.3) / 2;
+    for (const [i, c] of cols.entries()) {
+      const x = M + i * (cw + 0.3), y = 1.85;
+      card(s, x, y, cw, 3.95);
+      await iconCircle(s, c.Ic, x + 0.22, y + 0.2, 0.66, c.bg, c.fg);
+      txt(s, c.title, { x: x + 1.05, y: y + 0.2, w: 3.2, h: 0.36, fontSize: 18, bold: true, color: C.text2, fontFace: "Cambria" });
+      txt(s, c.sub, { x: x + 1.05, y: y + 0.56, w: 3.6, h: 0.28, fontSize: 11, color: MUTED });
+      chip(s, c.video, x + cw - 1.15, y + 0.28, 0.9, HEX.accent1, HEX.lt1, 10);
+      let cx = x + 0.22;
+      for (const t of c.chips) { const w = 0.22 + t.length * 0.085; chip(s, t, cx, y + 1.02, w, "F1ECDD", HEX.dk2, 9); cx += w + 0.1; }
+      c.steps.forEach((t, j) => {
+        const yy = y + 1.5 + j * 0.47;
+        s.addShape(pres.shapes.OVAL, { x: x + 0.24, y: yy + 0.03, w: 0.3, h: 0.3, fill: { color: i === 0 ? HEX.dk2 : HEX.accent2 }, line: { color: i === 0 ? HEX.dk2 : HEX.accent2, width: 0 } });
+        txt(s, String(j + 1), { x: x + 0.24, y: yy + 0.03, w: 0.3, h: 0.3, fontSize: 10, bold: true, color: i === 0 ? HEX.accent2 : HEX.dk2, align: "center", valign: "middle" });
+        txt(s, t, { x: x + 0.66, y: yy, w: cw - 0.85, h: 0.4, fontSize: 12, color: C.text1, valign: "middle" });
+      });
+    }
+    // shared pipeline
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: M, y: 6.0, w: W - 2 * M, h: 0.88, rectRadius: 0.08, fill: { color: HEX.dk2 }, line: { color: HEX.dk2, width: 0 } });
+    txt(s, "SAME PIPELINE", { x: M + 0.25, y: 6.12, w: 1.6, h: 0.25, fontSize: 10, bold: true, color: HEX.accent2, charSpacing: 1 });
+    txt(s, "for both routes", { x: M + 0.25, y: 6.38, w: 1.6, h: 0.3, fontSize: 11, color: "C9C3B3" });
+    const pipe = ["Review checklist", "Client confirmation", "Four-eyes approval", "File on FBR IRIS", "Acknowledgment in vault"];
+    const pw = (W - 2 * M - 2.2) / pipe.length;
+    pipe.forEach((t, j) => {
+      const x = M + 2.05 + j * pw;
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 6.2, w: pw - 0.32, h: 0.48, rectRadius: 0.24, fill: { color: "2A2620" }, line: { color: HEX.accent1, width: 0.75 } });
+      txt(s, t, { x, y: 6.2, w: pw - 0.32, h: 0.48, fontSize: 11, bold: true, color: HEX.lt1, align: "center", valign: "middle" });
+      if (j < pipe.length - 1) arrow(s, x + pw - 0.3, 6.44, x + pw - 0.02, 6.44, { color: HEX.accent2 });
+    });
+    s.addNotes("Two routes into one pipeline. Team-assisted suits clients who prefer phone, WhatsApp or office visits; self-service suits clients comfortable online. Videos 1 and 2 show each route end to end.");
+  }
+
+  // ================================================================== 8c acting for the client
+  {
+    const s = content("Functional modules", "MODULE 01b  ·  ACTING FOR THE CLIENT", "Data entry on the client's behalf — with a trail",
+      "Every team member can act for a client within their record scope; the Data Entry Officer role does only this");
+    const cards = [
+      ["What the client told us", fa.FaPenToSquare, ["“Enter for client” form: salary, bank, property, vehicle, cash, household", "Questionnaire answered for the client — rebuilds the document checklist",
+        "Shows “Entered for the client by …”; figures change only when the consultant copies it in"]],
+      ["Documents from WhatsApp", fa.FaWhatsapp, ["“From WhatsApp” lists the files that client sent — no download, no re-upload", "Only that client's files; PDF, JPG or PNG; type and size checked",
+        "Badge on each document: via WhatsApp, Email, In person, Courier or client upload"]],
+      ["Client approval recorded", fa.FaPhoneVolume, ["For clients who approve by phone, WhatsApp, in person, email or signed letter", "Method + note (who, when, what was agreed) + optional proof",
+        "Comment on the return and a notice to the approver"]],
+    ];
+    const cw = (W - 2 * M - 0.5) / 3;
+    for (const [i, [t, Ic, pts]] of cards.entries()) {
+      const x = M + i * (cw + 0.25), y = 1.85;
+      card(s, x, y, cw, 3.25);
+      await iconCircle(s, Ic, x + 0.22, y + 0.22, 0.62, i === 1 ? HEX.accent4 : HEX.accent1, HEX.lt1);
+      txt(s, t, { x: x + 1.0, y: y + 0.3, w: cw - 1.15, h: 0.45, fontSize: 15, bold: true, color: C.text2, valign: "middle" });
+      txt(s, pts.map((p, j) => ({ text: p, options: { bullet: true, breakLine: j < pts.length - 1 } })),
+        { x: x + 0.22, y: y + 1.05, w: cw - 0.4, h: 2.1, fontSize: 12, color: C.text1, paraSpaceAfter: 6 });
+    }
+    card(s, M, 5.3, W - 2 * M, 1.55, { fill: C.background2, shadow: false, line: C.background2 });
+    txt(s, "Controls", { x: M + 0.25, y: 5.42, w: 3, h: 0.3, fontSize: 14, bold: true, color: C.text2 });
+    const ctl = [["Four eyes", "Whoever records the client's approval cannot approve the return"], ["Separation", "Data entry uploads documents; a consultant or reviewer verifies them"],
+      ["Time window", "Client data editable until Submitted to FBR; later changes are flagged to consultant and reviewer"], ["Audit", "Every entry, upload and approval: who, when, how — in the audit trail"]];
+    const qw = (W - 2 * M - 0.5) / 4;
+    ctl.forEach(([h, d], j) => {
+      const x = M + 0.25 + j * qw;
+      txt(s, h, { x, y: 5.78, w: qw - 0.2, h: 0.26, fontSize: 12, bold: true, color: HEX.accent1 });
+      txt(s, d, { x, y: 6.05, w: qw - 0.2, h: 0.75, fontSize: 11, color: C.text1 });
+    });
+    s.addNotes("New in version 1.1. Built for clients who share information by phone, WhatsApp, email or an office visit. Video 1 shows Zara (Data Entry) doing all three.");
+  }
+
   // ================================================================== 9 workflow
   {
     const s = content("Functional modules", "RETURN WORKFLOW", "12 states, 17 moves — a rule checked on each",
@@ -384,7 +466,7 @@ async function svgPng(file, width) {
     const rows = [[TH("From"), TH("Action"), TH("To"), TH("Who may act"), TH("Rule checked")]];
     const rule = {
       "Documents Complete": "All required documents verified; fee policy", "Submit for Review": "Income lines, final-tax rates, current calculation",
-      "Mark Reviewed": "Tax Review saved with checklist", "Request Changes": "Comment required", Approve: "Client confirmed; four-eyes (not the preparer)",
+      "Mark Reviewed": "Tax Review saved with checklist", "Request Changes": "Comment required", Approve: "Client confirmed (portal or staff); four-eyes",
       "Mark Submitted on IRIS": "Approved and unchanged since approval", "Record Acknowledgment": "IRIS ack no. + FBR receipt attached",
       "Report Filing Error": "Error notes required", "Reopen for Review": "Reason required; approval cancelled",
     };
@@ -673,6 +755,29 @@ async function svgPng(file, width) {
 
   // ================================================================== 21 next steps
   pres.addSection({ title: "Next steps" });
+  {
+    const s = content("Next steps", "DEMO VIDEOS", "See both routes end to end",
+      "Recorded on the demo site with fictitious clients — every screen, entry and approval is the real system");
+    const vids = [
+      ["Video 1 · Team-assisted filing", "VVS_Tax_Return_Full_Process.mp4  ·  4 min 32 s", "video1_team_enters_for_client.jpg",
+        "Walk-in client Usman Tariq. Admin registers him; documents arrive on WhatsApp; Zara (Data Entry) enters what he said and attaches the files; consultant prepares; reviewer checks; Zara records his phone approval; approver signs off; filing officer records the IRIS acknowledgment."],
+      ["Video 2 · Client journey from the website", "VVS_Client_Journey_Website_to_Filed.mp4  ·  4 min 40 s", "video2_client_confirms.jpg",
+        "Hira Naveed finds the website, requests a login with a 6-digit code, enters her own details and documents, pays by JazzCash; the team verifies and prepares; she confirms in the portal; the return is filed and acknowledged."],
+    ];
+    const cw = (W - 2 * M - 0.3) / 2;
+    vids.forEach(([t, f, img, d], i) => {
+      const x = M + i * (cw + 0.3), y = 1.8;
+      card(s, x, y, cw, 5.1);
+      const iw = cw - 0.7, ih = iw * 900 / 1440, ix = x + 0.35;
+      s.addImage({ path: path.join(__dirname, "img", img), x: ix, y: y + 0.15, w: iw, h: ih, rounding: false, altText: t });
+      s.addShape(pres.shapes.OVAL, { x: ix + iw / 2 - 0.4, y: y + 0.15 + ih / 2 - 0.4, w: 0.8, h: 0.8, fill: { color: HEX.accent2, transparency: 10 }, line: { color: HEX.lt1, width: 1.5 } });
+      s.addShape(pres.shapes.ISOSCELES_TRIANGLE, { x: ix + iw / 2 - 0.13, y: y + 0.15 + ih / 2 - 0.2, w: 0.36, h: 0.4, rotate: 90, fill: { color: HEX.dk2 }, line: { color: HEX.dk2, width: 0 } });
+      txt(s, t, { x: x + 0.2, y: y + ih + 0.3, w: cw - 0.4, h: 0.34, fontSize: 15, bold: true, color: C.text2, fontFace: "Cambria" });
+      txt(s, f, { x: x + 0.2, y: y + ih + 0.64, w: cw - 0.4, h: 0.25, fontSize: 10, color: HEX.accent1, bold: true });
+      txt(s, d, { x: x + 0.2, y: y + ih + 0.92, w: cw - 0.4, h: 0.95, fontSize: 11, color: C.text1 });
+    });
+    s.addNotes("Play the videos here, or run the same flows live: returns TAX-RET-2026-00054 (team-assisted) and TAX-RET-2026-00055 (self-service) are on the demo site with their full history. All figures are demo estimates.");
+  }
   {
     const s = pres.addSlide({ masterName: "VVS_SECTION", sectionTitle: "Next steps" });
     s.addText("NEXT STEPS", { placeholder: "kicker" });
