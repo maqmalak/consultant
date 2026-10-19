@@ -53,9 +53,13 @@ class TestOnBehalf(IntegrationTestCase):
 		frappe.db.set_value("Tax Return", self.tr, "workflow_state", wf.UNDER_REVIEW)
 		self.assertRaises(frappe.ValidationError, staff.save_client_details, self.tr, "{}")
 
-	def test_other_roles_cannot_act_for_client(self):
-		frappe.set_user(frappe.db.get_value("Has Role", {"role": "Filing Officer", "parenttype": "User",
-			"parent": ("like", "%@demo.taxportal.example")}, "parent") or "Guest")
+	def test_every_team_role_can_act_but_not_clients(self):
+		filer = frappe.db.get_value("Has Role", {"role": "Filing Officer", "parenttype": "User", "parent": ("like", "%@demo.taxportal.example")}, "parent")
+		if filer:
+			frappe.set_user(filer)
+			self.assertIn("salary", staff.save_client_details(self.tr, frappe.as_json({"salary": [{"employer": "Filer entry"}]})))
+		client = frappe.db.get_value("Has Role", {"role": "Client", "parenttype": "User"}, "parent")
+		frappe.set_user(client or "Guest")
 		self.assertRaises(frappe.PermissionError, staff.save_client_details, self.tr, "{}")
 
 	def test_record_approval_and_four_eyes(self):

@@ -31,7 +31,7 @@ ROLE_INFO = {
 	"Tax Approver": ("Gives the final approval before filing (never their own work).", "all"),
 	"Filing Officer": ("Files approved returns on FBR IRIS and records the acknowledgment.", "all"),
 	"Field Officer": ("Registers prospects and clients met in the field.", "field"),
-	"Data Entry Officer": ("Enters what the client told us and records the client's approval for clients who do not use the portal.", "all"),
+	"Data Entry Officer": ("Only enters what the client told us and records the client's approval (every team member can also do this).", "all"),
 	"Client": ("A taxpayer using the client portal.", "client"),
 }
 SCOPES = {

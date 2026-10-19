@@ -47,7 +47,7 @@ export const STAFF_NAV: NavGroup[] = [
     items: [
       { path: "/staff/dashboard", label: "Dashboard", hint: "KPIs · Workload", icon: LayoutDashboard, roles: STAFF, hue: "blue" },
       { path: "/staff/clients", label: "Clients", hint: "CNIC · NTN · Invite", icon: Users, roles: [SM, ADMIN, CONSULTANT, FIELD, DATA], hue: "violet" },
-      { path: "/staff/returns", label: "Tax Returns", hint: "Wizard · Draft → Filed", icon: FileText, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER, DATA], hue: "emerald" },
+      { path: "/staff/returns", label: "Tax Returns", hint: "Wizard · Draft → Filed", icon: FileText, roles: STAFF, hue: "emerald" },
       { path: "/staff/visits", label: "Site Visits", hint: "Field registration", icon: MapPin, roles: [SM, ADMIN, CONSULTANT, FIELD], hue: "amber" },
       { path: "/staff/import", label: "Import Clients", hint: "CSV · Dry run", icon: Upload, roles: [SM, ADMIN, CONSULTANT], hue: "sky" },
     ],
@@ -58,7 +58,7 @@ export const STAFF_NAV: NavGroup[] = [
       { path: "/staff/queue/documents", label: "Verify Documents", hint: "Uploads to check", icon: FileCheck2, roles: [SM, ADMIN, CONSULTANT], hue: "teal" },
       { path: "/staff/queue/preparation", label: "In Preparation", hint: "Docs · Draft · Changes", icon: FileUp, roles: [SM, ADMIN, CONSULTANT, DATA], hue: "orange" },
       { path: "/staff/queue/review", label: "Review Queue", hint: "Check & send back", icon: ClipboardCheck, roles: [SM, ADMIN, REVIEWER], hue: "indigo" },
-      { path: "/staff/queue/confirmation", label: "Client Confirmation", hint: "Waiting on client", icon: User, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, DATA], hue: "pink" },
+      { path: "/staff/queue/confirmation", label: "Client Confirmation", hint: "Waiting on client", icon: User, roles: STAFF, hue: "pink" },
       { path: "/staff/queue/approval", label: "Approval Queue", hint: "Client confirmed", icon: BadgeCheck, roles: [SM, ADMIN, APPROVER], hue: "green" },
       { path: "/staff/queue/filing", label: "Filing Queue", hint: "File on IRIS", icon: Send, roles: [SM, ADMIN, FILER], hue: "cyan" },
       { path: "/staff/queue/submitted", label: "Awaiting Acknowledgment", hint: "Attach IRIS receipt", icon: FileCheck2, roles: [SM, ADMIN, FILER], hue: "sky" },

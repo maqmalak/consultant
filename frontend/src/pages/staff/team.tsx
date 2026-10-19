@@ -19,7 +19,7 @@ const ROLES: [string, string][] = [
   ["Tax Approver", "Approves returns the client confirmed"],
   ["Filing Officer", "Files on FBR IRIS and records the acknowledgment"],
   ["Field Officer", "Registers new clients on visits"],
-  ["Data Entry Officer", "Enters client details and records client approval on their behalf"],
+  ["Data Entry Officer", "Only enters client details and records client approval — every role can also do this"],
 ];
 
 interface Member { name: string; full_name: string; enabled: number; mobile_no: string | null; roles: string[]; open_returns: number }

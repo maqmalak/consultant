@@ -8,7 +8,9 @@ from frappe.utils import now_datetime
 from pakistan_tax_consultancy.audit import log_event
 from pakistan_tax_consultancy.services import workflow as wf
 
-ROLES = {"Data Entry Officer", "Tax Consultant", "Tax Admin", "System Manager"}
+# every team role may act for a client (record scope still applies: a consultant or field officer reaches only their own clients)
+ROLES = {"System Manager", "Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer", "Field Officer",
+	"Data Entry Officer"}
 DETAILS_STATES = (wf.DOCUMENTS_PENDING, wf.DRAFT, wf.CHANGES_REQUIRED)
 METHODS = ("Phone call", "WhatsApp", "In person", "Email", "Signed letter")
 
@@ -20,7 +22,7 @@ def can_act(user=None) -> bool:
 
 def _return(tax_return):
 	if not can_act():
-		frappe.throw(_("Only data entry, consultant or admin staff can act for a client."), frappe.PermissionError)
+		frappe.throw(_("Only team members can act for a client."), frappe.PermissionError)
 	doc = frappe.get_doc("Tax Return", tax_return)
 	if not doc.has_permission("read"):  # record scope: a consultant only reaches their own clients
 		frappe.throw(_("Not permitted"), frappe.PermissionError)

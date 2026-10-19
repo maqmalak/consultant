@@ -692,7 +692,8 @@ function ClientConfirmation({ doc, canRecord, onDone }: { doc: Doc; canRecord: b
   );
 }
 
-const ON_BEHALF_ROLES = ["Data Entry Officer", "Tax Consultant", "Tax Admin", "System Manager"];
+/** Every team role may act for a client; the server applies record scope. */
+const ON_BEHALF_ROLES = ["System Manager", "Tax Admin", "Tax Consultant", "Tax Reviewer", "Tax Approver", "Filing Officer", "Field Officer", "Data Entry Officer"];
 const DETAILS_STATES = ["Documents Pending", "Draft", "Changes Required"];
 
 /** What the client typed in "My details" (or staff entered for them), with one click to copy it into the schedules. */
