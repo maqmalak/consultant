@@ -33,6 +33,13 @@ def after_migrate():
 	except Exception:
 		print(frappe.get_traceback())
 		frappe.log_error(title="pakistan_tax_consultancy CRM setup")
+	try:
+		from pakistan_tax_consultancy.setup.ask_vvs_branding import apply as brand_ask_vvs
+
+		brand_ask_vvs()
+	except Exception:
+		print(frappe.get_traceback())
+		frappe.log_error(title="pakistan_tax_consultancy Ask VVS branding")
 
 
 def ensure_fiscal_years(company):
