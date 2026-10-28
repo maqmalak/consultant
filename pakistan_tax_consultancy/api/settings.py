@@ -247,7 +247,8 @@ def team():
 	for r in frappe.get_all("Tax Return", filters={"workflow_state": ("not in", ("Acknowledged", "Closed"))},
 			fields=["assigned_consultant"]):
 		open_returns[r.assigned_consultant] = open_returns.get(r.assigned_consultant, 0) + 1
-	return [{**u, "roles": by_user[u.name], "open_returns": open_returns.get(u.name, 0)} for u in users]
+	ask = set(frappe.get_all("Has Role", {"role": "Ask ALYF User", "parenttype": "User"}, pluck="parent"))
+	return [{**u, "roles": by_user[u.name], "open_returns": open_returns.get(u.name, 0), "ask_vvs": u.name in ask} for u in users]
 
 
 @frappe.whitelist(methods=["POST"])

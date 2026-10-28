@@ -9,6 +9,7 @@ import { Field, TextInput } from "@/components/ui/field";
 import { PageHeader } from "@/components/ui/page-header";
 import { Table, TD, TH, TR } from "@/components/ui/table";
 import { useApi } from "@/lib/use-api";
+import { cn } from "@/lib/cn";
 import { apiCall } from "@/services/frappe";
 
 const S = "pakistan_tax_consultancy.api.settings";
@@ -22,7 +23,7 @@ const ROLES: [string, string][] = [
   ["Data Entry Officer", "Only enters client details and records client approval — every role can also do this"],
 ];
 
-interface Member { name: string; full_name: string; enabled: number; mobile_no: string | null; roles: string[]; open_returns: number }
+interface Member { name: string; full_name: string; enabled: number; mobile_no: string | null; roles: string[]; open_returns: number; ask_vvs?: boolean }
 
 function MemberDialog({ member, onClose, onSaved }: { member: Member | null; onClose: () => void; onSaved: (link?: string | null) => void }) {
   const [email, setEmail] = useState(member?.name ?? "");
@@ -79,12 +80,20 @@ export function TeamPage() {
       {data && !data.length && <Empty title="No staff yet" />}
       {data && data.length > 0 && (
         <Table>
-          <thead><tr><TH>Name</TH><TH>Roles</TH><TH>Open returns</TH><TH>Status</TH><TH className="text-end">Action</TH></tr></thead>
+          <thead><tr><TH>Name</TH><TH>Roles</TH><TH>Open returns</TH><TH>Ask VVS</TH><TH>Status</TH><TH className="text-end">Action</TH></tr></thead>
           <tbody>{data.map((m) => (
             <TR key={m.name}>
               <TD className="font-medium">{m.full_name}<p className="text-xs text-muted-foreground">{m.name}</p></TD>
               <TD><div className="flex flex-wrap gap-1">{m.roles.map((r) => <StateBadge key={r} state="Scheduled" label={r} />)}</div></TD>
               <TD className="tabular-nums">{m.open_returns || "—"}</TD>
+              <TD>
+                <button type="button" role="switch" aria-checked={!!m.ask_vvs} aria-label={`Ask VVS for ${m.full_name}`}
+                  title={m.ask_vvs ? "Can use the Ask VVS assistant" : "No Ask VVS access"}
+                  onClick={() => apiCall("pakistan_tax_consultancy.api.ask_vvs.set_access", { user: m.name, enabled: m.ask_vvs ? 0 : 1 }).then(() => mutate()).catch(setErr)}
+                  className={cn("relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors", m.ask_vvs ? "bg-primary" : "bg-muted-foreground/30")}>
+                  <span className={cn("inline-block h-5 w-5 rounded-full bg-white shadow transition-transform", m.ask_vvs ? "translate-x-[22px]" : "translate-x-0.5")} />
+                </button>
+              </TD>
               <TD>{m.enabled ? <StateBadge state="Verified" label="Active" /> : <StateBadge state="Cancelled" label="Disabled" />}</TD>
               <TD className="whitespace-nowrap text-end">
                 <button className="rounded-md p-2 text-muted-foreground hover:bg-accent" aria-label="Edit" onClick={() => setEditing(m)}><Pencil className="h-4 w-4" /></button>

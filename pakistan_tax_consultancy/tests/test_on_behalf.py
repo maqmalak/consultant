@@ -115,7 +115,11 @@ class TestWhatsAppDocuments(IntegrationTestCase):
 
 	def setUp(self):
 		frappe.set_user("Administrator")
-		self.td = frappe.db.get_value("Tax Document", {"status": "Requested", "tax_return": ("is", "set")}, ["name", "tax_client"], as_dict=True)
+		from pakistan_tax_consultancy.services.on_behalf import EDIT_STATES
+
+		rows = frappe.db.sql("""select d.name, d.tax_client from `tabTax Document` d join `tabTax Return` r on r.name = d.tax_return
+			where d.status = 'Requested' and r.workflow_state in %s limit 1""", (EDIT_STATES,), as_dict=True)
+		self.td = rows[0] if rows else None
 		if not self.td:
 			self.skipTest("no requested document on this site")
 		from pakistan_tax_consultancy.services import wa_inbox

@@ -5,6 +5,7 @@ import { STAFF_NAV } from "@/app/nav";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/cn";
+import { AskVvs } from "@/components/staff/ask-vvs";
 import { Brand } from "./brand";
 import { LanguageToggle } from "./language-toggle";
 import { AppSwitcher } from "./app-switcher";
@@ -76,6 +77,7 @@ export function StaffShell() {
             {role && <Badge variant="brand" className="me-1 hidden xl:inline-flex">{role}</Badge>}
             <LanguageToggle />
             <ThemeCustomizer />
+            <AskVvs />
             <NotificationsBell />
             <UserMenu staff />
           </div>

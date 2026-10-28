@@ -3,6 +3,7 @@ import { CalendarDays, Handshake, Layers, LayoutDashboard, ListTodo, Mail, Megap
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { cn } from "@/lib/cn";
+import { AskVvs } from "@/components/staff/ask-vvs";
 import { useApi } from "@/lib/use-api";
 import { AppSwitcher } from "./app-switcher";
 import { AwesomeBar, NotificationsBell, UserMenu } from "./header-tools";
@@ -71,6 +72,7 @@ export function CrmShell() {
           <div className="ms-auto flex items-center gap-1">
             <LanguageToggle />
             <ThemeCustomizer />
+            <AskVvs />
             <NotificationsBell />
             <UserMenu staff />
           </div>

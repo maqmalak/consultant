@@ -400,3 +400,20 @@ html.font-urdu .tabular-nums, html.font-urdu input, html.font-urdu [dir="ltr"] {
   --seq: #3987e5;
   --seq-soft: rgba(57, 135, 229, 0.22);
 }
+
+/* Ask VVS replies (sanitised HTML from the server) */
+.ask-html { line-height: 1.55; overflow-wrap: anywhere; }
+.ask-html > * + * { margin-top: 0.55em; }
+.ask-html h1, .ask-html h2, .ask-html h3, .ask-html h4 { font-weight: 600; font-size: 0.95rem; margin-top: 0.8em; }
+.ask-html ul { list-style: disc; padding-inline-start: 1.25rem; }
+.ask-html ol { list-style: decimal; padding-inline-start: 1.25rem; }
+.ask-html li + li { margin-top: 0.2em; }
+.ask-html a { color: hsl(var(--primary)); text-decoration: underline; text-underline-offset: 2px; }
+.ask-html strong { font-weight: 600; }
+.ask-html code { font-size: 0.8em; background: hsl(var(--muted)); padding: 0.1em 0.35em; border-radius: 0.3rem; }
+.ask-html pre { background: hsl(var(--muted)); padding: 0.6rem 0.75rem; border-radius: 0.5rem; overflow-x: auto; font-size: 0.78rem; }
+.ask-html pre code { background: none; padding: 0; }
+.ask-html table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; font-size: 0.78rem; }
+.ask-html th, .ask-html td { border: 1px solid hsl(var(--border)); padding: 0.3rem 0.5rem; text-align: start; white-space: nowrap; }
+.ask-html th { background: hsl(var(--muted)); font-weight: 600; }
+.ask-html blockquote { border-inline-start: 3px solid hsl(var(--primary) / 0.5); padding-inline-start: 0.75rem; color: hsl(var(--muted-foreground)); }
