@@ -28,4 +28,16 @@ versions (`FRAPPE_BRANCH`, `ERPNEXT_BRANCH`, `CRM_REF`, `WHATSAPP_REF`, `ASK_ALY
 
 Passwords (MariaDB root, and this site's VVS_ADMIN_PASSWORD / VVS_DEMO_PASSWORD) are generated on the server into `~/.frappe-install-secrets`.
 
+## Help centre videos
+
+The manuals and the PDF guides are in git. The 13 videos (about 28 MB) are not: copy them to the server once, and again
+after they are re-recorded (`scripts/help/record_videos.js`):
+
+```bash
+rsync -av apps/pakistan_tax_consultancy/pakistan_tax_consultancy/public/downloads/videos/ \
+  maqmalak@169.58.20.21:~/frappe-bench/apps/pakistan_tax_consultancy/pakistan_tax_consultancy/public/downloads/videos/
+```
+
+A video appears in the Help centre as soon as its file is there; no restart needed.
+
 After the install, follow the "Next" list the script prints and `GO_LIVE.md`.
