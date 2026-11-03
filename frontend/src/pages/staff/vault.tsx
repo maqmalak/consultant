@@ -2,6 +2,7 @@ import { Search, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Empty, ErrorState, Loading } from "@/components/common/states";
+import { ClientFolders } from "@/components/vault/client-folders";
 import { VaultView, type VaultData } from "@/components/vault/vault-view";
 import { M } from "@/lib/api";
 import { useApi } from "@/lib/use-api";
@@ -53,6 +54,7 @@ export function StaffVaultPage() {
         <span className="text-muted-foreground">·</span>
         <Link className="text-primary hover:underline" to={`/staff/clients/${encodeURIComponent(client)}`}>Client page</Link>
       </div>
+      <ClientFolders taxClient={client} />
       <VaultView staff data={vault.data} onGenerate={async (document_type, reference_name) => {
         const r = await apiCall<{ name: string }>(`${V}.staff_generate`, { document_type, reference_name });
         void vault.mutate();

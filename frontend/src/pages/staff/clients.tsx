@@ -199,7 +199,10 @@ export function ClientDetail() {
               ))}</tbody>
             </Table>
           ) : <Empty title="No engagements" />}
-          <h2 className="pt-2 text-lg font-semibold">Documents</h2>
+          <div className="flex items-center justify-between gap-2 pt-2">
+            <h2 className="text-lg font-semibold">Documents</h2>
+            <Link className="text-sm font-medium text-primary hover:underline" to={`/staff/vault?client=${encodeURIComponent(data.name)}`}>Open folders →</Link>
+          </div>
           {data.documents.length ? (
             <ul className="divide-y rounded-lg border bg-card text-sm">
               {data.documents.map((d: Row) => (
