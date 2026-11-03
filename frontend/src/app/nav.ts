@@ -1,7 +1,7 @@
 import {
   CalendarDays, Layers, ListTodo, Mail, Megaphone, Radar, Target,
   TrendingUp,
-  ShieldHalf, LifeBuoy,
+  ShieldHalf, BookMarked,
   BadgeCheck, BarChart3, Handshake, BookOpen, MessageCircle, UserCog, ClipboardCheck, FileCheck2, FileText, FileUp, Home, LayoutDashboard, MapPin, MessageSquare,
   PhoneCall, Send, Settings2, ShieldAlert, ShieldCheck, Upload, User, Users, Wallet, type LucideIcon,
 } from "lucide-react";
@@ -45,6 +45,7 @@ export const STAFF_NAV: NavGroup[] = [
   {
     title: "Workspace",
     items: [
+      { path: "/staff/help", label: "Guide Book", hint: "Manuals · guides · videos", icon: BookMarked, roles: STAFF, hue: "amber" },
       { path: "/staff/dashboard", label: "Dashboard", hint: "KPIs · Workload", icon: LayoutDashboard, roles: STAFF, hue: "blue" },
       { path: "/staff/clients", label: "Clients", hint: "CNIC · NTN · Invite", icon: Users, roles: [SM, ADMIN, CONSULTANT, FIELD, DATA], hue: "violet" },
       { path: "/staff/returns", label: "Tax Returns", hint: "Wizard · Draft → Filed", icon: FileText, roles: STAFF, hue: "emerald" },
@@ -88,12 +89,6 @@ export const STAFF_NAV: NavGroup[] = [
     ],
   },
   {
-    title: "Help",
-    items: [
-      { path: "/staff/help", label: "Guide Book", hint: "Manuals · guides · videos", icon: LifeBuoy, roles: STAFF, hue: "amber" },
-    ],
-  },
-  {
     title: "CRM",
     homeOnly: true,
     items: [
@@ -117,5 +112,5 @@ export const CLIENT_NAV = [
   { path: "/messages", label: "Messages", icon: MessageSquare },
   { path: "/payments", label: "Payments", icon: Wallet },
   { path: "/profile", label: "Profile", icon: User },
-  { path: "/help", label: "Guide Book", icon: LifeBuoy },
+  { path: "/help", label: "Guide Book", icon: BookMarked },
 ];
