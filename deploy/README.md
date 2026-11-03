@@ -6,6 +6,7 @@ Server `169.58.20.21`, user `maqmalak`, bench `/home/maqmalak/frappe-bench` (sha
 |---|---|---|
 | `export-data.sh` | development machine | Backs up the `consultant` site with files into `~/vvsdigital-data-<date>` and prints the copy command. |
 | `install-production.sh` | production server (Ubuntu 24.04) | Installs everything, restores the data, and sets up nginx, supervisor, SSL, the firewall and the nightly backup. |
+| `set-passwords.sh` | production server | Gives every user one password (asked when run, never stored). Then re-run the installer only with `DEMO_PASSWORDS=keep`. |
 | `backup.sh` | production server (cron) | Nightly backup with files, kept 14 days; copies off the server when `REMOTE` is set. |
 | `patches/ask_alyf-local.patch` | used by the installer | Local changes to Ask ALYF (temperature for reasoning models, "Ask VVS" chat title). |
 

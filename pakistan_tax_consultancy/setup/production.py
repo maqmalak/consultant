@@ -34,3 +34,17 @@ def reset_demo_passwords():
 		update_password(user, password, logout_all_sessions=True)
 	frappe.db.commit()
 	print(f"demo users with the new password: {len(users)}")
+
+
+def set_all_passwords():
+	"""Give every enabled user (staff and clients) the password in USERS_PASSWORD; Administrator too when
+	INCLUDE_ADMINISTRATOR=1. Used by deploy/set-passwords.sh. Every session of those users is logged out."""
+	password = os.environ.get("USERS_PASSWORD") or ""
+	if len(password) < 8:
+		frappe.throw("Set USERS_PASSWORD (8+ characters) in the environment.")
+	skip = {"Guest"} | (set() if os.environ.get("INCLUDE_ADMINISTRATOR") == "1" else {"Administrator"})
+	users = [u for u in frappe.get_all("User", filters={"enabled": 1}, pluck="name") if u not in skip]
+	for user in users:
+		update_password(user, password, logout_all_sessions=True)
+	frappe.db.commit()
+	print(f"users with the new password: {len(users)}")
