@@ -90,7 +90,7 @@ export const STAFF_NAV: NavGroup[] = [
   {
     title: "Help",
     items: [
-      { path: "/staff/help", label: "Help Centre", hint: "Manuals · guides · videos", icon: LifeBuoy, roles: STAFF, hue: "amber" },
+      { path: "/staff/help", label: "Guide Book", hint: "Manuals · guides · videos", icon: LifeBuoy, roles: STAFF, hue: "amber" },
     ],
   },
   {
@@ -117,5 +117,5 @@ export const CLIENT_NAV = [
   { path: "/messages", label: "Messages", icon: MessageSquare },
   { path: "/payments", label: "Payments", icon: Wallet },
   { path: "/profile", label: "Profile", icon: User },
-  { path: "/help", label: "Help", icon: LifeBuoy },
+  { path: "/help", label: "Guide Book", icon: LifeBuoy },
 ];

@@ -40,6 +40,13 @@ def after_migrate():
 	except Exception:
 		print(frappe.get_traceback())
 		frappe.log_error(title="pakistan_tax_consultancy Ask VVS branding")
+	try:
+		from pakistan_tax_consultancy.setup.guide_book import apply as add_guide_book
+
+		add_guide_book()
+	except Exception:
+		print(frappe.get_traceback())
+		frappe.log_error(title="pakistan_tax_consultancy Guide Book icon")
 
 
 def ensure_fiscal_years(company):

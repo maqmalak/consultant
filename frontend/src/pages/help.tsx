@@ -151,7 +151,7 @@ function LinksTable({ guides, manuals, query, links }: { guides: Guide[]; manual
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-4 shadow-sm">
         <Link2 className="h-5 w-5 text-primary" />
-        <div className="min-w-0 flex-1 text-sm"><div className="font-semibold">Help centre</div><div className="text-muted-foreground">Share these links on WhatsApp or by email. People sign in first, then land on the page.</div></div>
+        <div className="min-w-0 flex-1 text-sm"><div className="font-semibold">Guide Book</div><div className="text-muted-foreground">Share these links on WhatsApp or by email. People sign in first, then land on the page.</div></div>
         <Url url={links.home} /><Url url={links.guidesHome} />
       </div>
       <section className="overflow-x-auto rounded-2xl border bg-card shadow-sm">
@@ -250,7 +250,7 @@ export function HelpPage({ base }: { base: string }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-3">
               <Tile icon={LifeBuoy} hue="gold" size="lg" />
-              <div className="text-xs font-semibold uppercase tracking-[0.25em] text-[#d4af37]">Help centre</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.25em] text-[#d4af37]">Guide Book</div>
             </div>
             <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">How can we help?</h1>
             <p className="mt-1 max-w-2xl text-sm text-white/65">Manuals for your role, step-by-step guides with screenshots, and demo videos, in the order the work flows.</p>
