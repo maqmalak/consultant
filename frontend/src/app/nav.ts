@@ -43,9 +43,17 @@ export interface NavGroup {
 /** Staff navigation (sidebar and launcher). Roles hide items in the UI only — the server enforces access. */
 export const STAFF_NAV: NavGroup[] = [
   {
-    title: "Workspace",
+    title: "Setup",
     items: [
       { path: "/staff/help", label: "Guide Book", hint: "Manuals · guides · videos", icon: BookMarked, roles: STAFF, hue: "amber" },
+      { path: "/staff/settings", label: "Settings", hint: "Firm · WhatsApp · Email · Payments · Codes", icon: Settings2, roles: [SM, ADMIN], hue: "slate" },
+      { path: "/staff/roles", label: "Roles & Permissions", hint: "Who may do what", icon: ShieldHalf, roles: [SM, ADMIN], hue: "violet" },
+      { path: "/staff/team", label: "Team", hint: "Staff logins & roles", icon: UserCog, roles: [SM, ADMIN], hue: "indigo" },
+    ],
+  },
+  {
+    title: "Workspace",
+    items: [
       { path: "/staff/dashboard", label: "Dashboard", hint: "KPIs · Workload", icon: LayoutDashboard, roles: STAFF, hue: "blue" },
       { path: "/staff/insights", label: "Insights", hint: "Trends · funnel · team", icon: TrendingUp, roles: STAFF, hue: "sky" },
       { path: "/staff/clients", label: "Clients", hint: "CNIC · NTN · Invite", icon: Users, roles: [SM, ADMIN, CONSULTANT, FIELD, DATA], hue: "violet" },
@@ -78,14 +86,6 @@ export const STAFF_NAV: NavGroup[] = [
       { path: "/staff/consultations", label: "Consultations", hint: "Website bookings", icon: PhoneCall, roles: [SM, ADMIN, CONSULTANT], hue: "purple" },
       { path: "/staff/reports", label: "Report Center", hint: "Run · filter · CSV", icon: BarChart3, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER], hue: "rose" },
       { path: "/staff/content", label: "Website & Rules", hint: "Prices · FAQ · Articles · Tax years", icon: BookOpen, roles: [SM, ADMIN], hue: "teal" },
-    ],
-  },
-  {
-    title: "Setup",
-    items: [
-      { path: "/staff/settings", label: "Settings", hint: "Firm · WhatsApp · Email · Payments · Codes", icon: Settings2, roles: [SM, ADMIN], hue: "slate" },
-      { path: "/staff/roles", label: "Roles & Permissions", hint: "Who may do what", icon: ShieldHalf, roles: [SM, ADMIN], hue: "violet" },
-      { path: "/staff/team", label: "Team", hint: "Staff logins & roles", icon: UserCog, roles: [SM, ADMIN], hue: "indigo" },
     ],
   },
   {
