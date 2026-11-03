@@ -47,6 +47,7 @@ export const STAFF_NAV: NavGroup[] = [
     items: [
       { path: "/staff/help", label: "Guide Book", hint: "Manuals · guides · videos", icon: BookMarked, roles: STAFF, hue: "amber" },
       { path: "/staff/dashboard", label: "Dashboard", hint: "KPIs · Workload", icon: LayoutDashboard, roles: STAFF, hue: "blue" },
+      { path: "/staff/insights", label: "Insights", hint: "Trends · funnel · team", icon: TrendingUp, roles: STAFF, hue: "sky" },
       { path: "/staff/clients", label: "Clients", hint: "CNIC · NTN · Invite", icon: Users, roles: [SM, ADMIN, CONSULTANT, FIELD, DATA], hue: "violet" },
       { path: "/staff/returns", label: "Tax Returns", hint: "Wizard · Draft → Filed", icon: FileText, roles: STAFF, hue: "emerald" },
       { path: "/staff/visits", label: "Site Visits", hint: "Field registration", icon: MapPin, roles: [SM, ADMIN, CONSULTANT, FIELD], hue: "amber" },
@@ -75,7 +76,6 @@ export const STAFF_NAV: NavGroup[] = [
       { path: "/staff/vault", label: "Document Vault", hint: "Files · Generate letters", icon: ShieldCheck, roles: STAFF, hue: "amber" },
       { path: "/staff/payments", label: "Payments to Verify", hint: "Proofs → invoice", icon: Wallet, roles: [SM, ADMIN], hue: "lime" },
       { path: "/staff/consultations", label: "Consultations", hint: "Website bookings", icon: PhoneCall, roles: [SM, ADMIN, CONSULTANT], hue: "purple" },
-      { path: "/staff/insights", label: "Insights", hint: "Trends · funnel · team", icon: TrendingUp, roles: STAFF, hue: "sky" },
       { path: "/staff/reports", label: "Report Center", hint: "Run · filter · CSV", icon: BarChart3, roles: [SM, ADMIN, CONSULTANT, REVIEWER, APPROVER, FILER], hue: "rose" },
       { path: "/staff/content", label: "Website & Rules", hint: "Prices · FAQ · Articles · Tax years", icon: BookOpen, roles: [SM, ADMIN], hue: "teal" },
     ],
