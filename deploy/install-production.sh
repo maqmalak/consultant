@@ -7,16 +7,17 @@
 #
 #  Run as the Linux user that will own the bench (it must have sudo), NOT as root:
 #
-#      LETSENCRYPT_EMAIL=you@yourdomain.pk bash install-production.sh
+#      LETSENCRYPT_EMAIL=you@yourdomain.com bash install-production.sh
 #
-#      → https://vvsdigital.pk            public website, client & staff portal (/portal), desk (/desk)
-#      → https://www.vvsdigital.pk        the same site
+#      → https://vvsdigital.micromaxonline.uk          public website, client & staff portal (/portal), desk (/desk)
 #
-#  Before running: point the DNS A records of vvsdigital.pk and www.vvsdigital.pk at this server's public IP
-#  (Let's Encrypt checks them). Without a domain yet:  SSL=0 SITE=vvsdigital.local EXTRA_DOMAINS= bash install-production.sh
+#  Server 169.58.20.21, user maqmalak, bench /home/maqmalak/frappe-bench. When that bench already exists (it also serves
+#  the sugarcane site), the site is added to it: init is skipped and apps already on the bench are kept as they are.
+#  DNS: vvsdigital.micromaxonline.uk → 169.58.20.21 (a Cloudflare-proxied record is fine).
+#  Without a domain yet:  SSL=0 SITE=vvsdigital.local bash install-production.sh
 #
 #  With the data of the development site (made by export-data.sh and copied to the server):
-#      RESTORE_DIR=~/vvsdigital-data LETSENCRYPT_EMAIL=you@yourdomain.pk bash install-production.sh
+#      RESTORE_DIR=~/vvsdigital-data LETSENCRYPT_EMAIL=you@yourdomain.com bash install-production.sh
 #
 #  Every value below can be overridden from the environment. The script can be re-run: finished steps are skipped.
 #  Passwords are generated once and kept in ~/.frappe-install-secrets (mode 600). A full log goes to ~/install-vvsdigital-*.log.
@@ -24,13 +25,13 @@
 set -Eeuo pipefail
 
 # ------------------------------------------------------------------------------------------------ settings
-FRAPPE_USER="${FRAPPE_USER:-$(id -un)}"
-HOME_DIR="${HOME_DIR:-$HOME}"
+FRAPPE_USER="${FRAPPE_USER:-maqmalak}"
+HOME_DIR="${HOME_DIR:-/home/maqmalak}"
 BENCH_NAME="${BENCH_NAME:-frappe-bench}"
 BENCH_DIR="${HOME_DIR}/${BENCH_NAME}"
 
-SITE="${SITE:-vvsdigital.pk}"                        # Frappe site = its public host name
-EXTRA_DOMAINS="${EXTRA_DOMAINS-www.vvsdigital.pk}"   # more host names for the same site (space separated); empty = none
+SITE="${SITE:-vvsdigital.micromaxonline.uk}"         # Frappe site = its public host name; the React portal is its /portal
+EXTRA_DOMAINS="${EXTRA_DOMAINS-}"                    # more host names for the same site (space separated); empty = none
 SSL="${SSL:-1}"                                      # 1 = Let's Encrypt certificate for SITE and EXTRA_DOMAINS
 LETSENCRYPT_EMAIL="${LETSENCRYPT_EMAIL:-}"           # needed with SSL=1: certificate expiry notices go here
 
@@ -53,6 +54,7 @@ NODE_VERSION="${NODE_VERSION:-24}"
 MARIADB_VERSION="${MARIADB_VERSION:-11.8}"   # from the MariaDB repository; set to "" to use Ubuntu's own MariaDB
 TIMEZONE="${TIMEZONE:-Asia/Karachi}"
 ENABLE_UFW="${ENABLE_UFW:-1}"                # firewall: only SSH, HTTP and HTTPS
+APT_UPGRADE="${APT_UPGRADE:-1}"              # 0 = skip `apt upgrade` (a server already in use: no service restarts)
 
 SECRETS="${HOME_DIR}/.frappe-install-secrets"
 LOG="${HOME_DIR}/install-vvsdigital-$(date +%Y%m%d-%H%M%S).log"
@@ -108,7 +110,9 @@ if [ "$SSL" = "1" ]; then
 	PUBLIC_IP="$(curl -4 -fsS --max-time 8 https://api.ipify.org 2>/dev/null || true)"
 	for host in "$SITE" $EXTRA_DOMAINS; do
 		DNS_IP="$(getent ahostsv4 "$host" | awk 'NR==1{print $1}')"
-		if [ -z "$DNS_IP" ]; then
+		if [[ "$DNS_IP" =~ ^(104\.(1[6-9]|2[0-3])|172\.(6[4-9]|7[01])|188\.114\.(9[6-9]|10[0-9]|11[01])|162\.15[89])\. ]]; then
+			info "${host} → ${DNS_IP} (Cloudflare proxy — the origin must be this server; if the SSL step fails, set the record to 'DNS only' while it runs)"
+		elif [ -z "$DNS_IP" ]; then
 			warn "${host} does not resolve yet — add its DNS A record, or the SSL step will fail."
 		elif [ -n "$PUBLIC_IP" ] && [ "$DNS_IP" != "$PUBLIC_IP" ]; then
 			warn "${host} points to ${DNS_IP}, this server is ${PUBLIC_IP} — the SSL step will fail until DNS is updated."
@@ -132,7 +136,7 @@ info "user ${FRAPPE_USER} · bench ${BENCH_DIR} · site ${SITE} · Frappe ${FRAP
 step "Server: time zone and system update"
 sudo timedatectl set-timezone "$TIMEZONE" || warn "could not set the time zone"
 sudo apt-get update -y
-sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+if [ "$APT_UPGRADE" = "1" ]; then sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y; else info "apt upgrade skipped (APT_UPGRADE=0)"; fi
 info "$(date)"
 
 # ------------------------------------------------------------------------------------------------ 2. packages
@@ -277,7 +281,7 @@ for a in frappe "${APPS[@]}"; do info "$a  $(git -C "apps/$a" describe --tags --
 
 # ------------------------------------------------------------------------------------------------ 8. site
 step "Site ${SITE}"
-ADMIN_PASSWORD="$(secret ADMIN_PASSWORD)"
+ADMIN_PASSWORD="$(secret VVS_ADMIN_PASSWORD)"   # its own: the secrets file may serve other sites of this bench
 if [ -d "sites/${SITE}" ] && ! bench --site "$SITE" list-apps >/dev/null 2>&1; then
 	warn "sites/${SITE} is left over from a failed run (its database does not answer) — removing it"
 	bench drop-site "$SITE" --db-root-username root --db-root-password "$DB_ROOT_PASSWORD" --force --no-backup 2>/dev/null || true
@@ -336,8 +340,8 @@ bench --site "$SITE" migrate                 # also re-applies the Ask VVS brand
 bench build --production
 bench --site "$SITE" execute pakistan_tax_consultancy.setup.production.harden
 if [ "$DEMO_PASSWORDS" = "reset" ]; then
-	DEMO_PASSWORD="$(secret DEMO_PASSWORD)" bench --site "$SITE" execute pakistan_tax_consultancy.setup.production.reset_demo_passwords
-	info "demo users' password: DEMO_PASSWORD in ${SECRETS}"
+	DEMO_PASSWORD="$(secret VVS_DEMO_PASSWORD)" bench --site "$SITE" execute pakistan_tax_consultancy.setup.production.reset_demo_passwords
+	info "demo users' password: VVS_DEMO_PASSWORD in ${SECRETS}"
 fi
 for port in "${TMP_REDIS[@]}"; do redis-cli -p "$port" shutdown nosave >/dev/null 2>&1 || true; done
 info "apps on ${SITE}: $(bench --site "$SITE" list-apps | tr '\n' ' ')"
@@ -411,12 +415,12 @@ cat <<EOF
   Website     ${BASE_URL}
   Portal      ${BASE_URL}/portal        (clients and staff)
   Desk        ${BASE_URL}/desk
-  Login       Administrator / ADMIN_PASSWORD in ${SECRETS}
+  Login       Administrator / VVS_ADMIN_PASSWORD in ${SECRETS}
   Bench       ${BENCH_DIR}
   Log         ${LOG}
 
   Next:
-   1. Restored site: sign in and check the data. Demo users$( [ "$DEMO_PASSWORDS" = "reset" ] && echo " now use DEMO_PASSWORD from ${SECRETS}" || echo " keep their old passwords").
+   1. Restored site: sign in and check the data. Demo users$( [ "$DEMO_PASSWORDS" = "reset" ] && echo " now use VVS_DEMO_PASSWORD from ${SECRETS}" || echo " keep their old passwords").
       New site (no RESTORE_DIR): open ${BASE_URL}/desk and finish the ERPNext setup wizard first.
    2. Portal → Staff → Settings: switch WhatsApp, email and SMS from test mode to the live accounts.
    3. Ask VVS: check the OpenAI key and credits in Ask ALYF Settings, and give staff access on the Team page.

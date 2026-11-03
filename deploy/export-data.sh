@@ -14,7 +14,7 @@ set -euo pipefail
 BENCH="${BENCH:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}"
 SITE="${SITE:-consultant}"
 OUT="${OUT:-$HOME/vvsdigital-data-$(date +%Y%m%d-%H%M)}"
-SERVER="${SERVER:-user@your-server}"
+SERVER="${SERVER:-maqmalak@169.58.20.21}"
 
 cd "$BENCH"
 [ -d "sites/$SITE" ] || { echo "No site $SITE in $BENCH"; exit 1; }
@@ -34,4 +34,4 @@ echo
 echo "Copy it to the server (only over SSH):"
 echo "    rsync -av --chmod=D700,F600 '$OUT/' $SERVER:~/$(basename "$OUT")/"
 echo "Then on the server:"
-echo "    RESTORE_DIR=~/$(basename "$OUT") LETSENCRYPT_EMAIL=you@yourdomain.pk bash install-production.sh"
+echo "    RESTORE_DIR=~/$(basename "$OUT") LETSENCRYPT_EMAIL=you@yourdomain.com bash install-production.sh"

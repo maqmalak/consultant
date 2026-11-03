@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # VVS Digital — nightly backup. install-production.sh adds it to the bench user's crontab:
-#   30 1 * * *  SITE=vvsdigital.pk BENCH=~/frappe-bench …/apps/pakistan_tax_consultancy/deploy/backup.sh >> …/logs/vvs-backup.log 2>&1
+#   30 1 * * *  SITE=vvsdigital.micromaxonline.uk BENCH=~/frappe-bench …/apps/pakistan_tax_consultancy/deploy/backup.sh >> …/logs/vvs-backup.log 2>&1
 #
 # 1. bench backup with files (database + public + private files: client documents, generated PDFs), compressed
 # 2. keeps KEEP_DAYS days on the server
@@ -9,7 +9,7 @@
 set -euo pipefail
 
 BENCH="${BENCH:-$HOME/frappe-bench}"
-SITE="${SITE:-vvsdigital.pk}"
+SITE="${SITE:-vvsdigital.micromaxonline.uk}"
 KEEP_DAYS="${KEEP_DAYS:-14}"
 REMOTE="${REMOTE:-}"            # e.g. offsite:vvs-backups
 DIR="$BENCH/sites/$SITE/private/backups"
