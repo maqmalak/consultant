@@ -27,42 +27,36 @@ export function StaffHome() {
   const total = groups.reduce((n, g) => n + g.items.length, 0);
   const [hello, GreetIcon] = greeting();
   const first = (me?.full_name ?? "").split(" ")[0];
-  const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const today = new Date().toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
   const myRoles = STAFF_ROLES.filter((r) => (me?.roles ?? []).includes(r));
   return (
     <div className="grid items-start gap-6 p-4 sm:p-6 xl:grid-cols-[minmax(0,1fr)_380px]">
     <div className="flex min-w-0 flex-col gap-6">
-      <section className="relative overflow-hidden rounded-3xl hero-dark p-6 text-white shadow-lg sm:p-8">
-        <div aria-hidden className="pointer-events-none absolute -end-16 -top-20 h-72 w-72 rounded-full bg-[#d4af37]/25 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-24 start-1/3 h-56 w-56 rounded-full bg-sky-500/10 blur-3xl" />
+      <section className="relative overflow-hidden rounded-2xl hero-dark px-5 py-4 text-white shadow-md">
+        <div aria-hidden className="pointer-events-none absolute -end-10 -top-16 h-44 w-44 rounded-full bg-[#d4af37]/25 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#d4af37]/60 to-transparent" />
-        <div className="relative flex flex-wrap items-end justify-between gap-6">
-          <div className="min-w-0">
-            <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-2xl bg-gradient-to-br from-[#f3d77a] via-[#d4af37] to-[#9c7a22] text-[#141416] shadow-md ring-1 ring-white/20">
-                <GreetIcon className="size-5" strokeWidth={2.2} /></span>
-              <div>
-                <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#d4af37]">Welcome back</div>
-                <div className="text-xs text-white/50">{today}</div>
-              </div>
-            </div>
-            <h1 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-              {hello},{" "}
-              <span className="bg-gradient-to-r from-[#f3d77a] via-[#d4af37] to-[#f3d77a] bg-clip-text text-transparent">{first || "there"}</span>
+        <div className="relative flex flex-wrap items-center gap-x-5 gap-y-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#f3d77a] via-[#d4af37] to-[#9c7a22] text-[#141416] shadow-md ring-1 ring-white/20">
+            <GreetIcon className="size-5" strokeWidth={2.2} /></span>
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate font-display text-xl font-semibold tracking-tight sm:text-2xl">
+              {hello}, <span className="bg-gradient-to-r from-[#f3d77a] via-[#d4af37] to-[#f3d77a] bg-clip-text text-transparent">{first || "there"}</span>
             </h1>
-            <p className="mt-1.5 max-w-xl text-sm text-white/60">Everything you need for today, in one place — pick up where you left off.</p>
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-3 py-1 text-xs font-semibold text-[#f3d77a]">
-                <LayoutGrid className="size-3.5" />{total} places you can open</span>
-              {myRoles.map((r) => (
-                <span key={r} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] text-white/70">{r}</span>))}
+            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-white/55">
+              <span>{today}</span>
+              <span className="text-white/25">•</span>
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-2 py-0.5 font-semibold text-[#f3d77a]">
+                <LayoutGrid className="size-3" />{total} places</span>
+              {myRoles.length > 0 && (
+                <span title={myRoles.join(", ")} className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-white/70">
+                  {myRoles.length <= 2 ? myRoles.join(" · ") : `${myRoles[0]} +${myRoles.length - 1} roles`}</span>)}
             </div>
           </div>
-          <div className="relative w-full sm:w-80">
-            <Search className="pointer-events-none absolute start-3.5 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-white/50" />
+          <div className="relative w-full sm:w-72">
+            <Search className="pointer-events-none absolute start-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-white/50" />
             <input aria-label="Find a page" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a page… (Enter opens)"
               onKeyDown={(e) => { const hit = groups[0]?.items[0]; if (e.key === "Enter" && hit) navigate(hit.path); }}
-              className="h-11 w-full rounded-xl border border-white/15 bg-white/[0.07] pe-3 ps-10 text-sm text-white placeholder:text-white/40 outline-none backdrop-blur transition focus:border-[#d4af37]/60 focus:ring-4 focus:ring-[#d4af37]/20" />
+              className="h-10 w-full rounded-xl border border-white/15 bg-white/[0.07] pe-3 ps-9 text-sm text-white placeholder:text-white/40 outline-none backdrop-blur transition focus:border-[#d4af37]/60 focus:ring-4 focus:ring-[#d4af37]/20" />
           </div>
         </div>
       </section>
