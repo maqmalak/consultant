@@ -34,7 +34,7 @@ The manuals and the PDF guides are in git. The 13 videos (about 28 MB) are not: 
 after they are re-recorded (`scripts/help/record_videos.js`):
 
 ```bash
-rsync -av apps/pakistan_tax_consultancy/pakistan_tax_consultancy/public/downloads/videos/ \
+rsync -av --mkpath apps/pakistan_tax_consultancy/pakistan_tax_consultancy/public/downloads/videos/ \
   maqmalak@169.58.20.21:~/frappe-bench/apps/pakistan_tax_consultancy/pakistan_tax_consultancy/public/downloads/videos/
 ```
 
