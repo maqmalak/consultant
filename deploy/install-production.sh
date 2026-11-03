@@ -261,6 +261,13 @@ other_sites_using() {  # other_sites_using APP → the other sites of this bench
 	return 0
 }
 get_app() {  # get_app NAME REPO BRANCH [COMMIT]
+	if [ -d "apps/$1" ] && ! grep -qx "$1" sites/apps.txt; then
+		warn "apps/$1 is left over from a failed get-app (not in sites/apps.txt) — fetching it again"
+		rm -rf "apps/$1"
+	fi
+	if [ -d "apps/$1" ] && [ "$2" = "$APP_REPO" ]; then   # our app: take the latest pushed code on every run
+		git -C "apps/$1" pull -q --ff-only "$2" "$3" && info "$1 updated to $(git -C "apps/$1" rev-parse --short HEAD)"
+	fi
 	if [ -d "apps/$1" ]; then
 		info "$1 already in apps/ ($(git -C "apps/$1" describe --tags --always 2>/dev/null))"
 	else

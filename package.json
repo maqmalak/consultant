@@ -3,7 +3,7 @@
   "name": "pakistan_tax_consultancy",
   "description": "Builds the React portal when `bench build --app pakistan_tax_consultancy` runs",
   "scripts": {
-    "build": "cd frontend && npm run build",
+    "build": "cd frontend && if [ -d node_modules ]; then npm run build; else echo 'frontend/node_modules not installed: using the committed portal bundle (public/frontend)'; fi",
     "dev": "cd frontend && npm run dev"
   }
 }
