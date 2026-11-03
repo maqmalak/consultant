@@ -629,6 +629,41 @@ def import_clients(dry_run: int = 1, content: str | None = None):
 		"summary": {s: sum(1 for p in preview if p["status"] == s) for s in ("ok", "duplicate", "error")}}
 
 
+def _require_importer():
+	if get_scope() != "all" and "Tax Consultant" not in frappe.get_roles():
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+
+@frappe.whitelist(methods=["GET"])
+def excel_template():
+	"""The Excel template for loading the firm's clients and past / current returns (services/excel_import.py)."""
+	from pakistan_tax_consultancy.services import excel_import
+
+	_require_importer()
+	frappe.local.response.filename = "VVS_data_import_template.xlsx"
+	frappe.local.response.filecontent = excel_import.template()
+	frappe.local.response.type = "download"
+
+
+@frappe.whitelist(methods=["POST"])
+def import_excel(dry_run: int = 1):
+	"""Preview (dry_run=1) or import (dry_run=0) a filled template (.xlsx, or a clients .csv)."""
+	from pakistan_tax_consultancy.audit import log_event
+	from pakistan_tax_consultancy.services import excel_import
+
+	_require_importer()
+	upload = (getattr(frappe.request, "files", None) or {}).get("file")
+	if not upload:
+		frappe.throw(_("Choose the filled Excel file."))
+	name = upload.filename or "import.xlsx"
+	if not name.lower().endswith((".xlsx", ".csv")):
+		frappe.throw(_("Upload the .xlsx template (or a .csv of clients)."))
+	result = excel_import.run(name, upload.stream.read(), commit=not cint(dry_run))
+	if not cint(dry_run):
+		log_event("Other", reference_doctype="Tax Client", details={"excel_import": name, "summary": result["summary"]})
+	return result
+
+
 @frappe.whitelist(methods=["GET"])
 def import_template():
 	frappe.local.response.filename = "client_import_template.csv"

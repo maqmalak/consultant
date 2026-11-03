@@ -49,7 +49,7 @@ export const STAFF_NAV: NavGroup[] = [
       { path: "/staff/clients", label: "Clients", hint: "CNIC · NTN · Invite", icon: Users, roles: [SM, ADMIN, CONSULTANT, FIELD, DATA], hue: "violet" },
       { path: "/staff/returns", label: "Tax Returns", hint: "Wizard · Draft → Filed", icon: FileText, roles: STAFF, hue: "emerald" },
       { path: "/staff/visits", label: "Site Visits", hint: "Field registration", icon: MapPin, roles: [SM, ADMIN, CONSULTANT, FIELD], hue: "amber" },
-      { path: "/staff/import", label: "Import Clients", hint: "CSV · Dry run", icon: Upload, roles: [SM, ADMIN, CONSULTANT], hue: "sky" },
+      { path: "/staff/import", label: "Import from Excel", hint: "Clients · past & current returns", icon: Upload, roles: [SM, ADMIN, CONSULTANT], hue: "sky" },
     ],
   },
   {

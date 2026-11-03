@@ -75,6 +75,8 @@ class TaxReturn(Document):
 	def after_insert(self):
 		from pakistan_tax_consultancy.services.checklist import generate_checklist
 
+		if self.flags.imported_history:  # a past return filed outside the portal: nothing to collect
+			return
 		created = generate_checklist(self)
 		if not created and self.workflow_state == wf.DOCUMENTS_PENDING:
 			# nothing to collect: go straight to preparation

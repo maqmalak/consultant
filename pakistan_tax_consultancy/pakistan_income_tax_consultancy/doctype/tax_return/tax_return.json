@@ -12,6 +12,7 @@
   "cb1",
   "tax_year",
   "return_type",
+  "is_imported",
   "amended_from",
   "tax_regime",
   "cb1b",
@@ -161,6 +162,15 @@
    "fieldtype": "Select",
    "label": "Return Type",
    "options": "Original\nRevised"
+  },
+  {
+   "fieldname": "is_imported",
+   "fieldtype": "Check",
+   "label": "Imported (history)",
+   "read_only": 1,
+   "default": "0",
+   "no_copy": 1,
+   "description": "Filed outside the portal and loaded from the Excel import: no review, approval or client confirmation is recorded for it."
   },
   {
    "fieldname": "amended_from",
@@ -754,7 +764,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-16 22:00:00.000000",
+ "modified": "2026-11-03 22:42:01.750674",
  "modified_by": "Administrator",
  "module": "Pakistan Income Tax Consultancy",
  "name": "Tax Return",
