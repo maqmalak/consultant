@@ -251,15 +251,33 @@ cd "$BENCH_DIR"
 
 # ------------------------------------------------------------------------------------------------ 7. apps
 step "Apps: ${APPS[*]}"
+other_sites_using() {  # other_sites_using APP → the other sites of this bench that have APP installed
+	local s
+	for s in sites/*/site_config.json; do
+		s="$(basename "$(dirname "$s")")"
+		[ "$s" = "$SITE" ] && continue
+		bench --site "$s" list-apps 2>/dev/null | grep -qE "^$1( |$)" && printf '%s ' "$s"
+	done
+	return 0
+}
 get_app() {  # get_app NAME REPO BRANCH [COMMIT]
-	if [ -d "apps/$1" ]; then info "$1 already in apps/"; return; fi
-	bench get-app --branch "$3" "$2"
-	if [ -n "${4:-}" ]; then   # pin the exact commit (bench clones shallow, so fetch it first)
-		git -C "apps/$1" fetch -q --depth 1 origin "$4"
-		git -C "apps/$1" checkout -q "$4"
-		bench setup requirements --python "$1" >/dev/null
-		info "$1 pinned to ${4:0:10}"
+	if [ -d "apps/$1" ]; then
+		info "$1 already in apps/ ($(git -C "apps/$1" describe --tags --always 2>/dev/null))"
+	else
+		bench get-app --branch "$3" "$2"
 	fi
+	[ -n "${4:-}" ] || return 0
+	# Pin the exact commit the data was made with — but never move an app other sites of this bench run on.
+	if [ "$(git -C "apps/$1" rev-parse HEAD)" = "$4" ]; then info "$1 at ${4:0:10}"; return 0; fi
+	local users; users="$(other_sites_using "$1")"
+	if [ -n "$users" ]; then
+		info "$1 kept at its current version: the sites ${users}use it (migrate brings the data up to it)"
+		return 0
+	fi
+	git -C "apps/$1" fetch -q --depth 1 "$2" "$4"   # by URL: bench names the remote "upstream", and clones shallow
+	git -C "apps/$1" checkout -q "$4"
+	bench setup requirements --python "$1" >/dev/null
+	info "$1 pinned to ${4:0:10}"
 }
 get_app erpnext https://github.com/frappe/erpnext "$ERPNEXT_BRANCH"
 get_app crm "$CRM_REPO" main "$CRM_REF"
