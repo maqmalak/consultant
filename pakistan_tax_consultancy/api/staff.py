@@ -47,7 +47,7 @@ def dashboard():
 	require_staff()
 	today = getdate()
 	returns = _readable("Tax Return", fields=["name", "workflow_state", "assigned_consultant", "tax_year",
-		"net_tax_payable", "refund_due", "modified"])
+		"net_tax_payable", "refund_due", "modified", "creation", "filing_date", "client_name"])
 	by_state = {}
 	for r in returns:
 		by_state[r.workflow_state] = by_state.get(r.workflow_state, 0) + 1
@@ -64,10 +64,13 @@ def dashboard():
 	if scope == "all":
 		collected = flt(frappe.db.sql("""select sum(amount) from `tabPayment Proof`
 			where status='Verified' and verified_on >= %s""", get_first_day(today))[0][0])
+	clients = _readable("Tax Client", fields=["name", "creation"])
+	paid = frappe.get_all("Payment Proof", filters={"status": "Verified"}, fields=["amount", "verified_on"]) if scope == "all" else []
 	return {
+		"trend": _monthly_trend(today, returns, clients, paid),
 		"by_state": [{"state": s, "count": by_state.get(s, 0)} for s, *_ in wf.STATES],
 		"total_returns": len(returns),
-		"clients": len(_readable("Tax Client", pluck="name")),
+		"clients": len(clients),
 		"documents_to_verify": len(_readable("Tax Document", filters={"status": "Pending"}, pluck="name")),
 		"followups_due": len(_readable("Site Visit", filters={"follow_up_date": ("<=", today),
 			"status": ("not in", ("Converted", "Not Interested"))}, pluck="name")),
@@ -79,8 +82,35 @@ def dashboard():
 		"total_refund": sum(flt(r.refund_due) for r in returns),
 		"workload": [{"user": k, "name": frappe.utils.get_fullname(k) if k != "Unassigned" else k, "count": n}
 			for k, n in sorted(workload.items(), key=lambda x: -x[1])],
-		"recent": sorted(returns, key=lambda r: r.modified, reverse=True)[:8],
+		"recent": [{k: r[k] for k in ("name", "client_name", "tax_year", "workflow_state", "net_tax_payable", "modified")}
+			for r in sorted(returns, key=lambda r: r.modified, reverse=True)[:8]],
 	}
+
+
+def _monthly_trend(today, returns, clients, paid, months: int = 12) -> list:
+	"""Last `months` calendar months (oldest first): returns opened and filed, new clients and fees collected."""
+	keys = []
+	first = get_first_day(today)
+	for i in range(months - 1, -1, -1):
+		d = frappe.utils.add_months(first, -i)
+		keys.append((d.year, d.month))
+	rows = {k: {"month": f"{frappe.utils.formatdate(f'{k[0]}-{k[1]:02d}-01', 'MMM yy')}", "opened": 0, "filed": 0, "clients": 0,
+		"collected": 0.0} for k in keys}
+
+	def bump(value, field, amount=1):
+		if value:
+			d = getdate(value)
+			if (d.year, d.month) in rows:
+				rows[(d.year, d.month)][field] += amount
+
+	for r in returns:
+		bump(r.creation, "opened")
+		bump(r.filing_date, "filed")
+	for c in clients:
+		bump(c.creation, "clients")
+	for p in paid:
+		bump(p.verified_on, "collected", flt(p.amount))
+	return [rows[k] for k in keys]
 
 
 QUEUES = {
