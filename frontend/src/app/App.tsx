@@ -30,6 +30,7 @@ import { SettingsPage } from "@/pages/staff/settings";
 import { ClientForm } from "@/pages/staff/client-form";
 import { ContentPage } from "@/pages/staff/content";
 import { TeamPage } from "@/pages/staff/team";
+import { HelpPage } from "@/pages/help";
 import { InboxPage } from "@/pages/staff/inbox";
 import { StaffVaultPage } from "@/pages/staff/vault";
 import { CrmShell } from "@/components/layout/crm-shell";
@@ -82,6 +83,8 @@ export default function App() {
         <Route path="content" element={<RequireStaff roles={[SM, ADMIN]}><ContentPage /></RequireStaff>} />
         <Route path="team" element={<RequireStaff roles={[SM, ADMIN]}><TeamPage /></RequireStaff>} />
         <Route path="roles" element={<RequireStaff roles={[SM, ADMIN]}><RolesPage /></RequireStaff>} />
+        <Route path="help" element={<HelpPage base="/staff/help" />} />
+        <Route path="help/guides" element={<HelpPage base="/staff/help" />} />
       </Route>
 
       {/* CRM: a separate app (own sidebar), same login — switch from the header */}
@@ -115,6 +118,8 @@ export default function App() {
         <Route path="messages" element={<MessagesPage />} />
         <Route path="payments" element={<PaymentsPage />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="help" element={<HelpPage base="/help" />} />
+        <Route path="help/guides" element={<HelpPage base="/help" />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

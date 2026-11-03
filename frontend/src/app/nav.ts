@@ -1,7 +1,7 @@
 import {
   CalendarDays, Layers, ListTodo, Mail, Megaphone, Radar, Target,
   TrendingUp,
-  ShieldHalf,
+  ShieldHalf, LifeBuoy,
   BadgeCheck, BarChart3, Handshake, BookOpen, MessageCircle, UserCog, ClipboardCheck, FileCheck2, FileText, FileUp, Home, LayoutDashboard, MapPin, MessageSquare,
   PhoneCall, Send, Settings2, ShieldAlert, ShieldCheck, Upload, User, Users, Wallet, type LucideIcon,
 } from "lucide-react";
@@ -88,6 +88,12 @@ export const STAFF_NAV: NavGroup[] = [
     ],
   },
   {
+    title: "Help",
+    items: [
+      { path: "/staff/help", label: "Help Centre", hint: "Manuals · guides · videos", icon: LifeBuoy, roles: STAFF, hue: "amber" },
+    ],
+  },
+  {
     title: "CRM",
     homeOnly: true,
     items: [
@@ -111,4 +117,5 @@ export const CLIENT_NAV = [
   { path: "/messages", label: "Messages", icon: MessageSquare },
   { path: "/payments", label: "Payments", icon: Wallet },
   { path: "/profile", label: "Profile", icon: User },
+  { path: "/help", label: "Help", icon: LifeBuoy },
 ];
