@@ -5,7 +5,7 @@
  * are fixed so nobody locks the firm out or opens client data to the portal.
  */
 import {
-  BadgeCheck, Briefcase, Check, ClipboardCheck, Eye, FileCheck2, Keyboard, Lock, MapPin, RotateCcw, Search, Send, ShieldCheck, ShieldHalf, UserCog,
+  BadgeCheck, Briefcase, LayoutGrid, List, ChevronRight, Check, ClipboardCheck, Eye, FileCheck2, Keyboard, Lock, MapPin, RotateCcw, Search, Send, ShieldCheck, ShieldHalf, UserCog,
   UserRound, Users, Wrench, X, type LucideIcon,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -25,18 +25,18 @@ interface Overview { roles: RoleRow[]; ptypes: string[]; doctypes: DocRow[]; edi
 interface UserCheck { user: string; full_name: string; enabled: number; roles: string[]; scope: string; scope_label: string;
   rights: { doctype: string; area: string; read: boolean; write: boolean; create: boolean; delete: boolean }[] }
 
-const ROLE_LOOK: Record<string, { icon: LucideIcon; tile: string; dot: string }> = {
-  "System Manager": { icon: Wrench, tile: "from-slate-500 to-slate-700 text-white", dot: "bg-slate-500" },
-  "Tax Admin": { icon: ShieldCheck, tile: "from-[#f3d77a] via-[#d4af37] to-[#9c7a22] text-[#141416]", dot: "bg-[#d4af37]" },
-  "Tax Consultant": { icon: Briefcase, tile: "from-sky-400 to-sky-600 text-white", dot: "bg-sky-500" },
-  "Tax Reviewer": { icon: ClipboardCheck, tile: "from-violet-400 to-violet-600 text-white", dot: "bg-violet-500" },
-  "Tax Approver": { icon: BadgeCheck, tile: "from-emerald-400 to-emerald-600 text-white", dot: "bg-emerald-500" },
-  "Filing Officer": { icon: Send, tile: "from-indigo-400 to-indigo-600 text-white", dot: "bg-indigo-500" },
-  "Field Officer": { icon: MapPin, tile: "from-orange-400 to-orange-600 text-white", dot: "bg-orange-500" },
-  "Data Entry Officer": { icon: Keyboard, tile: "from-teal-400 to-teal-600 text-white", dot: "bg-teal-500" },
-  Client: { icon: UserRound, tile: "from-rose-400 to-rose-600 text-white", dot: "bg-rose-500" },
+export const ROLE_LOOK: Record<string, { icon: LucideIcon; tile: string; dot: string; cover: string; text: string }> = {
+  "System Manager": { icon: Wrench, tile: "from-slate-500 to-slate-700 text-white", dot: "bg-slate-500", cover: "from-slate-500/25 via-slate-500/10 to-transparent", text: "text-slate-600 dark:text-slate-300" },
+  "Tax Admin": { icon: ShieldCheck, tile: "from-[#f3d77a] via-[#d4af37] to-[#9c7a22] text-[#141416]", dot: "bg-[#d4af37]", cover: "from-[#d4af37]/30 via-[#d4af37]/10 to-transparent", text: "text-[#9c7a22] dark:text-[#f3d77a]" },
+  "Tax Consultant": { icon: Briefcase, tile: "from-sky-400 to-sky-600 text-white", dot: "bg-sky-500", cover: "from-sky-500/25 via-sky-500/10 to-transparent", text: "text-sky-600 dark:text-sky-400" },
+  "Tax Reviewer": { icon: ClipboardCheck, tile: "from-violet-400 to-violet-600 text-white", dot: "bg-violet-500", cover: "from-violet-500/25 via-violet-500/10 to-transparent", text: "text-violet-600 dark:text-violet-400" },
+  "Tax Approver": { icon: BadgeCheck, tile: "from-emerald-400 to-emerald-600 text-white", dot: "bg-emerald-500", cover: "from-emerald-500/25 via-emerald-500/10 to-transparent", text: "text-emerald-600 dark:text-emerald-400" },
+  "Filing Officer": { icon: Send, tile: "from-indigo-400 to-indigo-600 text-white", dot: "bg-indigo-500", cover: "from-indigo-500/25 via-indigo-500/10 to-transparent", text: "text-indigo-600 dark:text-indigo-400" },
+  "Field Officer": { icon: MapPin, tile: "from-orange-400 to-orange-600 text-white", dot: "bg-orange-500", cover: "from-orange-500/25 via-orange-500/10 to-transparent", text: "text-orange-600 dark:text-orange-400" },
+  "Data Entry Officer": { icon: Keyboard, tile: "from-teal-400 to-teal-600 text-white", dot: "bg-teal-500", cover: "from-teal-500/25 via-teal-500/10 to-transparent", text: "text-teal-600 dark:text-teal-400" },
+  Client: { icon: UserRound, tile: "from-rose-400 to-rose-600 text-white", dot: "bg-rose-500", cover: "from-rose-500/25 via-rose-500/10 to-transparent", text: "text-rose-600 dark:text-rose-400" },
 };
-const look = (role: string) => ROLE_LOOK[role] ?? ROLE_LOOK["Tax Consultant"];
+export const look = (role: string) => ROLE_LOOK[role] ?? ROLE_LOOK["Tax Consultant"];
 const PT_LABEL: Record<string, string> = { read: "Read", write: "Edit", create: "Create", delete: "Delete", submit: "Submit", print: "Print", export: "Export", report: "Report" };
 const SCOPE_TONE: Record<string, string> = {
   all: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300", consultant: "bg-sky-500/15 text-sky-700 dark:text-sky-300",
@@ -68,9 +68,9 @@ export function RolesPage() {
         actions={<Link to="/staff/team" className="inline-flex h-9 items-center gap-1.5 rounded-md border-[1.5px] border-input bg-input-bg px-3 text-sm font-medium hover:bg-accent"><UserCog className="h-4 w-4" /> Team</Link>} />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Stat icon={Users} label="Staff roles" value={String(data.roles.filter((r) => r.role !== "Client").length)} hint={`${data.roles.filter((r) => r.role !== "Client").reduce((n, r) => n + r.count, 0)} role assignments`} tone="bg-sky-500/15 text-sky-600 dark:text-sky-400" />
-        <Stat icon={FileCheck2} label="Record types" value={String(data.doctypes.length)} hint={customized ? `${customized} changed by the firm` : "all on the app defaults"} tone="bg-[#d4af37]/15 text-[#b8912a] dark:text-[#f3d77a]" />
-        <Stat icon={Lock} label="Fixed roles" value="3" hint="System Manager · Tax Admin · Client" tone="bg-rose-500/15 text-rose-600 dark:text-rose-400" />
+        <Stat icon={Users} label="Staff roles" value={String(data.roles.filter((r) => r.role !== "Client").length)} hint={`${data.roles.filter((r) => r.role !== "Client").reduce((n, r) => n + r.count, 0)} role assignments`} tone="from-sky-400 to-sky-600 text-white" cover="from-sky-500/20 via-sky-500/5 to-transparent" />
+        <Stat icon={FileCheck2} label="Record types" value={String(data.doctypes.length)} hint={customized ? `${customized} changed by the firm` : "all on the app defaults"} tone="from-[#f3d77a] via-[#d4af37] to-[#9c7a22] text-[#141416]" cover="from-[#d4af37]/25 via-[#d4af37]/5 to-transparent" />
+        <Stat icon={Lock} label="Fixed roles" value="3" hint="System Manager · Tax Admin · Client" tone="from-rose-400 to-rose-600 text-white" cover="from-rose-500/20 via-rose-500/5 to-transparent" />
       </div>
 
       <ColorTabs value={tab} onChange={setTab} tabs={[
@@ -88,41 +88,110 @@ export function RolesPage() {
   );
 }
 
-function Stat({ icon: Icon, label, value, hint, tone }: { icon: LucideIcon; label: string; value: string; hint: string; tone: string }) {
+function Stat({ icon: Icon, label, value, hint, tone, cover }: { icon: LucideIcon; label: string; value: string; hint: string; tone: string; cover: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border bg-card p-4 shadow-sm">
-      <span className={cn("grid h-11 w-11 place-items-center rounded-xl", tone)}><Icon className="h-5 w-5" /></span>
+    <div className={cn("flex items-center gap-3 rounded-2xl border bg-card bg-gradient-to-br p-4 shadow-sm", cover)}>
+      <span className={cn("grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br shadow-md ring-1 ring-white/20", tone)}><Icon className="h-5 w-5" /></span>
       <div><p className="text-xs text-muted-foreground">{label}</p><p className="text-xl font-bold">{value}</p><p className="text-[11px] text-muted-foreground">{hint}</p></div>
     </div>
   );
 }
 
+const VIEW_KEY = "vvs.roles.view";
+
 function RoleCards({ data, onOpen }: { data: Overview; onOpen: (role: string) => void }) {
+  const [view, setViewState] = useState<"cards" | "list">(() => { try { return localStorage.getItem(VIEW_KEY) === "list" ? "list" : "cards"; } catch { return "cards"; } });
+  const setView = (v: "cards" | "list") => { setViewState(v); try { localStorage.setItem(VIEW_KEY, v); } catch { /* private mode */ } };
   return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-      {data.roles.map((r) => {
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground">Click a role to open its permissions.</p>
+        <div className="inline-flex rounded-xl border bg-card p-1 shadow-sm" role="radiogroup" aria-label="View">
+          {([["cards", "Cards", LayoutGrid], ["list", "List", List]] as const).map(([k, l, I]) => (
+            <button key={k} type="button" role="radio" aria-checked={view === k} onClick={() => setView(k)}
+              className={cn("inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
+                view === k ? "bg-[#d4af37] text-[#141416] shadow" : "text-muted-foreground hover:text-foreground")}><I className="h-3.5 w-3.5" />{l}</button>))}
+        </div>
+      </div>
+      {view === "list" ? <RoleList data={data} onOpen={onOpen} /> : <RoleCardGrid data={data} onOpen={onOpen} />}
+    </div>
+  );
+}
+
+function RoleList({ data, onOpen }: { data: Overview; onOpen: (role: string) => void }) {
+  return (
+    <div className="overflow-x-auto rounded-2xl border bg-card shadow-sm">
+      <table className="w-full min-w-[860px] text-sm">
+        <thead><tr className="border-b bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground">
+          <th className="w-10 px-4 py-3 text-start font-semibold">#</th><th className="px-3 py-3 text-start font-semibold">Role</th>
+          <th className="px-3 py-3 text-start font-semibold">Sees</th><th className="px-3 py-3 text-start font-semibold">People</th>
+          <th className="px-3 py-3 text-end font-semibold">Record types</th><th className="px-3 py-3 text-start font-semibold">Rules</th><th className="px-3 py-3" /></tr></thead>
+        <tbody>
+          {data.roles.map((r, i) => {
+            const l = look(r.role);
+            const reach = data.doctypes.filter((d) => d.rules[r.role]?.read).length;
+            return (
+              <tr key={r.role} onClick={() => onOpen(r.role)} className="group cursor-pointer border-b transition-colors last:border-0 hover:bg-muted/30">
+                <td className={cn("px-4 py-2.5 font-black tabular-nums opacity-40", l.text)}>{String(i + 1).padStart(2, "0")}</td>
+                <td className="px-3 py-2.5">
+                  <div className="flex items-center gap-3">
+                    <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br shadow-sm", l.tile)}><l.icon className="h-5 w-5" /></span>
+                    <div className="min-w-0"><div className="font-semibold">{r.role}</div><div className="line-clamp-1 max-w-sm text-xs text-muted-foreground">{r.description}</div></div>
+                  </div>
+                </td>
+                <td className="px-3 py-2.5"><span className={cn("inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium", SCOPE_TONE[r.scope])}>{r.scope_label}</span></td>
+                <td className="px-3 py-2.5">
+                  <div className="flex items-center -space-x-2 rtl:space-x-reverse">
+                    {r.members.slice(0, 4).map((m) => (
+                      <span key={m.user} title={m.full_name} className={cn("grid h-7 w-7 place-items-center rounded-full border-2 border-card text-[10px] font-bold text-white", l.dot)}>{initials(m.full_name)}</span>))}
+                    {r.role !== "Client" && r.count > 4 && <span className="grid h-7 w-7 place-items-center rounded-full border-2 border-card bg-muted text-[10px] font-bold">+{r.count - 4}</span>}
+                    {!r.members.length && <span className="text-xs text-muted-foreground">{r.role === "Client" ? `${r.count} portal users` : "Nobody yet"}</span>}
+                  </div>
+                </td>
+                <td className="px-3 py-2.5 text-end font-semibold tabular-nums">{reach}</td>
+                <td className="px-3 py-2.5">{r.editable ? <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">Editable</span>
+                  : <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground"><Lock className="h-3 w-3" /> Fixed</span>}</td>
+                <td className="px-3 py-2.5 text-end"><ChevronRight className="ms-auto h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5" /></td>
+              </tr>);
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function RoleCardGrid({ data, onOpen }: { data: Overview; onOpen: (role: string) => void }) {
+  return (
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+      {data.roles.map((r, i) => {
         const l = look(r.role);
         const reach = data.doctypes.filter((d) => d.rules[r.role]?.read).length;
         return (
           <button key={r.role} type="button" onClick={() => onOpen(r.role)}
-            className="group flex flex-col rounded-2xl border bg-card p-4 text-start shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
-            <div className="flex items-start justify-between gap-2">
-              <span className={cn("grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br shadow-sm", l.tile)}><l.icon className="h-5 w-5" /></span>
-              {r.editable ? <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">Editable</span>
-                : <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground"><Lock className="h-3 w-3" /> Fixed</span>}
-            </div>
-            <p className="mt-3 font-semibold">{r.role}</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">{r.description}</p>
-            <p className={cn("mt-2 inline-flex w-fit rounded-full px-2 py-0.5 text-[11px] font-medium", SCOPE_TONE[r.scope])}>{r.scope_label}</p>
-            <div className="mt-auto flex items-center justify-between pt-4">
-              <div className="flex -space-x-2 rtl:space-x-reverse">
-                {r.members.slice(0, 4).map((m) => (
-                  <span key={m.user} title={m.full_name} className={cn("grid h-7 w-7 place-items-center rounded-full border-2 border-card text-[10px] font-bold text-white", l.dot)}>{initials(m.full_name)}</span>
-                ))}
-                {r.role !== "Client" && r.count > 4 && <span className="grid h-7 w-7 place-items-center rounded-full border-2 border-card bg-muted text-[10px] font-bold">+{r.count - 4}</span>}
-                {!r.members.length && <span className="text-xs text-muted-foreground">{r.role === "Client" ? `${r.count} portal users` : "Nobody yet"}</span>}
+            className="group flex flex-col overflow-hidden rounded-2xl border bg-card text-start shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
+            <div className={cn("relative flex h-24 w-full items-end gap-3 bg-gradient-to-br p-4", l.cover)}>
+              <span className={cn("absolute end-4 top-1 text-6xl font-black tabular-nums opacity-[0.14]", l.text)}>{String(i + 1).padStart(2, "0")}</span>
+              <span className={cn("grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br shadow-md ring-1 ring-white/20 transition-transform duration-200 group-hover:scale-110", l.tile)}>
+                <l.icon className="h-6 w-6" strokeWidth={2.2} /></span>
+              <div className="flex flex-wrap gap-1 pb-0.5">
+                {r.editable ? <span className="rounded-full bg-background/85 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700 shadow-sm dark:text-emerald-300">Editable</span>
+                  : <span className="inline-flex items-center gap-1 rounded-full bg-background/85 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground shadow-sm"><Lock className="h-3 w-3" /> Fixed</span>}
               </div>
-              <span className="text-[11px] text-muted-foreground">{reach} record types</span>
+            </div>
+            <div className="flex w-full flex-1 flex-col p-4">
+              <p className="font-semibold">{r.role}</p>
+              <p className="mt-0.5 line-clamp-3 text-xs text-muted-foreground">{r.description}</p>
+              <p className={cn("mt-2 inline-flex w-fit rounded-full px-2 py-0.5 text-[11px] font-medium", SCOPE_TONE[r.scope])}>{r.scope_label}</p>
+              <div className="mt-auto flex items-center justify-between border-t pt-3 mt-4">
+                <div className="flex -space-x-2 rtl:space-x-reverse">
+                  {r.members.slice(0, 4).map((m) => (
+                    <span key={m.user} title={m.full_name} className={cn("grid h-7 w-7 place-items-center rounded-full border-2 border-card text-[10px] font-bold text-white", l.dot)}>{initials(m.full_name)}</span>
+                  ))}
+                  {r.role !== "Client" && r.count > 4 && <span className="grid h-7 w-7 place-items-center rounded-full border-2 border-card bg-muted text-[10px] font-bold">+{r.count - 4}</span>}
+                  {!r.members.length && <span className="text-xs text-muted-foreground">{r.role === "Client" ? `${r.count} portal users` : "Nobody yet"}</span>}
+                </div>
+                <span className={cn("text-[11px] font-semibold", l.text)}>{reach} record types →</span>
+              </div>
             </div>
           </button>
         );
