@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Area, Bar, CartesianGrid, Cell, ComposedChart, Line, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, Bar, CartesianGrid, Cell, ComposedChart, Line, Pie, PieChart, ResponsiveContainer, Sector, Tooltip, XAxis, YAxis } from "recharts";
 import { Avatar, C, ChartCard, ChartTip, Delta, Highlights, Segmented, Sparkline, STATUS_TONE, axisShort, type Highlight } from "@/components/analytics/kit";
 import { StateBadge } from "@/components/common/state-badge";
 import { ErrorState, Loading } from "@/components/common/states";
@@ -309,34 +309,54 @@ function Empty({ text }: { text: string }) {
   return <p className="grid h-full place-items-center py-10 text-center text-sm text-muted-foreground">{text}</p>;
 }
 
-/** Donut with the total in the middle and a two-column legend underneath (11 statuses don't fit beside it). */
+/** Pie with separated, rounded slices; the hovered slice pops out. Percentages sit on slices of 6% or more, and the
+ *  legend sits underneath (11 statuses don't fit beside it). */
 function StatusDonut({ rows, total }: { rows: { state: string; count: number }[]; total: number }) {
   const [hover, setHover] = useState<number | null>(null);
   const shown = hover !== null ? rows[hover] : null;
+  const RAD = Math.PI / 180;
+  const label = ({ cx, cy, midAngle, outerRadius, percent }: { cx: number; cy: number; midAngle: number; outerRadius: number; percent: number }) => {
+    if (percent < 0.06) return null;
+    const r = outerRadius * 0.62;
+    return (
+      <text x={cx + r * Math.cos(-midAngle * RAD)} y={cy + r * Math.sin(-midAngle * RAD)} textAnchor="middle" dominantBaseline="central"
+        className="pointer-events-none fill-white text-[11px] font-bold" style={{ paintOrder: "stroke", stroke: "rgba(0,0,0,.25)", strokeWidth: 2 }}>
+        {Math.round(percent * 100)}%</text>
+    );
+  };
+  const pop = (props: { cx: number; cy: number; innerRadius: number; outerRadius: number; startAngle: number; endAngle: number; fill: string; midAngle: number }) => {
+    const shift = 8;
+    const dx = shift * Math.cos(-props.midAngle * RAD), dy = shift * Math.sin(-props.midAngle * RAD);
+    return <Sector {...props} cx={props.cx + dx} cy={props.cy + dy} outerRadius={props.outerRadius + 4} cornerRadius={6}
+      stroke="hsl(var(--card))" strokeWidth={2} style={{ filter: `drop-shadow(0 6px 12px ${props.fill}66)` }} />;
+  };
   return (
     <div className="space-y-4">
-      <div className="relative mx-auto h-48 w-48">
+      <div className="flex items-center justify-between gap-3 px-1">
+        <div>
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{shown ? shown.state : "All returns"}</p>
+          <p className="text-2xl font-bold tabular-nums">{shown ? shown.count : total}
+            {shown && total > 0 && <span className="ms-2 text-sm font-semibold text-muted-foreground">{Math.round((shown.count * 100) / total)}%</span>}</p>
+        </div>
+        {shown && <span className="size-3 rounded-full ring-4 ring-muted" style={{ background: STATUS_TONE[shown.state] ?? C.slate }} />}
+      </div>
+      <div className="mx-auto h-60 w-60">
         <ResponsiveContainer>
           <PieChart>
-            <Pie data={rows} dataKey="count" nameKey="state" innerRadius="68%" outerRadius="100%" paddingAngle={2} stroke="none"
-              onMouseEnter={(_, i) => setHover(i)} onMouseLeave={() => setHover(null)} isAnimationActive={false}>
-              {rows.map((r, i) => <Cell key={r.state} fill={STATUS_TONE[r.state] ?? C.slate} opacity={hover === null || hover === i ? 1 : 0.3} />)}
+            <Pie data={rows} dataKey="count" nameKey="state" outerRadius="88%" paddingAngle={1.5} cornerRadius={6}
+              stroke="hsl(var(--card))" strokeWidth={2} labelLine={false} label={label} startAngle={90} endAngle={-270}
+              activeIndex={hover ?? undefined} activeShape={pop as never}
+              onMouseEnter={(_, i) => setHover(i)} onMouseLeave={() => setHover(null)} isAnimationActive animationDuration={700}>
+              {rows.map((r, i) => <Cell key={r.state} fill={STATUS_TONE[r.state] ?? C.slate} opacity={hover === null || hover === i ? 1 : 0.4} className="cursor-pointer outline-none" />)}
             </Pie>
           </PieChart>
         </ResponsiveContainer>
-        <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
-          <div className="max-w-28">
-            <p className="truncate text-[10px] uppercase tracking-wide text-muted-foreground">{shown ? shown.state : "Returns"}</p>
-            <p className="text-2xl font-bold tabular-nums">{shown ? shown.count : total}</p>
-            {shown && total > 0 && <p className="text-xs text-muted-foreground">{Math.round((shown.count * 100) / total)}%</p>}
-          </div>
-        </div>
       </div>
       <ul className="grid grid-cols-1 gap-x-3 gap-y-1 sm:grid-cols-2">
         {rows.map((r, i) => (
           <li key={r.state} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)} title={`${r.state}: ${r.count}`}
-            className={cn("flex items-center gap-2 rounded-lg px-2 py-1 text-xs transition", hover === i && "bg-muted")}>
-            <span className="size-2.5 shrink-0 rounded-full" style={{ background: STATUS_TONE[r.state] ?? C.slate }} />
+            className={cn("flex cursor-default items-center gap-2 rounded-lg px-2 py-1 text-xs transition", hover === i && "bg-muted")}>
+            <span className="size-2.5 shrink-0 rounded-[3px]" style={{ background: STATUS_TONE[r.state] ?? C.slate }} />
             <span className="min-w-0 flex-1 truncate">{r.state}</span>
             <span className="font-semibold tabular-nums">{r.count}</span>
             <span className="w-8 text-end tabular-nums text-muted-foreground">{total ? Math.round((r.count * 100) / total) : 0}%</span>
