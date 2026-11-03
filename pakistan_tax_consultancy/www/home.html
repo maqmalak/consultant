@@ -158,24 +158,36 @@
         {{ _("All services") }} <span class="transition group-hover:translate-x-1 rtl:group-hover:-translate-x-1" aria-hidden="true">→</span></a>
     </div>
     <div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {% set hues = [
+        {"cover": "from-[#d4af37]/35 via-[#d4af37]/10 to-transparent", "tint": "from-[#d4af37]/[0.07]", "tile": "from-[#f3d77a] via-[#d4af37] to-[#9c7a22] text-[#141416]", "text": "text-[#b8912a] dark:text-[#f3d77a]", "bar": "from-[#f3d77a] via-[#d4af37] to-[#9c7a22]", "glow": "hover:shadow-[#d4af37]/20 hover:border-[#d4af37]/60"},
+        {"cover": "from-sky-500/30 via-sky-500/10 to-transparent", "tint": "from-sky-500/[0.06]", "tile": "from-sky-400 to-sky-600 text-white", "text": "text-sky-600 dark:text-sky-400", "bar": "from-sky-300 via-sky-500 to-sky-700", "glow": "hover:shadow-sky-500/20 hover:border-sky-500/50"},
+        {"cover": "from-emerald-500/30 via-emerald-500/10 to-transparent", "tint": "from-emerald-500/[0.06]", "tile": "from-emerald-400 to-emerald-600 text-white", "text": "text-emerald-600 dark:text-emerald-400", "bar": "from-emerald-300 via-emerald-500 to-emerald-700", "glow": "hover:shadow-emerald-500/20 hover:border-emerald-500/50"},
+        {"cover": "from-violet-500/30 via-violet-500/10 to-transparent", "tint": "from-violet-500/[0.06]", "tile": "from-violet-400 to-purple-600 text-white", "text": "text-violet-600 dark:text-violet-400", "bar": "from-violet-300 via-violet-500 to-purple-700", "glow": "hover:shadow-violet-500/20 hover:border-violet-500/50"},
+        {"cover": "from-rose-500/30 via-rose-500/10 to-transparent", "tint": "from-rose-500/[0.06]", "tile": "from-rose-400 to-rose-600 text-white", "text": "text-rose-600 dark:text-rose-400", "bar": "from-rose-300 via-rose-500 to-rose-700", "glow": "hover:shadow-rose-500/20 hover:border-rose-500/50"},
+        {"cover": "from-teal-500/30 via-teal-500/10 to-transparent", "tint": "from-teal-500/[0.06]", "tile": "from-teal-400 to-teal-600 text-white", "text": "text-teal-600 dark:text-teal-400", "bar": "from-teal-300 via-teal-500 to-teal-700", "glow": "hover:shadow-teal-500/20 hover:border-teal-500/50"},
+      ] %}
       {% for s in services %}
-      <a href="/services/{{ s.slug }}" class="group relative flex flex-col overflow-hidden rounded-3xl border bg-card p-7 shadow-sm transition duration-300 hover:-translate-y-1.5 hover:border-[#d4af37]/60 hover:shadow-2xl hover:shadow-[#d4af37]/10">
-        <span aria-hidden="true" class="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-gradient-to-r from-[#f3d77a] via-[#d4af37] to-[#9c7a22] transition-transform duration-500 group-hover:scale-x-100"></span>
-        <span aria-hidden="true" class="pointer-events-none absolute -end-10 -top-10 h-32 w-32 rounded-full bg-[#d4af37]/0 blur-2xl transition duration-500 group-hover:bg-[#d4af37]/15"></span>
-        <div class="flex items-start justify-between">
-          <span class="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1c1c20] to-[#0b0b0c] text-[#f3d77a] shadow-lg shadow-black/20 ring-1 ring-[#d4af37]/40 transition group-hover:ring-[#d4af37]">
-            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{{ icons.get(s.icon) or icons["file-text"] }}</svg>
+      {% set h = hues[loop.index0 % 6] %}
+      <a href="/services/{{ s.slug }}" class="group relative flex flex-col overflow-hidden rounded-3xl border bg-card shadow-sm transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl {{ h.glow }}">
+        <span aria-hidden="true" class="pointer-events-none absolute inset-0 bg-gradient-to-b {{ h.tint }} to-transparent"></span>
+        <span aria-hidden="true" class="absolute inset-x-0 bottom-0 z-10 h-[3px] origin-left scale-x-0 bg-gradient-to-r {{ h.bar }} transition-transform duration-500 group-hover:scale-x-100"></span>
+        <div class="relative flex h-32 items-end justify-between bg-gradient-to-br {{ h.cover }} p-6">
+          <span aria-hidden="true" class="pointer-events-none absolute -end-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl"></span>
+          <span class="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br {{ h.tile }} shadow-lg ring-1 ring-white/30 transition duration-300 group-hover:scale-110 group-hover:-rotate-3">
+            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{{ icons.get(s.icon) or icons["file-text"] }}</svg>
           </span>
-          <span class="font-display text-4xl font-semibold leading-none text-foreground/[0.07] transition group-hover:text-[#d4af37]/25" aria-hidden="true">{{ "%02d" % loop.index }}</span>
+          <span class="absolute end-6 top-3 font-display text-6xl font-black leading-none opacity-[0.16] transition group-hover:opacity-30 {{ h.text }}" aria-hidden="true">{{ "%02d" % loop.index }}</span>
+          {% if s.category %}<span class="relative rounded-full bg-background/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] shadow-sm {{ h.text }}">{{ _(s.category) }}</span>{% endif %}
         </div>
-        {% if s.category %}<p class="mt-6 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">{{ _(s.category) }}</p>{% endif %}
-        <h3 class="mt-1.5 text-xl font-semibold leading-snug transition group-hover:text-primary">{{ s.title }}</h3>
-        <p class="mt-2.5 flex-1 text-sm leading-relaxed text-muted-foreground">{{ s.summary or "" }}</p>
-        <div class="mt-6 flex items-center justify-between border-t pt-4">
-          {% if s.price_from %}<p class="text-sm text-muted-foreground">{{ _("From") }} <b class="font-display text-lg font-semibold text-[#b8912a] dark:text-[#f3d77a]">Rs {{ "{:,.0f}".format(s.price_from) }}</b></p>
-          {% else %}<p class="text-sm text-muted-foreground">{{ _("Quoted on request") }}</p>{% endif %}
-          <span class="inline-flex items-center gap-1 text-sm font-semibold text-primary">{{ _("Learn more") }}
-            <svg viewBox="0 0 24 24" class="h-4 w-4 transition group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <div class="relative flex flex-1 flex-col p-6 pt-5">
+          <h3 class="text-xl font-semibold leading-snug">{{ s.title }}</h3>
+          <p class="mt-2.5 flex-1 text-sm leading-relaxed text-muted-foreground">{{ s.summary or "" }}</p>
+          <div class="mt-6 flex items-center justify-between border-t pt-4">
+            {% if s.price_from %}<p class="text-sm text-muted-foreground">{{ _("From") }} <b class="font-display text-lg font-semibold {{ h.text }}">Rs {{ "{:,.0f}".format(s.price_from) }}</b></p>
+            {% else %}<p class="text-sm text-muted-foreground">{{ _("Quoted on request") }}</p>{% endif %}
+            <span class="inline-flex items-center gap-1 text-sm font-semibold {{ h.text }}">{{ _("Learn more") }}
+              <svg viewBox="0 0 24 24" class="h-4 w-4 transition group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </div>
         </div>
       </a>
       {% endfor %}
