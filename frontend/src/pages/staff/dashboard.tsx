@@ -1,11 +1,9 @@
-import { AlarmClock, BadgeCheck, BadgeDollarSign, CalendarClock, ClipboardCheck, FileCheck2, FileText, Handshake, LayoutDashboard, MapPin, MessageCircle, PhoneCall, ShieldCheck, RefreshCw, Send, Undo2, Upload, UserPlus, Users, Wallet } from "lucide-react";
+import { AlarmClock, BadgeDollarSign, CalendarClock, FileCheck2, FileText, LayoutDashboard, PhoneCall, RefreshCw, Undo2, Users, Wallet } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ChartCard } from "@/components/charts/chart-card";
 import { BarGauge, DonutChart } from "@/components/charts/charts";
 import { STATUS_TONE } from "@/components/analytics/kit";
 import { StatCard } from "@/components/common/stat-card";
-import { QuickActions, type QuickAction } from "@/components/common/quick-actions";
-import { useAuth } from "@/hooks/useAuth";
 import { StateBadge } from "@/components/common/state-badge";
 import { ErrorState, Loading } from "@/components/common/states";
 import { Button } from "@/components/ui/button";
@@ -33,24 +31,6 @@ interface Dash {
 
 export function StaffDashboard() {
   const { data, error, isLoading, mutate } = useApi<Dash>(`${M.STAFF}.dashboard`);
-  const { hasRole } = useAuth();
-  const wa = useApi<Record<string, number>>(hasRole("Tax Admin", "Tax Consultant", "Tax Reviewer", "Field Officer", "System Manager") ? "pakistan_tax_consultancy.api.whatsapp.get_counts" : null, undefined, { refreshInterval: 30_000 });
-  const prep = hasRole("Tax Admin", "Tax Consultant", "System Manager");
-  const n = (state: string) => data?.by_state.find((s) => s.state === state)?.count ?? 0;
-  const actions: (QuickAction | false)[] = [
-    prep && { label: "New client", hint: "Office registration", icon: UserPlus, to: "/staff/clients/new" },
-    hasRole("Tax Admin", "Tax Consultant", "Field Officer", "System Manager") && { label: "New site visit", hint: "Field lead", icon: MapPin, to: "/staff/visits/new", tone: "amber" },
-    prep && { label: "Verify documents", hint: "Uploads to check", icon: FileCheck2, to: "/staff/queue/documents", tone: "sky", badge: data?.documents_to_verify || null },
-    hasRole("Tax Reviewer", "Tax Admin", "System Manager") && { label: "Review queue", hint: "Ready for review", icon: ClipboardCheck, to: "/staff/queue/review", tone: "violet", badge: n("Pending Review") + n("Under Review") || null },
-    hasRole("Tax Approver", "Tax Admin", "System Manager") && { label: "Approve", hint: "Client confirmed", icon: BadgeCheck, to: "/staff/queue/approval", tone: "emerald" },
-    hasRole("Filing Officer", "Tax Admin", "System Manager") && { label: "File on IRIS", hint: "Approved returns", icon: Send, to: "/staff/queue/filing", tone: "primary", badge: n("Approved") || null },
-    hasRole("Tax Admin", "System Manager") && { label: "Verify payments", hint: "Proofs to match", icon: Wallet, to: "/staff/payments", tone: "emerald", badge: data?.payments_to_verify || null },
-    prep && { label: "Consultations", hint: "Website bookings", icon: PhoneCall, to: "/staff/consultations", tone: "rose", badge: data?.consultations_new || null },
-    !!wa.data && { label: "WhatsApp inbox", hint: `${wa.data.mine ?? 0} mine · ${wa.data.unassigned ?? 0} unassigned`, icon: MessageCircle, to: "/staff/inbox", tone: "whatsapp", badge: wa.data.unread || null },
-    hasRole("Tax Admin", "Tax Consultant", "Tax Reviewer", "Field Officer", "System Manager") && { label: "CRM pipeline", hint: "Leads → deals → clients", icon: Handshake, to: "/crm/pipeline", tone: "primary" },
-    { label: "Document vault", hint: "Files · generate letters", icon: ShieldCheck, to: "/staff/vault", tone: "amber" },
-    prep && { label: "Import clients", hint: "CSV", icon: Upload, to: "/staff/import", tone: "slate" },
-  ];
   return (
     <div className="page-container">
       <PageHeader title="Dashboard" subtitle="Your clients, returns and queues — scoped to what you may see"
@@ -60,7 +40,6 @@ export function StaffDashboard() {
       {error && <ErrorState error={error} onRetry={() => void mutate()} />}
       {data && (
         <div className="space-y-6">
-          <QuickActions actions={actions.filter((a): a is QuickAction => !!a)} />
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <Link to="/staff/clients" className="block rounded-lg transition hover:-translate-y-0.5"><StatCard label="Clients" value={data.clients} icon={<Users className="h-4 w-4" />} tone="primary" /></Link>
             <Link to="/staff/returns" className="block rounded-lg transition hover:-translate-y-0.5"><StatCard label="Returns" value={data.total_returns} icon={<FileText className="h-4 w-4" />} tone="sky" /></Link>
