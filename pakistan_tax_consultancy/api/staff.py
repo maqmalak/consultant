@@ -409,7 +409,8 @@ def search_clients(q: str = "", start: int = 0, page_length: int = 30):
 	q = (q or "").strip()
 	or_filters = None
 	if q:
-		or_filters = {"client_name": ("like", f"%{q}%"), "business_name": ("like", f"%{q}%"), "name": ("like", f"%{q}%")}
+		or_filters = {"client_name": ("like", f"%{q}%"), "business_name": ("like", f"%{q}%"), "name": ("like", f"%{q}%"),
+			"client_code": ("like", f"%{q}%")}
 		digits = v.digits_only(q)
 		if len(digits) == 13:
 			from pakistan_tax_consultancy.pakistan_income_tax_consultancy.doctype.tax_client.tax_client import cnic_hash
@@ -423,7 +424,7 @@ def search_clients(q: str = "", start: int = 0, page_length: int = 30):
 				pass
 		if "@" in q:
 			or_filters["email_normalized"] = q.lower()
-	rows = frappe.get_list("Tax Client", or_filters=or_filters, fields=["name", "client_name", "client_type", "cnic_masked",
+	rows = frappe.get_list("Tax Client", or_filters=or_filters, fields=["name", "client_code", "client_name", "client_type", "cnic_masked",
 		"ntn", "mobile", "email", "city", "status", "assigned_consultant", "portal_user", "fbr_registration_status",
 		"registration_source"], order_by="modified desc", start=cint(start), page_length=min(cint(page_length) or 30, 200))
 	attach_latest_return(rows)
@@ -455,7 +456,7 @@ def attach_latest_return(rows):
 def client_overview(tax_client: str):
 	client = frappe.get_doc("Tax Client", tax_client)
 	client.check_permission("read")
-	data = {f: client.get(f) for f in ("name", "client_name", "client_type", "status", "cnic_masked", "ntn", "strn",
+	data = {f: client.get(f) for f in ("name", "client_code", "client_name", "client_type", "status", "cnic_masked", "ntn", "strn",
 		"mobile", "email", "city", "province", "business_name", "assigned_consultant", "field_officer", "portal_user",
 		"customer", "fbr_registration_status", "registration_source", "consent_given", "consent_timestamp",
 		"mobile_verified", "email_verified", "invited_on")}

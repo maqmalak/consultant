@@ -25,7 +25,23 @@ def get_settings():
 	return frappe.get_cached_doc("Tax Consultancy Settings")
 
 
+# The client code (C-00456) has its own counter: the document name's series (TAX-CLIENT-.YYYY.-.#####) restarts every
+# year, so its number alone would repeat. The counter was started after the highest existing number (patch
+# v0_1.set_client_codes).
+CLIENT_CODE_SERIES = "TAX-CLIENT-CODE-"
+
+
+def next_client_code() -> str:
+	from frappe.model.naming import getseries
+
+	return "C-" + getseries(CLIENT_CODE_SERIES, 5)
+
+
 class TaxClient(Document):
+	def before_insert(self):
+		# always a fresh code, even when the document was copied from another client
+		self.client_code = next_client_code()
+
 	def validate(self):
 		self.normalize_identifiers()
 		self.check_duplicates()

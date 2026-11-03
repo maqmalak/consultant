@@ -5,7 +5,7 @@
   <p class="muted">{{ _("Date") }}: {{ ptc_date() }}</p>
 
   <table class="meta"><tr>
-    <td><span class="k">{{ _("Taxpayer") }}</span>{{ doc.client_name }}</td>
+    <td><span class="k">{{ _("Taxpayer") }}</span>{{ doc.client_name }}{% if doc.client_code %} <span class="muted">({{ doc.client_code }})</span>{% endif %}</td>
     <td><span class="k">{{ _("CNIC") }}</span>{{ doc.cnic or doc.cnic_masked or "______________________" }}</td>
     <td><span class="k">{{ _("NTN") }}</span>{{ doc.ntn or _("Not registered yet") }}</td>
   </tr><tr>

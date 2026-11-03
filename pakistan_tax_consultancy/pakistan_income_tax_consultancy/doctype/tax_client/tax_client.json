@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "client_name",
+  "client_code",
   "client_type",
   "status",
   "cb1",
@@ -66,6 +67,19 @@
    "label": "Client Name",
    "reqd": 1,
    "search_index": 1
+  },
+  {
+   "fieldname": "client_code",
+   "fieldtype": "Data",
+   "label": "Client Code",
+   "read_only": 1,
+   "unique": 1,
+   "no_copy": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "bold": 1,
+   "search_index": 1,
+   "description": "Permanent reference (C-00456). Never restarts with the year; used for the client's folder and on letters."
   },
   {
    "default": "Individual-Salaried",
@@ -367,7 +381,7 @@
   }
  ],
  "links": [],
- "modified": "2026-10-16 22:00:00.000000",
+ "modified": "2026-11-03 21:38:17.345909",
  "modified_by": "Administrator",
  "module": "Pakistan Income Tax Consultancy",
  "name": "Tax Client",
@@ -548,7 +562,7 @@
   }
  ],
  "row_format": "Dynamic",
- "search_fields": "client_name,ntn,email,mobile,cnic_masked",
+ "search_fields": "client_code,client_name,ntn,email,mobile,cnic_masked",
  "show_title_field_in_link": 1,
  "sort_field": "creation",
  "sort_order": "DESC",

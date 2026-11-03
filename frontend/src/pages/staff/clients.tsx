@@ -47,7 +47,7 @@ export function ClientsPage() {
             {data.map((c) => (
               <TR key={c.name}>
                 <TD><Link className="font-medium text-primary hover:underline" to={`/staff/clients/${c.name}`}>{c.client_name}</Link>
-                  <p className="text-xs text-muted-foreground">{c.name}</p></TD>
+                  <p className="text-xs text-muted-foreground">{c.client_code || c.name}</p></TD>
                 <TD>
                   {c.latest_return ? (
                     <Link to={`/staff/returns/${c.latest_return}`} className="block space-y-1 hover:opacity-80">
@@ -151,7 +151,7 @@ export function ClientDetail() {
     ["Source", data.registration_source], ["Consultant", data.assigned_consultant], ["Consent", data.consent_given ? `Yes · ${formatDate(data.consent_timestamp)}` : "No"]];
   return (
     <div className="page-container space-y-6">
-      <PageHeader title={data.client_name} subtitle={data.name} icon={<Users className="h-5 w-5" />}
+      <PageHeader title={data.client_name} subtitle={data.client_code ? `${data.client_code} · ${data.name}` : data.name} icon={<Users className="h-5 w-5" />}
         badge={data.portal_user ? <StateBadge state="Verified" label="Portal active" /> : undefined}
         actions={<>
           <InviteButton client={data} onDone={() => void mutate()} />

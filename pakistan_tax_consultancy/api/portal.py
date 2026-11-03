@@ -359,7 +359,7 @@ def submit_payment(tax_engagement: str, method: str, amount: float, reference: s
 @frappe.whitelist(methods=["GET"])
 def profile():
 	c = my_client()
-	return {f: c.get(f) for f in ("client_name", "client_type", "cnic_masked", "ntn", "strn", "email", "mobile", "city",
+	return {f: c.get(f) for f in ("client_code", "client_name", "client_type", "cnic_masked", "ntn", "strn", "email", "mobile", "city",
 		"province", "residential_address", "business_name", "business_address", "preferred_contact_method",
 		"preferred_language", "fbr_registration_status", "email_verified", "mobile_verified", "whatsapp_opt_in")}
 

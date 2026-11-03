@@ -28,6 +28,7 @@ export function ProfilePage() {
       <h1 className="text-2xl font-semibold">{t("Profile")}</h1>
       <Card className="grid gap-3 p-4 text-sm sm:grid-cols-2">
         <p><span className="text-muted-foreground">Name:</span> <b>{data.client_name}</b></p>
+        {data.client_code ? <p><span className="text-muted-foreground">{t("Client code")}:</span> <b dir="ltr">{data.client_code}</b></p> : null}
         <p><span className="text-muted-foreground">Type:</span> {data.client_type}</p>
         <p><span className="text-muted-foreground">CNIC:</span> <span dir="ltr">{data.cnic_masked ?? "—"}</span></p>
         <p><span className="text-muted-foreground">FBR status:</span> {data.fbr_registration_status || "—"}</p>

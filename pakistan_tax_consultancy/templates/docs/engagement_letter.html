@@ -7,7 +7,7 @@
   <p class="muted">{{ _("Date") }}: {{ ptc_date(doc.engagement_date) }}</p>
 
   <table class="meta"><tr>
-    <td><span class="k">{{ _("Client") }}</span>{{ c.client_name }}</td>
+    <td><span class="k">{{ _("Client") }}</span>{{ c.client_name }}{% if c.client_code %} <span class="muted">({{ c.client_code }})</span>{% endif %}</td>
     <td><span class="k">{{ _("CNIC") }}</span>{{ c.cnic_masked or "" }}</td>
     <td><span class="k">{{ _("Service") }}</span>{{ doc.service }}</td>
     <td><span class="k">{{ _("Status") }}</span>{{ _(doc.status) }}</td>
