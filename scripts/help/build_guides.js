@@ -12,12 +12,16 @@ const BASE = process.env.BASE || "http://consultant.localhost:8010";
 const PWD = process.env.DEMO_PWD;
 const OUT = path.join(__dirname, "..", "..", "pakistan_tax_consultancy", "public", "help");
 const SAMPLE = path.join(__dirname, "sample_import.xlsx");
+const FILLED = path.join(__dirname, "sample_filled.xlsx");
+const { sheetHtml } = require("./excel_view");
 const STAFF = "admin@demo.taxportal.example";
 const CLIENT = "salaried@demo.taxportal.example";
 const R = { draft: "TAX-RET-2026-00003", review: "TAX-RET-2026-00022", awaiting: "TAX-RET-2026-00001", filed: "TAX-RET-2026-00004",
   approved: "TAX-RET-2026-00012" };
 const FOLDER_CLIENT = "TAX-CLIENT-2026-00571";
-if (!PWD) { console.error("Set DEMO_PWD"); process.exit(1); }
+// DEMO_SIDS (JSON {email: sid}) signs in with existing sessions instead of the password
+const SIDS = JSON.parse(process.env.DEMO_SIDS || "{}");
+if (!PWD && !Object.keys(SIDS).length) { console.error("Set DEMO_PWD or DEMO_SIDS"); process.exit(1); }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const step = (label) => async (p) => {
@@ -69,16 +73,30 @@ const GUIDES = {
     ] },
   "excel-import": {
     title: "Import clients and<br>past returns from Excel", kicker: "Admin guide",
-    intro: "Bring the firm's existing clients and their returns into the portal in one go: download the template, fill it in Excel, preview, then import.",
-    chips: [["Template", "Download .xlsx"], ["Clients", "One row each"], ["Returns", "Filed / In progress"], ["Preview", "Nothing saved"], ["Import", "Valid rows"]],
-    who: "<b>Tax Admin</b> · <b>Tax Consultant</b>",
+    intro: "Bring the firm's existing clients and their tax-return history into the portal in one go: download the template, fill it in Excel, upload it, check the preview, then import.",
+    chips: [["Download", "The .xlsx template"], ["Clients", "One row each"], ["Returns", "Filed / In progress"], ["Preview", "Nothing saved"], ["Import", "Valid rows"]],
+    who: "<b>Tax Admin</b> · <b>Tax Consultant</b> · a filled example is on the import page",
     sections: [
-      { h: "The template", items: ["<b>Import from Excel → Download the template</b>.", "<b>Clients</b> sheet: one row per client; only the name and type are required.", "<b>Returns</b> sheet: one row per client and tax year. <b>Filed</b> = a past return (needs the IRIS acknowledgment number and filing date). <b>In progress</b> = this year's work.", "CNIC, NTN and mobile are text columns, so Excel keeps the leading zeros."],
-        shots: [["staff", "/staff/import", "Import from Excel: the three steps."]] },
-      { h: "Preview, then import", items: ["Choose the filled file and press <b>Preview</b>: every row shows <i>New</i>, <i>Fill empty fields</i>, <i>No change</i> or <i>Error</i> with the reason.", "A client already in the portal only gets its empty fields filled; a value that differs is reported and kept.", "Press <b>Import</b>. Fix the rows in error and import the same file again; rows already imported show <i>No change</i>."],
-        shots: [["staff", "/staff/import", "The preview of a sample file.", async (p) => {
-          await p.locator("input[type=file]").setInputFiles(SAMPLE); await p.getByRole("button", { name: "Preview" }).click(); await sleep(2500); await p.mouse.wheel(0, 500); await sleep(600);
+      { h: "Download the template", items: ["Open <b>Workspace → Import from Excel</b>.", "Click <b>VVS_data_import_template.xlsx</b> to download the blank template.", "<b>Filled example</b> downloads the same template with 7 sample clients and 13 returns: open it to see how a finished file looks.", "The template has three sheets: <b>Instructions</b>, <b>Clients</b> and <b>Returns</b>. Keep the header rows as they are."],
+        shots: [["staff", "/staff/import", "Import from Excel: download the template, fill it, upload it."]] },
+      { h: "Fill the Clients sheet", items: ["One row per client. Only <b>Client name</b> and <b>Client type</b> (gold headers with *) are required; leave a cell empty when you don't know it.", "Give each client at least one identifier: <b>CNIC</b> for individuals, <b>NTN</b> for an AOP or company, and the <b>mobile</b> number. The portal uses them to recognise a client and to link their returns.", "Client type, province and FBR status have drop-down lists. Hover over a header in Excel to read its note."],
+        head: ["Column", "Write it like", "Notes"],
+        table: [["Client name *", "Usman Tariq", "Person or business name"], ["Client type *", "Individual-Salaried", "Individual-Salaried, Individual-Business, AOP, Company, Other"],
+          ["CNIC", "35202-4410023-5", "With or without dashes"], ["NTN", "7612345-1", "For businesses, AOPs and companies"], ["Mobile", "03004410023", "Also +92 300 4410023"],
+          ["Province · FBR status", "Punjab · Filer (Active Taxpayer)", "Pick from the list"], ["Consultant email", "consultant@…", "Optional: assigns the client to a team member"]],
+        shots: [[null, null, "A filled Clients sheet: identifiers highlighted.", async (p) => { await p.setContent(sheetHtml(FILLED, "Clients", { mark: [2, 3, 4], small: 1 })); }]] },
+      { h: "Fill the Returns sheet", items: ["One row per client <b>per tax year</b>. Tax year 2025 = 1 July 2024 to 30 June 2025.", "Say which client the row is for with <b>one</b> of: client CNIC, NTN, mobile or client code (C-00456). It can be a client in the Clients sheet or one already in the portal.", "<b>Filed</b> = a past return already filed on IRIS. Write the <b>IRIS acknowledgment number</b> and <b>filing date</b> (dd-mm-yyyy); without them the row is refused, because the portal never shows a return as filed without IRIS proof.", "<b>In progress</b> = this year's return the team is working on. It starts in the portal with its document checklist; leave the figures empty.", "Income and tax figures are optional, in rupees, numbers only (no Rs, no commas needed)."],
+        shots: [[null, null, "A filled Returns sheet: past years Filed with IRIS proof, this year In progress.", async (p) => { await p.setContent(sheetHtml(FILLED, "Returns", { mark: [6, 7], small: 1, note: "<b>Filed</b> rows need the IRIS acknowledgment number and the filing date. <b>In progress</b> rows only need the client and year." })); }]] },
+      { h: "Upload and preview", items: ["Back on <b>Import from Excel</b>, choose the filled file and press <b>Preview</b>. Nothing is saved yet.", "Every row shows what will happen: <i>New</i>, <i>Fill empty fields</i>, <i>No change</i> or <i>Error</i>, with the reason. Switch between the <b>Clients</b> and <b>Returns</b> tabs.", "A client already in the portal (same CNIC, NTN, mobile or email) only gets its empty fields filled. A value that differs is reported and kept as it is."],
+        shots: [["staff", "/staff/import", "Preview of the filled example: 7 new clients, 13 new returns.", async (p) => {
+          await p.locator("input[type=file]").setInputFiles(FILLED); await p.getByRole("button", { name: "Preview" }).click(); await sleep(2500); await p.mouse.wheel(0, 420); await sleep(600);
         }]] },
+      { h: "Fix the rows in error", items: ["Rows in error are shown in red with the Excel row number and the reason, for example a missing client type, a Filed return without its IRIS number, or a client that can't be found.", "Correct those rows in the same Excel file, save it, and preview again.", "You can also import the valid rows now and fix the rest later: re-importing the same file is safe, rows already in show <i>No change</i>."],
+        shots: [["staff", "/staff/import", "A file with mistakes: each error says what to fix.", async (p) => {
+          await p.locator("input[type=file]").setInputFiles(SAMPLE); await p.getByRole("button", { name: "Preview" }).click(); await sleep(2500);
+          await p.getByRole("button", { name: /^returns ·/i }).first().click(); await sleep(900); await p.mouse.wheel(0, 420); await sleep(600);
+        }]] },
+      { h: "Import and check", items: ["Press <b>Import N rows</b>. Each valid row is saved on its own; up to 5,000 rows per file.", "Open <b>Clients</b>: every imported client has a permanent client code (C-00…) and their returns. Filed years show the IRIS acknowledgment as history; this year's return is in the queue with its document checklist.", "Next: invite the clients to the portal from their client page so they can upload this year's documents."] },
     ] },
   "site-visits": {
     title: "Site visits<br>and leads", kicker: "Field officer guide",
@@ -196,7 +214,8 @@ function html(slug, g, shots) {
   let n = 0;
   const sections = g.sections.map((s, si) => {
     const items = (s.items || []).map((t) => `<li>${t}</li>`).join("");
-    const table = s.table ? `<table><tr><th>Step</th><th>Who</th><th>What happens</th></tr>${s.table.map((r) => `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("")}</table>` : "";
+    const head = s.head || ["Step", "Who", "What happens"];
+    const table = s.table ? `<table><tr>${head.map((h) => `<th>${h}</th>`).join("")}</tr>${s.table.map((r) => `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("")}</table>` : "";
     const imgs = (s.shots || []).map(() => { const sh = shots[n++]; return `<figure><img src="data:image/jpeg;base64,${sh.data}"><figcaption>${sh.caption}</figcaption></figure>`; }).join("");
     return `<section><h2><span class="n">${si + 1}</span>${s.h}</h2>${table}${items ? `<ol>${items}</ol>` : ""}${imgs}</section>`;
   }).join("");
@@ -235,8 +254,11 @@ function html(slug, g, shots) {
   const ctxs = {};
   for (const [who, user] of [["staff", STAFF], ["client", CLIENT]]) {
     const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: "light", locale: "en-GB", deviceScaleFactor: 1 });
-    const r = await ctx.request.post(`${BASE}/api/method/login`, { data: { usr: user, pwd: PWD } });
-    if (!r.ok()) throw new Error(`login ${user}: ${r.status()}`);
+    if (SIDS[user]) await ctx.addCookies([{ name: "sid", value: SIDS[user], url: BASE }]);
+    else {
+      const r = await ctx.request.post(`${BASE}/api/method/login`, { data: { usr: user, pwd: PWD } });
+      if (!r.ok()) throw new Error(`login ${user}: ${r.status()}`);
+    }
     ctxs[who] = await ctx.newPage();
   }
   const printer = await browser.newPage();
@@ -246,8 +268,8 @@ function html(slug, g, shots) {
     const shots = [];
     try {
       for (const s of g.sections) for (const [who, url, caption, action] of s.shots || []) {
-        const p = ctxs[who];
-        await p.goto(`${BASE}/portal${url}`, { waitUntil: "networkidle" });
+        const p = ctxs[who || "staff"];
+        if (url) await p.goto(`${BASE}/portal${url}`, { waitUntil: "networkidle" });
         await sleep(900);
         if (action) await action(p);
         await p.evaluate(() => document.activeElement && document.activeElement.blur && document.activeElement.blur());

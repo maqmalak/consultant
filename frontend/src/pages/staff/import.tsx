@@ -1,4 +1,4 @@
-import { CheckCircle2, Download, FileSpreadsheet, Upload } from "lucide-react";
+import { BookMarked, CheckCircle2, Download, FileSpreadsheet, PlayCircle, Upload } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { StateBadge } from "@/components/common/state-badge";
@@ -59,6 +59,14 @@ export function ImportPage() {
         <Step n={1} title="Download the template">
           <a className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-accent" href={`/api/method/${M.STAFF}.excel_template`}>
             <Download className="h-4 w-4" /> VVS_data_import_template.xlsx</a>
+          <div className="flex flex-wrap gap-2 text-sm">
+            <a className="inline-flex items-center gap-1.5 rounded-md border border-dashed px-3 py-1.5 hover:bg-accent" href="/assets/pakistan_tax_consultancy/help/VVS_import_example.xlsx">
+              <FileSpreadsheet className="h-4 w-4 text-emerald-600" /> Filled example (7 clients, 13 returns)</a>
+            <Link className="inline-flex items-center gap-1.5 rounded-md border border-dashed px-3 py-1.5 hover:bg-accent" to="/staff/help/guides?g=excel-import&play=1">
+              <PlayCircle className="h-4 w-4 text-[#9c7a22]" /> Watch the video</Link>
+            <a className="inline-flex items-center gap-1.5 rounded-md border border-dashed px-3 py-1.5 hover:bg-accent" href="/assets/pakistan_tax_consultancy/help/excel-import.pdf" target="_blank" rel="noreferrer">
+              <BookMarked className="h-4 w-4 text-[#9c7a22]" /> Step-by-step guide (PDF)</a>
+          </div>
           <p className="text-sm text-muted-foreground">Sheets: <b>Clients</b> (one row per client) and <b>Returns</b> (one row per client and tax year).
             The Instructions sheet explains every column; the coloured headers with * are required.</p>
         </Step>

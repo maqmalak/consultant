@@ -8,6 +8,7 @@ const { chromium } = require("playwright-core");
 const { execFileSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const { sheetHtml } = require("./excel_view");
 
 const BASE = process.env.BASE || "http://consultant.localhost:8010";
 const PWD = process.env.DEMO_PWD;
@@ -17,7 +18,9 @@ const W = 1440, H = 900;
 const STAFF = "admin@demo.taxportal.example", CLIENT = "salaried@demo.taxportal.example";
 const R = { draft: "TAX-RET-2026-00003", review: "TAX-RET-2026-00022", filed: "TAX-RET-2026-00004" };
 const FOLDER_CLIENT = "TAX-CLIENT-2026-00571";
-if (!PWD) { console.error("Set DEMO_PWD"); process.exit(1); }
+// DEMO_SIDS (JSON {email: sid}) signs in with existing sessions instead of the password
+const SIDS = JSON.parse(process.env.DEMO_SIDS || "{}");
+if (!PWD && !Object.keys(SIDS).length) { console.error("Set DEMO_PWD or DEMO_SIDS"); process.exit(1); }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // a Python with imageio-ffmpeg (pip install imageio-ffmpeg) turns the frames into an MP4
 const VIDEO_PY = process.env.VIDEO_PY || path.join(require("os").homedir(), ".cache/micromax-videos/venv/bin/python");
@@ -52,10 +55,13 @@ const OVERLAY = `
 })();`;
 
 let page, ctx, n = 0;
-async function caption(who, text) {
+async function caption(who, text, top = false) {
   n += 1;
   const html = `<span class="n">${n}</span><span><b>${who}</b>${text}</span>`;
-  await page.evaluate((h) => { sessionStorage.setItem("vv-cap", h); const c = document.getElementById("vv-cap"); if (c) c.innerHTML = h; }, html).catch(() => {});
+  await page.evaluate(([h, t]) => {
+    sessionStorage.setItem("vv-cap", h); const c = document.getElementById("vv-cap");
+    if (c) { c.innerHTML = h; c.style.top = t ? "70px" : ""; c.style.bottom = t ? "auto" : ""; }
+  }, [html, top]).catch(() => {});
   await sleep(3900);
 }
 async function noCaption() {
@@ -79,8 +85,13 @@ const text = (t) => page.getByText(t, { exact: false });
 const wiz = (label) => page.getByRole("navigation", { name: "Steps" }).getByRole("button", { name: label });
 async function as(user) {
   await ctx.clearCookies();
+  if (SIDS[user]) return ctx.addCookies([{ name: "sid", value: SIDS[user], url: BASE }]);
   const r = await ctx.request.post(`${BASE}/api/method/login`, { data: { usr: user, pwd: PWD } });
   if (!r.ok()) throw new Error(`login ${user}`);
+}
+async function sheet(file, name, opts = {}) {
+  await noCaption();
+  await page.setContent(sheetHtml(file, name, opts)); await page.evaluate("window.__ov = 0"); await page.evaluate(OVERLAY); await sleep(900);
 }
 async function card(title, sub, ms = 3400) {
   await noCaption();
@@ -117,16 +128,32 @@ const VIDEOS = {
     await end("The client can now follow their return in the portal.");
   },
   "03-Import-from-Excel": async () => {
-    await card("Import from Excel", "Clients and their past and current returns — preview first, then import"); await as(STAFF);
-    await go("/staff/import"); await caption(ADMIN, "Download the template: Instructions, Clients and Returns sheets");
-    await pointAt(text("VVS_data_import_template.xlsx"));
-    await caption(ADMIN, "Returns: Filed = a past year with its IRIS number and date; In progress = this year");
-    await page.locator("input[type=file]").setInputFiles(path.join(__dirname, "sample_import.xlsx")); await sleep(800);
-    await click(btn("Preview"), 2500); await caption(ADMIN, "Preview: nothing is saved. Each row shows New, Fill empty fields, No change or Error");
-    await scroll(450); await caption(ADMIN, "An existing client only gets its empty fields filled; differing values are kept and reported");
-    await click(btn("Returns"), 1500); await caption(ADMIN, "The Returns sheet, row by row, with the reason for each error");
-    await pointAt(btn("Import")); await caption(ADMIN, "Import saves the valid rows; fix the errors and import the same file again");
-    await end("Clients and their history are in the portal.");
+    const SAMPLE = path.join(__dirname, "sample_import.xlsx"), FILLED = path.join(__dirname, "sample_filled.xlsx");
+    await card("Import from Excel", "Download the template, fill in your clients and their returns, upload, preview, import"); await as(STAFF);
+    await go("/staff/import"); await caption(ADMIN, "Workspace → Import from Excel: three steps, and nothing is saved until you press Import");
+    await pointAt(text("VVS_data_import_template.xlsx")); await caption(ADMIN, "Step 1 · Download the blank template: Instructions, Clients and Returns sheets");
+    await pointAt(text("Filled example")); await caption(ADMIN, "Filled example: the same template with 7 sample clients and 13 returns, to copy the format");
+    await sheet(FILLED, "Instructions"); await caption(ADMIN, "The Instructions sheet explains every column. Keep the header rows as they are");
+    await sheet(FILLED, "Clients", { mark: [0, 1], small: 1 }); await caption(ADMIN, "Step 2 · Clients sheet: one row per client. Only the name and client type (gold *) are required");
+    await sheet(FILLED, "Clients", { mark: [2, 3, 4], small: 1 }); await caption(ADMIN, "Add CNIC for individuals, NTN for an AOP or company, and the mobile: they identify each client");
+    await caption(ADMIN, "Client type, province and FBR status are drop-down lists. Leave a cell empty when you don't know it");
+    await sheet(FILLED, "Returns", { mark: [0, 1, 2, 3], small: 1 }); await caption(ADMIN, "Returns sheet: one row per client per tax year. Name the client by CNIC, NTN, mobile or client code");
+    await sheet(FILLED, "Returns", { mark: [5, 6, 7], small: 1 }); await caption(ADMIN, "Filed = a past year already on IRIS: write the IRIS acknowledgment number and the filing date");
+    await caption(ADMIN, "In progress = this year's return: it starts in the portal with its document checklist");
+    await sheet(FILLED, "Returns", { mark: [8, 9, 10, 11, 12, 13], small: 1 }); await caption(ADMIN, "Income and tax figures are optional, in rupees, numbers only. Save the file");
+    await go("/staff/import"); await pointAt(page.locator("input[type=file]"));
+    await page.locator("input[type=file]").setInputFiles(FILLED); await sleep(800);
+    await caption(ADMIN, "Step 3 · Choose the filled file, then press Preview");
+    await click(btn("Preview"), 2500); await scroll(420);
+    await caption(ADMIN, "Preview: 7 new clients. Each row says New, Fill empty fields, No change or Error", true);
+    await click(btn("returns ·"), 1500); await caption(ADMIN, "13 returns: past years recorded as Filed with their IRIS proof, this year In progress", true);
+    await caption(ADMIN, "A client already in the portal only gets its empty fields filled; nothing is overwritten", true);
+    await scroll(-600); await page.locator("input[type=file]").setInputFiles(SAMPLE); await sleep(800);
+    await click(btn("Preview"), 2500); await click(btn("returns ·"), 1500); await scroll(420);
+    await caption(ADMIN, "A file with mistakes: each error gives the Excel row and what to fix, e.g. a Filed return without its IRIS number", true);
+    await caption(ADMIN, "Fix those rows in Excel and preview again. Re-importing the same file is safe", true);
+    await scroll(-600); await pointAt(btn("Import")); await caption(ADMIN, "Import saves every valid row. This demo does not press it");
+    await end("Your clients and their tax-return history are in the portal. Invite them so they can upload this year's documents.");
   },
   "04-Site-visit-to-client": async () => {
     await card("Site visits", "Record a visit, follow it up, convert it into a client"); await as(STAFF);
