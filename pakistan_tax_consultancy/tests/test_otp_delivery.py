@@ -74,3 +74,12 @@ class TestOtpDelivery(IntegrationTestCase):
 		with patch("pakistan_tax_consultancy.services.sms.requests.get", lambda url, timeout: calls.append(url) or Ok()):
 			self.assertTrue(sms.send_sms("0300-0990506", "Hello 1", raise_errors=True))
 		self.assertEqual(calls, ["https://sms.example.pk/send?key=k3y&to=923000990506&mask=VVS-TAX&msg=Hello%201"])
+
+	def test_demo_mode_fixed_code_and_nothing_sent(self):
+		with patch.dict(frappe.local.conf, {"demo_otp": 1}), patch.object(otp, "deliver") as deliver:
+			res = otp.issue("03000990506")
+		deliver.assert_not_called()
+		self.assertEqual((res["channel"], res["demo_code"]), ("Demo", "123456"))
+		self.assertTrue(otp.verify(res["request"], "03000990506", "123456"))
+		with patch.dict(frappe.local.conf, {"demo_otp": 0}):
+			self.assertNotIn("demo_code", otp.issue("03000990507"))

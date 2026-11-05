@@ -23,7 +23,7 @@ export function SignupPage() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [details, setDetails] = useState<SignupDetails | null>(null);
   const [otpRequest, setOtpRequest] = useState("");
-  const [sent, setSent] = useState<{ channel: string; sms_available: boolean } | null>(null);
+  const [sent, setSent] = useState<{ channel: string; sms_available: boolean; demo_code?: string } | null>(null);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
@@ -101,7 +101,14 @@ export function SignupPage() {
       )}
       {step === 2 && (
         <div className="space-y-4">
-          <p className="text-sm">{sent?.channel === "WhatsApp" ? t("We sent a 6-digit code on WhatsApp to") : t("We sent a 6-digit code by SMS to")} <b dir="ltr">{details?.mobile}</b>.</p>
+          {sent?.demo_code ? (
+            <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
+              {t("Demo site: no SMS is sent. Your verification code is")} <b dir="ltr" className="font-mono tracking-widest">{sent.demo_code}</b>
+              {" "}<button type="button" className="ms-1 text-primary hover:underline" onClick={() => setCode(sent.demo_code!)}>{t("Use it")}</button>
+            </p>
+          ) : (
+            <p className="text-sm">{sent?.channel === "WhatsApp" ? t("We sent a 6-digit code on WhatsApp to") : t("We sent a 6-digit code by SMS to")} <b dir="ltr">{details?.mobile}</b>.</p>
+          )}
           <Field label={t("Verification code")} required>{(id) => (
             <TextInput id={id} inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code}
               onChange={(ev) => setCode(ev.target.value.replace(/\D/g, ""))} className="text-center text-lg tracking-[0.5em]" />)}</Field>

@@ -19,6 +19,14 @@ def _settings():
 	return cint(s.otp_expiry_minutes) or 10, cint(s.otp_max_attempts) or 5
 
 
+DEMO_CODE = "123456"
+
+
+def demo_mode() -> bool:
+	"""Demo/staging sites only: `bench --site <site> set-config demo_otp 1`. Every code is 123456 and nothing is sent."""
+	return bool(cint(frappe.local.conf.get("demo_otp")))
+
+
 CHANNELS = {"WhatsApp, then SMS": ("whatsapp", "sms"), "SMS only": ("sms",), "WhatsApp only": ("whatsapp",)}
 
 
@@ -36,10 +44,14 @@ def issue(mobile: str, purpose: str = "Signup", channel: str | None = None) -> d
 	recent = frappe.db.count("OTP Request", {"mobile": mobile, "creation": (">", add_to_date(now_datetime(), hours=-1))})
 	if recent >= 5:
 		frappe.throw(_("Too many codes requested for this number. Try again in an hour."), frappe.RateLimitExceededError)
-	code = f"{secrets.randbelow(1_000_000):06d}"
+	demo = demo_mode()
+	code = DEMO_CODE if demo else f"{secrets.randbelow(1_000_000):06d}"
 	req = frappe.get_doc({"doctype": "OTP Request", "mobile": mobile, "purpose": purpose, "otp_hash": _hash(mobile, code),
 		"expires_at": add_to_date(now_datetime(), minutes=expiry), "ip_address": getattr(frappe.local, "request_ip", None)})
 	req.insert(ignore_permissions=True)
+	if demo:  # fixed code, no WhatsApp or SMS
+		req.db_set("channel", "Demo", update_modified=False)
+		return {"request": req.name, "channel": "Demo", "demo_code": DEMO_CODE}
 	used = deliver(mobile, code, expiry, ("sms",) if channel == "sms" else None)
 	req.db_set("channel", used or "Failed", update_modified=False)
 	if not used:

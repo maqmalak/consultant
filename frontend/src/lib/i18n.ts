@@ -44,6 +44,8 @@ const ur: Record<string, string> = {
   "We sent a 6-digit code to": "ہم نے 6 ہندسوں کا کوڈ بھیجا ہے",
   "We sent a 6-digit code on WhatsApp to": "ہم نے واٹس ایپ پر 6 ہندسوں کا کوڈ بھیجا ہے",
   "We sent a 6-digit code by SMS to": "ہم نے ایس ایم ایس کے ذریعے 6 ہندسوں کا کوڈ بھیجا ہے",
+  "Demo site: no SMS is sent. Your verification code is": "ڈیمو سائٹ: کوئی ایس ایم ایس نہیں بھیجا جاتا۔ آپ کا تصدیقی کوڈ ہے",
+  "Use it": "استعمال کریں",
   "No WhatsApp? Send the code by SMS instead": "واٹس ایپ نہیں؟ کوڈ ایس ایم ایس پر منگوائیں",
   "Confirmed — waiting for final approval": "تصدیق ہو گئی — حتمی منظوری کا انتظار",
   "Your income": "آپ کی آمدنی",
